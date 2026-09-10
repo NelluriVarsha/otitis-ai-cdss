@@ -1,0 +1,1268 @@
+/* =========================================================
+   OtitisAI-CDSS - Diagnosis Page Styles
+   ========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #eff6ff;
+
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+
+    --text-dark: #172033;
+    --text: #374151;
+    --text-light: #6b7280;
+
+    --background: #f5f7fb;
+    --white: #ffffff;
+    --border: #e5e7eb;
+
+    --shadow:
+        0 10px 30px rgba(15, 23, 42, 0.07);
+
+    --radius: 16px;
+}
+
+
+/* =========================================================
+   BODY
+   ========================================================= */
+
+body {
+    font-family:
+        Inter,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+    background: var(--background);
+    color: var(--text);
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+
+.navbar {
+    width: 100%;
+
+    background: var(--white);
+
+    border-bottom:
+        1px solid var(--border);
+
+    position: sticky;
+    top: 0;
+
+    z-index: 1000;
+}
+
+
+.navbar-container {
+    width: min(1200px, 92%);
+
+    margin: auto;
+
+    min-height: 72px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+
+.logo {
+    color: var(--text-dark);
+
+    text-decoration: none;
+
+    font-size: 21px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.4px;
+}
+
+
+.nav-links {
+    display: flex;
+
+    align-items: center;
+
+    gap: 28px;
+}
+
+
+.nav-links a {
+    color: var(--text-light);
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    transition: 0.2s ease;
+}
+
+
+.nav-links a:hover {
+    color: var(--primary);
+}
+
+
+.nav-links a.active {
+    color: var(--primary);
+}
+
+
+/* =========================================================
+   MAIN CONTAINER
+   ========================================================= */
+
+.main-container {
+    width: min(1100px, 92%);
+
+    margin: 0 auto;
+
+    padding:
+        45px 0 70px;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+
+.eyebrow {
+    color: var(--primary);
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.4px;
+
+    text-transform: uppercase;
+
+    margin-bottom: 8px;
+}
+
+
+.page-header h1 {
+    color: var(--text-dark);
+
+    font-size: clamp(30px, 5vw, 44px);
+
+    line-height: 1.15;
+
+    letter-spacing: -1px;
+
+    margin-bottom: 12px;
+}
+
+
+.page-description {
+    max-width: 750px;
+
+    color: var(--text-light);
+
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   DIAGNOSIS CARD
+   ========================================================= */
+
+.diagnosis-card {
+    background: var(--white);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   FORM SECTION
+   ========================================================= */
+
+.form-section {
+    padding: 30px;
+
+    border-bottom:
+        1px solid var(--border);
+}
+
+
+.section-title {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 24px;
+}
+
+
+.section-title h2 {
+    color: var(--text-dark);
+
+    font-size: 21px;
+
+    margin-bottom: 4px;
+}
+
+
+.section-title p {
+    color: var(--text-light);
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   IMAGE UPLOAD
+   ========================================================= */
+
+.upload-area {
+    min-height: 250px;
+
+    border:
+        2px dashed #cbd5e1;
+
+    border-radius: 14px;
+
+    background:
+        #f8fafc;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 30px 20px;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.upload-area:hover {
+    border-color: var(--primary);
+
+    background: var(--primary-light);
+}
+
+
+.upload-icon {
+    width: 58px;
+
+    height: 58px;
+
+    border-radius: 50%;
+
+    background: var(--primary-light);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 25px;
+
+    margin-bottom: 14px;
+}
+
+
+.upload-area h3 {
+    color: var(--text-dark);
+
+    font-size: 18px;
+
+    margin-bottom: 5px;
+}
+
+
+.upload-area p {
+    color: var(--text-light);
+
+    font-size: 13px;
+
+    margin-bottom: 18px;
+}
+
+
+.upload-button {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding:
+        10px 20px;
+
+    background: var(--primary);
+
+    color: var(--white);
+
+    border-radius: 9px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+
+.upload-button:hover {
+    background: var(--primary-dark);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   IMAGE PREVIEW
+   ========================================================= */
+
+.preview-container {
+    display: flex;
+
+    justify-content: center;
+
+    margin-top: 22px;
+}
+
+
+#imagePreview {
+    width: min(500px, 100%);
+
+    max-height: 420px;
+
+    object-fit: contain;
+
+    border-radius: 12px;
+
+    border:
+        1px solid var(--border);
+
+    background: #111827;
+
+    padding: 5px;
+}
+
+
+/* =========================================================
+   FORM GROUP
+   ========================================================= */
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+
+.form-group > label {
+    display: block;
+
+    color: var(--text-dark);
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    margin-bottom: 9px;
+}
+
+
+.form-group input[type="number"],
+.form-group select {
+    width: 100%;
+
+    height: 46px;
+
+    padding:
+        0 13px;
+
+    border:
+        1px solid #d1d5db;
+
+    border-radius: 9px;
+
+    background: var(--white);
+
+    color: var(--text-dark);
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition: 0.2s ease;
+}
+
+
+.form-group input[type="number"]:focus,
+.form-group select:focus {
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.10);
+}
+
+
+/* =========================================================
+   SYMPTOMS
+   ========================================================= */
+
+.symptoms-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+}
+
+
+.symptom-option {
+    min-height: 52px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding:
+        12px 14px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    background: #fafafa;
+
+    transition: 0.2s ease;
+}
+
+
+.symptom-option:hover {
+    border-color: #93c5fd;
+
+    background: var(--primary-light);
+}
+
+
+.symptom-option input {
+    width: 17px;
+
+    height: 17px;
+
+    accent-color: var(--primary);
+
+    cursor: pointer;
+}
+
+
+.symptom-option span {
+    color: var(--text);
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   ANALYSIS ACTION
+   ========================================================= */
+
+.analysis-action {
+    padding: 28px 30px;
+
+    background: #fafbff;
+
+    display: flex;
+
+    justify-content: center;
+}
+
+
+.analyze-button {
+    min-width: 230px;
+
+    min-height: 48px;
+
+    padding:
+        12px 25px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: var(--primary);
+
+    color: var(--white);
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 6px 16px
+        rgba(37, 99, 235, 0.20);
+
+    transition: 0.2s ease;
+}
+
+
+.analyze-button:hover:not(:disabled) {
+    background: var(--primary-dark);
+
+    transform: translateY(-1px);
+}
+
+
+.analyze-button:disabled {
+    opacity: 0.65;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.loading-message {
+    padding:
+        20px 30px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    background:
+        #eff6ff;
+
+    border-top:
+        1px solid #dbeafe;
+
+    color: var(--text-dark);
+}
+
+
+.loading-message p {
+    color: var(--text-light);
+
+    font-size: 13px;
+
+    margin-top: 2px;
+}
+
+
+.loading-spinner {
+    width: 28px;
+
+    height: 28px;
+
+    border:
+        3px solid #bfdbfe;
+
+    border-top-color:
+        var(--primary);
+
+    border-radius: 50%;
+
+    animation:
+        spin 0.8s linear infinite;
+}
+
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.error-message {
+    margin:
+        20px 30px;
+
+    padding:
+        14px 16px;
+
+    border-radius: 10px;
+
+    background:
+        #fef2f2;
+
+    border:
+        1px solid #fecaca;
+
+    color:
+        #991b1b;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   RESULT SECTION
+   ========================================================= */
+
+.result-section {
+    margin-top: 35px;
+
+    background: var(--white);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    padding: 30px;
+}
+
+
+.result-header {
+    margin-bottom: 24px;
+}
+
+
+.result-header h2 {
+    color: var(--text-dark);
+
+    font-size: 25px;
+}
+
+
+/* =========================================================
+   RESULT GRID
+   ========================================================= */
+
+.result-grid {
+    display: grid;
+
+    grid-template-columns:
+        1.4fr 1fr 1fr;
+
+    gap: 16px;
+}
+
+
+.result-card {
+    min-height: 135px;
+
+    padding: 22px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 13px;
+
+    background:
+        #fafafa;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+}
+
+
+.diagnosis-result-card {
+    background:
+        var(--primary-light);
+
+    border-color:
+        #bfdbfe;
+}
+
+
+.result-label {
+    color: var(--text-light);
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.6px;
+
+    margin-bottom: 8px;
+}
+
+
+.result-card h3 {
+    color: var(--text-dark);
+
+    font-size: 20px;
+
+    line-height: 1.35;
+}
+
+
+.diagnosis-result-card h3 {
+    color: var(--primary-dark);
+
+    font-size: 23px;
+}
+
+
+.filename-result {
+    word-break: break-word;
+
+    font-size: 15px !important;
+}
+
+
+/* =========================================================
+   MODEL INFO
+   ========================================================= */
+
+.model-info {
+    margin-top: 18px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 14px;
+}
+
+
+.model-info > div {
+    padding:
+        15px 18px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+
+    background: #fafafa;
+}
+
+
+.model-info strong {
+    display: block;
+
+    color: var(--text-dark);
+
+    font-size: 12px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.5px;
+
+    margin-bottom: 3px;
+}
+
+
+.model-info span {
+    color: var(--text-light);
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   CLINICAL DECISION SUPPORT
+   ========================================================= */
+
+.recommendation-section {
+    margin-top: 35px;
+
+    background: var(--white);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    padding: 30px;
+}
+
+
+.recommendation-header {
+    margin-bottom: 22px;
+}
+
+
+.recommendation-header h2 {
+    color: var(--text-dark);
+
+    font-size: 26px;
+
+    margin-bottom: 6px;
+}
+
+
+.recommendation-header > p:last-child {
+    color: var(--text-light);
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   URGENCY
+   ========================================================= */
+
+.urgency-box {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+
+    padding:
+        15px 18px;
+
+    margin-bottom: 18px;
+
+    border-radius: 10px;
+
+    background:
+        #fffbeb;
+
+    border:
+        1px solid #fde68a;
+
+    color:
+        #92400e;
+
+    font-size: 14px;
+}
+
+
+.urgency-box strong {
+    color:
+        #78350f;
+}
+
+
+/* =========================================================
+   GUIDANCE CARDS
+   ========================================================= */
+
+.guidance-card {
+    margin-top: 15px;
+
+    padding:
+        20px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 12px;
+
+    background:
+        #fafafa;
+}
+
+
+.guidance-card h3 {
+    color: var(--text-dark);
+
+    font-size: 17px;
+
+    margin-bottom: 12px;
+}
+
+
+.guidance-card ul {
+    padding-left: 21px;
+}
+
+
+.guidance-card li {
+    color: var(--text);
+
+    font-size: 14px;
+
+    margin-bottom: 8px;
+}
+
+
+.guidance-card li:last-child {
+    margin-bottom: 0;
+}
+
+
+/* =========================================================
+   MEDICAL DISCLAIMER
+   ========================================================= */
+
+.medical-disclaimer {
+    margin-top: 20px;
+
+    padding:
+        16px 18px;
+
+    border-radius: 10px;
+
+    background:
+        #f8fafc;
+
+    border:
+        1px solid #e2e8f0;
+
+    color: var(--text-light);
+
+    font-size: 12px;
+
+    line-height: 1.7;
+}
+
+
+.medical-disclaimer strong {
+    color: var(--text-dark);
+}
+
+
+/* =========================================================
+   QUICK ACTIONS
+   ========================================================= */
+
+.quick-actions {
+    margin-top: 35px;
+}
+
+
+.quick-actions h2 {
+    color: var(--text-dark);
+
+    font-size: 22px;
+
+    margin-bottom: 16px;
+}
+
+
+.quick-action-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 16px;
+}
+
+
+.quick-action-card {
+    display: flex;
+
+    align-items: center;
+
+    gap: 16px;
+
+    padding: 20px;
+
+    background: var(--white);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 13px;
+
+    text-decoration: none;
+
+    box-shadow:
+        0 5px 18px
+        rgba(15, 23, 42, 0.04);
+
+    transition: 0.2s ease;
+}
+
+
+.quick-action-card:hover {
+    transform: translateY(-2px);
+
+    border-color:
+        #bfdbfe;
+
+    box-shadow:
+        0 10px 25px
+        rgba(15, 23, 42, 0.08);
+}
+
+
+.quick-icon {
+    width: 50px;
+
+    height: 50px;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    background:
+        var(--primary-light);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 22px;
+}
+
+
+.quick-action-card h3 {
+    color: var(--text-dark);
+
+    font-size: 16px;
+
+    margin-bottom: 2px;
+}
+
+
+.quick-action-card p {
+    color: var(--text-light);
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.footer {
+    padding:
+        25px 20px;
+
+    text-align: center;
+
+    background:
+        #111827;
+
+    color:
+        #9ca3af;
+
+    font-size: 12px;
+
+    line-height: 1.8;
+}
+
+
+/* =========================================================
+   RESPONSIVE DESIGN
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+    .navbar-container {
+        flex-direction: column;
+
+        gap: 12px;
+
+        padding:
+            15px 0;
+    }
+
+
+    .nav-links {
+        gap: 18px;
+
+        flex-wrap: wrap;
+
+        justify-content: center;
+    }
+
+
+    .main-container {
+        padding-top: 30px;
+    }
+
+
+    .result-grid {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+
+    .diagnosis-result-card {
+        grid-column:
+            1 / -1;
+    }
+
+
+    .symptoms-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .main-container {
+        width: 94%;
+    }
+
+
+    .page-header h1 {
+        font-size: 31px;
+    }
+
+
+    .form-section,
+    .result-section,
+    .recommendation-section {
+        padding: 20px;
+    }
+
+
+    .analysis-action {
+        padding:
+            22px 20px;
+    }
+
+
+    .upload-area {
+        min-height: 220px;
+    }
+
+
+    .symptoms-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .result-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .diagnosis-result-card {
+        grid-column:
+            auto;
+    }
+
+
+    .model-info {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .quick-action-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .quick-action-card {
+        padding: 16px;
+    }
+
+
+    .recommendation-header h2 {
+        font-size: 22px;
+    }
+
+
+    .urgency-box {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+}
+
+
+@media (max-width: 400px) {
+
+    .nav-links {
+        gap: 12px;
+    }
+
+
+    .nav-links a {
+        font-size: 12px;
+    }
+
+
+    .logo {
+        font-size: 18px;
+    }
+
+
+    .analyze-button {
+        width: 100%;
+
+        min-width: 0;
+    }
+
+}

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Doctor Dashboard | OtitisAI-CDSS
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="dashboard.css"
+    >
+
+</head>
+
+
+<body>
+
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
+
+    <header class="navbar">
+
+        <div class="navbar-container">
+
+            <a
+                href="index.html"
+                class="logo"
+            >
+                🩺 OtitisAI-CDSS
+            </a>
+
+
+            <nav class="nav-links">
+
+                <a href="index.html">
+                    Home
+                </a>
+
+                <a href="app.html">
+                    AI Diagnosis
+                </a>
+
+                <a
+                    href="dashboard.html"
+                    class="active"
+                >
+                    Dashboard
+                </a>
+
+                <a href="report.html">
+                    Reports
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="dashboard-container">
+
+
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <section class="dashboard-header">
+
+            <div>
+
+                <p class="eyebrow">
+                    CLINICAL MANAGEMENT
+                </p>
+
+                <h1>
+                    Doctor Dashboard
+                </h1>
+
+                <p>
+                    Review AI-assisted otoscopic diagnosis
+                    records and clinical decision-support results.
+                </p>
+
+            </div>
+
+
+            <a
+                href="app.html"
+                class="new-diagnosis-button"
+            >
+                + New Diagnosis
+            </a>
+
+        </section>
+
+
+        <!-- =================================================
+             STATISTICS
+        ================================================== -->
+
+        <section class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    📋
+                </div>
+
+                <div>
+
+                    <span class="stat-label">
+                        Total Diagnoses
+                    </span>
+
+                    <strong
+                        id="totalDiagnoses"
+                        class="stat-value"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    🧠
+                </div>
+
+                <div>
+
+                    <span class="stat-label">
+                        Average Confidence
+                    </span>
+
+                    <strong
+                        id="averageConfidence"
+                        class="stat-value"
+                    >
+                        0%
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    🩺
+                </div>
+
+                <div>
+
+                    <span class="stat-label">
+                        Most Common Result
+                    </span>
+
+                    <strong
+                        id="commonDiagnosis"
+                        class="stat-value stat-text"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    ⚠️
+                </div>
+
+                <div>
+
+                    <span class="stat-label">
+                        Low Confidence
+                    </span>
+
+                    <strong
+                        id="lowConfidenceCount"
+                        class="stat-value"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FILTER / SEARCH
+        ================================================== -->
+
+        <section class="history-section">
+
+
+            <div class="section-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        DIAGNOSIS HISTORY
+                    </p>
+
+                    <h2>
+                        Recent AI Diagnoses
+                    </h2>
+
+                </div>
+
+
+                <div class="history-actions">
+
+                    <button
+                        type="button"
+                        id="refreshButton"
+                        class="secondary-button"
+                    >
+                        ↻ Refresh
+                    </button>
+
+                    <button
+                        type="button"
+                        id="clearHistoryButton"
+                        class="danger-button"
+                    >
+                        Clear History
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- SEARCH -->
+
+            <div class="search-bar">
+
+                <span class="search-icon">
+                    🔎
+                </span>
+
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Search by diagnosis or image filename..."
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 TABLE
+            ================================================== -->
+
+            <div class="table-wrapper">
+
+                <table class="diagnosis-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Image
+                            </th>
+
+                            <th>
+                                Diagnosis
+                            </th>
+
+                            <th>
+                                Confidence
+                            </th>
+
+                            <th>
+                                Symptoms
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="diagnosisTableBody">
+
+                        <!-- JavaScript inserts records here -->
+
+                    </tbody>
+
+                </table>
+
+
+                <!-- EMPTY STATE -->
+
+                <div
+                    id="emptyState"
+                    class="empty-state"
+                >
+
+                    <div class="empty-icon">
+                        📂
+                    </div>
+
+                    <h3>
+                        No Diagnosis Records
+                    </h3>
+
+                    <p>
+                        Completed AI diagnoses will appear
+                        here automatically.
+                    </p>
+
+                    <a
+                        href="app.html"
+                        class="empty-action"
+                    >
+                        Start a Diagnosis
+                    </a>
+
+                </div>
+
+
+                <!-- NO SEARCH RESULTS -->
+
+                <div
+                    id="noSearchResults"
+                    class="empty-state"
+                    style="display: none;"
+                >
+
+                    <div class="empty-icon">
+                        🔎
+                    </div>
+
+                    <h3>
+                        No Matching Records
+                    </h3>
+
+                    <p>
+                        No diagnosis records match your search.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SELECTED RECORD DETAILS
+        ================================================== -->
+
+        <section
+            id="detailsSection"
+            class="details-section"
+            style="display: none;"
+        >
+
+            <div class="section-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        RECORD DETAILS
+                    </p>
+
+                    <h2>
+                        Diagnosis Information
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="closeDetailsButton"
+                    class="secondary-button"
+                >
+                    Close
+                </button>
+
+            </div>
+
+
+            <div class="details-grid">
+
+
+                <!-- DIAGNOSIS -->
+
+                <div class="detail-card">
+
+                    <span>
+                        Diagnosis
+                    </span>
+
+                    <strong id="detailDiagnosis">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <!-- CONFIDENCE -->
+
+                <div class="detail-card">
+
+                    <span>
+                        AI Confidence
+                    </span>
+
+                    <strong id="detailConfidence">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <!-- DATE -->
+
+                <div class="detail-card">
+
+                    <span>
+                        Date
+                    </span>
+
+                    <strong id="detailDate">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <!-- AGE -->
+
+                <div class="detail-card">
+
+                    <span>
+                        Patient Age
+                    </span>
+
+                    <strong id="detailAge">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <!-- DURATION -->
+
+                <div class="detail-card">
+
+                    <span>
+                        Symptom Duration
+                    </span>
+
+                    <strong id="detailDuration">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <!-- IMAGE -->
+
+                <div class="detail-card">
+
+                    <span>
+                        Image
+                    </span>
+
+                    <strong
+                        id="detailFilename"
+                        class="break-text"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- SYMPTOMS -->
+
+            <div class="detail-list-card">
+
+                <h3>
+                    Symptoms
+                </h3>
+
+                <ul id="detailSymptoms">
+                </ul>
+
+            </div>
+
+
+            <!-- RECOMMENDATIONS -->
+
+            <div class="detail-list-card">
+
+                <h3>
+                    AI Recommendations
+                </h3>
+
+                <ul id="detailRecommendations">
+                </ul>
+
+            </div>
+
+
+            <!-- PRECAUTIONS -->
+
+            <div class="detail-list-card">
+
+                <h3>
+                    Precautions
+                </h3>
+
+                <ul id="detailPrecautions">
+                </ul>
+
+            </div>
+
+
+            <!-- WHEN TO SEEK CARE -->
+
+            <div class="detail-list-card">
+
+                <h3>
+                    When to Seek Medical Care
+                </h3>
+
+                <ul id="detailSeekCare">
+                </ul>
+
+            </div>
+
+
+            <!-- URGENCY -->
+
+            <div class="detail-urgency">
+
+                <strong>
+                    Clinical Guidance:
+                </strong>
+
+                <span id="detailUrgency">
+                    —
+                </span>
+
+            </div>
+
+
+            <!-- REPORT LINK -->
+
+            <div class="detail-actions">
+
+                <a
+                    href="report.html"
+                    id="viewReportButton"
+                    class="report-button"
+                >
+                    📄 View Report
+                </a>
+
+                <a
+                    href="app.html"
+                    class="secondary-link-button"
+                >
+                    + New Diagnosis
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SYSTEM INFORMATION
+        ================================================== -->
+
+        <section class="system-info">
+
+            <div>
+
+                <span class="info-icon">
+                    ℹ️
+                </span>
+
+                <div>
+
+                    <h3>
+                        About the Dashboard
+                    </h3>
+
+                    <p>
+                        Diagnosis records are stored locally in
+                        your browser for this demonstration.
+                        They are created automatically after a
+                        successful AI analysis.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <span>
+                    Diagnosis interface ready
+                </span>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="footer">
+
+        <p>
+            © 2026 OtitisAI-CDSS |
+            AI-Assisted Otoscopic Diagnosis
+        </p>
+
+        <p>
+            For educational and clinical decision-support purposes.
+        </p>
+
+    </footer>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script src="dashboard.js"></script>
+
+</body>
+
+</html>

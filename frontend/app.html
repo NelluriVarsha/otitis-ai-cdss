@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        AI Diagnosis | OtitisAI-CDSS
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="app.css"
+    >
+
+</head>
+
+
+<body>
+
+    <!-- =====================================================
+         NAVIGATION BAR
+    ====================================================== -->
+
+    <header class="navbar">
+
+        <div class="navbar-container">
+
+            <a
+                href="index.html"
+                class="logo"
+            >
+                🩺 OtitisAI-CDSS
+            </a>
+
+
+            <nav class="nav-links">
+
+                <a href="index.html">
+                    Home
+                </a>
+
+                <a
+                    href="app.html"
+                    class="active"
+                >
+                    AI Diagnosis
+                </a>
+
+                <a href="dashboard.html">
+                    Dashboard
+                </a>
+
+                <a href="report.html">
+                    Reports
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main class="main-container">
+
+
+        <!-- =================================================
+             PAGE HEADER
+        ================================================== -->
+
+        <section class="page-header">
+
+            <div>
+
+                <p class="eyebrow">
+                    AI-POWERED CLINICAL DECISION SUPPORT
+                </p>
+
+                <h1>
+                    Otoscopic Image Diagnosis
+                </h1>
+
+                <p class="page-description">
+                    Upload an otoscopic image and provide basic
+                    clinical information to obtain an AI-assisted
+                    diagnosis and clinical guidance.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             DIAGNOSIS FORM
+        ================================================== -->
+
+        <section class="diagnosis-card">
+
+
+            <!-- =============================================
+                 IMAGE UPLOAD
+            ============================================== -->
+
+            <div class="form-section">
+
+                <div class="section-title">
+
+                    <div>
+
+                        <h2>
+                            📷 Otoscopic Image
+                        </h2>
+
+                        <p>
+                            Upload a clear otoscopic image
+                            for analysis.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="upload-area"
+                    id="uploadArea"
+                >
+
+                    <div class="upload-icon">
+                        📤
+                    </div>
+
+                    <h3>
+                        Upload Otoscopic Image
+                    </h3>
+
+                    <p>
+                        JPG, JPEG or PNG images are supported
+                    </p>
+
+                    <label
+                        for="imageInput"
+                        class="upload-button"
+                    >
+                        Choose Image
+                    </label>
+
+                    <input
+                        type="file"
+                        id="imageInput"
+                        accept="image/*"
+                        hidden
+                    >
+
+                </div>
+
+
+                <!-- IMAGE PREVIEW -->
+
+                <div class="preview-container">
+
+                    <img
+                        id="imagePreview"
+                        alt="Otoscopic image preview"
+                        style="display: none;"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+                 CLINICAL INFORMATION
+            ============================================== -->
+
+            <div class="form-section">
+
+                <div class="section-title">
+
+                    <div>
+
+                        <h2>
+                            🧑‍⚕️ Clinical Information
+                        </h2>
+
+                        <p>
+                            Provide symptoms and patient information
+                            to support the AI analysis.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- AGE -->
+
+                <div class="form-group">
+
+                    <label for="age">
+                        Patient Age
+                    </label>
+
+                    <input
+                        type="number"
+                        id="age"
+                        min="0"
+                        max="120"
+                        placeholder="Enter patient age"
+                    >
+
+                </div>
+
+
+                <!-- SYMPTOMS -->
+
+                <div class="form-group">
+
+                    <label>
+                        Symptoms
+                    </label>
+
+                    <div class="symptoms-grid">
+
+
+                        <label class="symptom-option">
+
+                            <input
+                                type="checkbox"
+                                name="symptoms"
+                                value="ear pain"
+                            >
+
+                            <span>
+                                Ear Pain
+                            </span>
+
+                        </label>
+
+
+                        <label class="symptom-option">
+
+                            <input
+                                type="checkbox"
+                                name="symptoms"
+                                value="fever"
+                            >
+
+                            <span>
+                                Fever
+                            </span>
+
+                        </label>
+
+
+                        <label class="symptom-option">
+
+                            <input
+                                type="checkbox"
+                                name="symptoms"
+                                value="hearing loss"
+                            >
+
+                            <span>
+                                Hearing Loss
+                            </span>
+
+                        </label>
+
+
+                        <label class="symptom-option">
+
+                            <input
+                                type="checkbox"
+                                name="symptoms"
+                                value="ear discharge"
+                            >
+
+                            <span>
+                                Ear Discharge
+                            </span>
+
+                        </label>
+
+
+                        <label class="symptom-option">
+
+                            <input
+                                type="checkbox"
+                                name="symptoms"
+                                value="ear itching"
+                            >
+
+                            <span>
+                                Ear Itching
+                            </span>
+
+                        </label>
+
+
+                        <label class="symptom-option">
+
+                            <input
+                                type="checkbox"
+                                name="symptoms"
+                                value="ear fullness"
+                            >
+
+                            <span>
+                                Ear Fullness
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DURATION -->
+
+                <div class="form-group">
+
+                    <label for="duration">
+                        Symptom Duration
+                    </label>
+
+                    <select id="duration">
+
+                        <option value="">
+                            Select duration
+                        </option>
+
+                        <option value="less_than_1_week">
+                            Less than 1 week
+                        </option>
+
+                        <option value="1_4_weeks">
+                            1–4 weeks
+                        </option>
+
+                        <option value="more_than_1_month">
+                            More than 1 month
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+                 ANALYZE BUTTON
+            ============================================== -->
+
+            <div class="analysis-action">
+
+                <button
+                    type="button"
+                    id="analyzeButton"
+                    class="analyze-button"
+                >
+                    🔍 Analyze Image
+                </button>
+
+            </div>
+
+
+            <!-- =============================================
+                 LOADING MESSAGE
+            ============================================== -->
+
+            <div
+                id="loadingMessage"
+                class="loading-message"
+                style="display: none;"
+            >
+
+                <div class="loading-spinner"></div>
+
+                <div>
+
+                    <strong>
+                        Analyzing image...
+                    </strong>
+
+                    <p>
+                        Please wait while the AI model processes
+                        the otoscopic image.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+                 ERROR MESSAGE
+            ============================================== -->
+
+            <div
+                id="errorMessage"
+                class="error-message"
+                style="display: none;"
+            >
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             DIAGNOSIS RESULT
+        ================================================== -->
+
+        <section class="result-section">
+
+
+            <div class="result-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        AI ANALYSIS RESULT
+                    </p>
+
+                    <h2>
+                        Diagnosis Result
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="result-grid">
+
+
+                <!-- DIAGNOSIS -->
+
+                <div class="result-card diagnosis-result-card">
+
+                    <span class="result-label">
+                        Predicted Condition
+                    </span>
+
+                    <h3 id="predictionResult">
+                        —
+                    </h3>
+
+                </div>
+
+
+                <!-- CONFIDENCE -->
+
+                <div class="result-card">
+
+                    <span class="result-label">
+                        AI Confidence
+                    </span>
+
+                    <h3 id="confidenceResult">
+                        —
+                    </h3>
+
+                </div>
+
+
+                <!-- FILE -->
+
+                <div class="result-card">
+
+                    <span class="result-label">
+                        Uploaded Image
+                    </span>
+
+                    <h3
+                        id="filenameResult"
+                        class="filename-result"
+                    >
+                        —
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 MODEL INFORMATION
+            ================================================== -->
+
+            <div class="model-info">
+
+                <div>
+
+                    <strong>
+                        AI Model
+                    </strong>
+
+                    <span>
+                        DenseNet121 Feature Extraction + KNN
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Decision Support
+                    </strong>
+
+                    <span>
+                        Image + Clinical Information
+                    </span>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             CLINICAL DECISION SUPPORT
+        ================================================== -->
+
+        <section
+            class="recommendation-section"
+            id="recommendationSection"
+            style="display: none;"
+        >
+
+
+            <div class="recommendation-header">
+
+                <p class="eyebrow">
+                    CLINICAL DECISION SUPPORT
+                </p>
+
+                <h2>
+                    🩺 AI Clinical Decision Support
+                </h2>
+
+                <p>
+                    Recommendations generated from the AI result
+                    and the clinical information provided.
+                </p>
+
+            </div>
+
+
+            <!-- URGENCY -->
+
+            <div class="urgency-box">
+
+                <strong>
+                    Clinical Guidance:
+                </strong>
+
+                <span id="urgencyResult">
+                    Clinical review recommended
+                </span>
+
+            </div>
+
+
+            <!-- RECOMMENDATIONS -->
+
+            <div class="guidance-card">
+
+                <h3>
+                    💡 Recommendations
+                </h3>
+
+                <ul id="recommendationsList">
+                </ul>
+
+            </div>
+
+
+            <!-- PRECAUTIONS -->
+
+            <div class="guidance-card">
+
+                <h3>
+                    ⚠️ Precautions
+                </h3>
+
+                <ul id="precautionsList">
+                </ul>
+
+            </div>
+
+
+            <!-- WHEN TO SEEK CARE -->
+
+            <div class="guidance-card">
+
+                <h3>
+                    🏥 When to Seek Medical Care
+                </h3>
+
+                <ul id="seekCareList">
+                </ul>
+
+            </div>
+
+
+            <!-- DISCLAIMER -->
+
+            <div class="medical-disclaimer">
+
+                <strong>
+                    Medical Disclaimer:
+                </strong>
+
+                This AI-generated information is intended for
+                educational and clinical decision-support purposes
+                only. It does not replace examination, diagnosis,
+                or treatment by a qualified healthcare professional.
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             QUICK ACTIONS
+        ================================================== -->
+
+        <section class="quick-actions">
+
+            <h2>
+                Quick Actions
+            </h2>
+
+
+            <div class="quick-action-grid">
+
+                <a
+                    href="dashboard.html"
+                    class="quick-action-card"
+                >
+
+                    <span class="quick-icon">
+                        📊
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Doctor Dashboard
+                        </h3>
+
+                        <p>
+                            View previous diagnosis records.
+                        </p>
+
+                    </div>
+
+                </a>
+
+
+                <a
+                    href="report.html"
+                    class="quick-action-card"
+                >
+
+                    <span class="quick-icon">
+                        📄
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Medical Reports
+                        </h3>
+
+                        <p>
+                            View and generate diagnosis reports.
+                        </p>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="footer">
+
+        <p>
+            © 2026 OtitisAI-CDSS |
+            AI-Assisted Otoscopic Diagnosis
+        </p>
+
+        <p>
+            For educational and clinical decision-support purposes.
+        </p>
+
+    </footer>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

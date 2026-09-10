@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="OtitisAI-CDSS AI-assisted otitis media diagnosis report"
+    >
+
+    <title>OtitisAI-CDSS | Diagnosis Report</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="report.css"
+    >
+</head>
+
+<body>
+
+    <!-- =====================================================
+         NAVBAR
+         ===================================================== -->
+
+    <nav class="navbar">
+
+        <div class="nav-container">
+
+            <a
+                href="index.html"
+                class="logo"
+            >
+                🩺 <span>OtitisAI</span>-CDSS
+            </a>
+
+            <ul class="nav-links">
+
+                <li>
+                    <a href="index.html">
+                        Home
+                    </a>
+                </li>
+
+                <li>
+                    <a href="app.html">
+                        AI Diagnosis
+                    </a>
+                </li>
+
+                <li>
+                    <a href="dashboard.html">
+                        Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a
+                        href="report.html"
+                        class="active"
+                    >
+                        Reports
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =====================================================
+         MAIN REPORT
+         ===================================================== -->
+
+    <main class="report-container">
+
+        <!-- Report Header -->
+
+        <section class="report-header">
+
+            <div>
+
+                <div class="report-label">
+                    AI CLINICAL DECISION SUPPORT
+                </div>
+
+                <h1>
+                    OtitisAI-CDSS Diagnosis Report
+                </h1>
+
+                <p>
+                    AI-assisted analysis of otoscopic image and
+                    clinical symptom information.
+                </p>
+
+            </div>
+
+
+            <div class="report-actions">
+
+                <button
+                    type="button"
+                    id="printButton"
+                    class="secondary-button"
+                >
+                    🖨 Print
+                </button>
+
+                <button
+                    type="button"
+                    id="downloadButton"
+                    class="primary-button"
+                >
+                    📄 Download PDF
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             REPORT STATUS
+             ================================================= -->
+
+        <section
+            id="noReportMessage"
+            class="empty-report"
+        >
+
+            <div class="empty-icon">
+                📋
+            </div>
+
+            <h2>
+                No diagnosis report available
+            </h2>
+
+            <p>
+                Complete an AI diagnosis first to generate
+                a clinical decision-support report.
+            </p>
+
+            <a
+                href="app.html"
+                class="primary-button"
+            >
+                Start New Diagnosis
+            </a>
+
+        </section>
+
+
+        <!-- =================================================
+             REPORT CONTENT
+             ================================================= -->
+
+        <div
+            id="reportContent"
+            class="report-content hidden"
+        >
+
+            <!-- Patient / Analysis Information -->
+
+            <section class="report-card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h2>
+                            Analysis Information
+                        </h2>
+
+                        <p>
+                            Details associated with this diagnosis.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="information-grid">
+
+                    <div class="information-item">
+
+                        <span class="information-label">
+                            Analysis Date
+                        </span>
+
+                        <span
+                            id="reportDate"
+                            class="information-value"
+                        >
+                            —
+                        </span>
+
+                    </div>
+
+
+                    <div class="information-item">
+
+                        <span class="information-label">
+                            Image File
+                        </span>
+
+                        <span
+                            id="reportFilename"
+                            class="information-value"
+                        >
+                            —
+                        </span>
+
+                    </div>
+
+
+                    <div class="information-item">
+
+                        <span class="information-label">
+                            Patient Age
+                        </span>
+
+                        <span
+                            id="reportAge"
+                            class="information-value"
+                        >
+                            —
+                        </span>
+
+                    </div>
+
+
+                    <div class="information-item">
+
+                        <span class="information-label">
+                            Symptom Duration
+                        </span>
+
+                        <span
+                            id="reportDuration"
+                            class="information-value"
+                        >
+                            —
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 DIAGNOSIS RESULT
+                 ================================================= -->
+
+            <section class="diagnosis-result-card">
+
+                <div class="result-heading">
+
+                    <div class="result-icon">
+                        🔬
+                    </div>
+
+                    <div>
+
+                        <span class="result-label">
+                            AI PREDICTED DIAGNOSIS
+                        </span>
+
+                        <h2 id="reportDiagnosis">
+                            —
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="confidence-container">
+
+                    <div class="confidence-header">
+
+                        <span>
+                            Model Confidence
+                        </span>
+
+                        <strong id="reportConfidence">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="confidence-bar">
+
+                        <div
+                            id="confidenceProgress"
+                            class="confidence-progress"
+                        ></div>
+
+                    </div>
+
+                    <p id="confidenceMessage">
+                        Confidence information will appear here.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 CLINICAL INFORMATION
+                 ================================================= -->
+
+            <section class="report-card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h2>
+                            Clinical Information
+                        </h2>
+
+                        <p>
+                            Symptoms provided during the analysis.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="clinical-content">
+
+                    <div class="clinical-block">
+
+                        <h3>
+                            Reported Symptoms
+                        </h3>
+
+                        <div
+                            id="reportSymptoms"
+                            class="symptoms-container"
+                        >
+                            —
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 AI RECOMMENDATIONS
+                 ================================================= -->
+
+            <section class="report-card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h2>
+                            AI Clinical Decision Support
+                        </h2>
+
+                        <p>
+                            General guidance generated from the
+                            prediction and reported symptoms.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="guidance-grid">
+
+                    <!-- Recommendations -->
+
+                    <div class="guidance-card recommendations">
+
+                        <div class="guidance-title">
+
+                            <span class="guidance-icon">
+                                💡
+                            </span>
+
+                            <h3>
+                                Recommendations
+                            </h3>
+
+                        </div>
+
+                        <ul id="reportRecommendations">
+                            <li>
+                                No recommendations available.
+                            </li>
+                        </ul>
+
+                    </div>
+
+
+                    <!-- Precautions -->
+
+                    <div class="guidance-card precautions">
+
+                        <div class="guidance-title">
+
+                            <span class="guidance-icon">
+                                ⚠️
+                            </span>
+
+                            <h3>
+                                Precautions
+                            </h3>
+
+                        </div>
+
+                        <ul id="reportPrecautions">
+                            <li>
+                                No precautions available.
+                            </li>
+                        </ul>
+
+                    </div>
+
+
+                    <!-- Seek Care -->
+
+                    <div class="guidance-card seek-care">
+
+                        <div class="guidance-title">
+
+                            <span class="guidance-icon">
+                                🏥
+                            </span>
+
+                            <h3>
+                                When to Seek Medical Care
+                            </h3>
+
+                        </div>
+
+                        <ul id="reportSeekCare">
+                            <li>
+                                No additional care information available.
+                            </li>
+                        </ul>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Urgency -->
+
+                <div class="urgency-section">
+
+                    <div class="urgency-heading">
+                        Clinical Priority
+                    </div>
+
+                    <div
+                        id="reportUrgency"
+                        class="urgency-value"
+                    >
+                        —
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 MODEL INFORMATION
+                 ================================================= -->
+
+            <section class="report-card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h2>
+                            AI Model Information
+                        </h2>
+
+                        <p>
+                            Technical information about the
+                            analysis pipeline.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="model-grid">
+
+                    <div class="model-item">
+
+                        <span class="model-label">
+                            Image Feature Extractor
+                        </span>
+
+                        <strong>
+                            DenseNet121
+                        </strong>
+
+                    </div>
+
+
+                    <div class="model-item">
+
+                        <span class="model-label">
+                            Classification Model
+                        </span>
+
+                        <strong>
+                            K-Nearest Neighbors
+                        </strong>
+
+                    </div>
+
+
+                    <div class="model-item">
+
+                        <span class="model-label">
+                            Input
+                        </span>
+
+                        <strong>
+                            Otoscopic Image
+                        </strong>
+
+                    </div>
+
+
+                    <div class="model-item">
+
+                        <span class="model-label">
+                            Clinical Input
+                        </span>
+
+                        <strong>
+                            Symptoms & Duration
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 DISCLAIMER
+                 ================================================= -->
+
+            <section class="disclaimer">
+
+                <strong>
+                    ⚕ Important Clinical Disclaimer
+                </strong>
+
+                <p>
+                    This report is generated by an AI-assisted
+                    clinical decision-support system and is
+                    intended for educational and decision-support
+                    purposes only. It should not be considered
+                    a definitive medical diagnosis or a substitute
+                    for examination by a qualified healthcare
+                    professional. Clinical findings and patient
+                    history should always be reviewed by an
+                    appropriate medical professional.
+                </p>
+
+            </section>
+
+
+            <!-- =================================================
+                 REPORT FOOTER
+                 ================================================= -->
+
+            <div class="report-footer">
+
+                <div>
+                    <strong>
+                        OtitisAI-CDSS
+                    </strong>
+
+                    <span>
+                        Multimodal Explainable AI for Otitis Media
+                        Diagnosis
+                    </span>
+                </div>
+
+                <div>
+                    Generated:
+                    <span id="generatedTime">
+                        —
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer class="footer">
+
+        <p>
+            © 2026
+            <strong>OtitisAI-CDSS</strong>.
+            AI-assisted clinical decision support system.
+        </p>
+
+    </footer>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script src="report.js"></script>
+
+</body>
+</html>
