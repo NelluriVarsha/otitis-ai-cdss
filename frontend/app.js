@@ -1,5 +1,6 @@
 // =========================================================
 // OtitisAI-CDSS - Diagnosis Page JavaScript
+// Multimodal: Image + Symptoms + Clinical Data
 // =========================================================
 
 const API_URL = "http://127.0.0.1:8000";
@@ -58,7 +59,6 @@ function setupImageUpload() {
         return;
     }
 
-
     imageInput.addEventListener("change", function () {
 
         const file = this.files[0];
@@ -67,9 +67,7 @@ function setupImageUpload() {
             return;
         }
 
-
         // Check file type
-
         if (!file.type.startsWith("image/")) {
 
             showError(
@@ -80,7 +78,6 @@ function setupImageUpload() {
 
             return;
         }
-
 
         selectedFile = file;
 
@@ -103,9 +100,7 @@ function displayImagePreview(file) {
         return;
     }
 
-
     const reader = new FileReader();
-
 
     reader.onload = function (event) {
 
@@ -114,7 +109,6 @@ function displayImagePreview(file) {
         imagePreview.style.display = "block";
 
     };
-
 
     reader.readAsDataURL(file);
 
@@ -131,7 +125,6 @@ function setupAnalyzeButton() {
         return;
     }
 
-
     analyzeButton.addEventListener(
         "click",
         analyzeImage
@@ -141,7 +134,7 @@ function setupAnalyzeButton() {
 
 
 // =========================================================
-// ANALYZE IMAGE
+// ANALYZE IMAGE + CLINICAL DATA
 // =========================================================
 
 async function analyzeImage() {
@@ -170,6 +163,9 @@ async function analyzeImage() {
 
     const age = getAge();
 
+    const clinicalData =
+        getClinicalData(symptoms, duration);
+
 
     // -----------------------------------------------------
     // CREATE FORM DATA
@@ -177,28 +173,59 @@ async function analyzeImage() {
 
     const formData = new FormData();
 
-
     formData.append(
         "file",
         selectedFile
     );
-
 
     formData.append(
         "symptoms",
         symptoms.join(",")
     );
 
-
     formData.append(
         "duration",
         duration
     );
 
-
     formData.append(
         "age",
         age
+    );
+
+
+    // -----------------------------------------------------
+    // ADD INDIVIDUAL CLINICAL FLAGS
+    // -----------------------------------------------------
+
+    formData.append(
+        "ear_pain",
+        clinicalData.ear_pain
+    );
+
+    formData.append(
+        "fever",
+        clinicalData.fever
+    );
+
+    formData.append(
+        "hearing_loss",
+        clinicalData.hearing_loss
+    );
+
+    formData.append(
+        "ear_discharge",
+        clinicalData.ear_discharge
+    );
+
+    formData.append(
+        "itching",
+        clinicalData.itching
+    );
+
+    formData.append(
+        "recent_cold",
+        clinicalData.recent_cold
     );
 
 
@@ -229,15 +256,27 @@ async function analyzeImage() {
 
 
         // -------------------------------------------------
-        // READ RESPONSE
+        // CHECK HTTP RESPONSE
         // -------------------------------------------------
 
-        const data = await response.json();
+        let data;
+
+        try {
+
+            data = await response.json();
+
+        } catch (jsonError) {
+
+            throw new Error(
+                "The diagnosis server returned an invalid response."
+            );
+
+        }
 
 
         // -------------------------------------------------
         // CHECK SERVER ERROR
-        // -------------------------------------------------
+        // -----------------------------------------------------
 
         if (!response.ok) {
 
@@ -253,9 +292,12 @@ async function analyzeImage() {
         // CHECK SUCCESS
         // -------------------------------------------------
 
-        if (!data.success) {
+        if (
+            data.success === false
+        ) {
 
             throw new Error(
+                data.detail ||
                 "The diagnosis server did not return a valid result."
             );
 
@@ -263,17 +305,33 @@ async function analyzeImage() {
 
 
         // -------------------------------------------------
+        // NORMALIZE RESPONSE
+        // -------------------------------------------------
+
+        const result = normalizeDiagnosisResponse(
+            data,
+            symptoms,
+            duration,
+            age
+        );
+
+
+        // -------------------------------------------------
         // DISPLAY DIAGNOSIS
         // -------------------------------------------------
 
-        displayDiagnosisResult(data);
+        displayDiagnosisResult(
+            result
+        );
 
 
         // -------------------------------------------------
         // DISPLAY RECOMMENDATIONS
         // -------------------------------------------------
 
-        displayRecommendations(data);
+        displayRecommendations(
+            result
+        );
 
 
         // -------------------------------------------------
@@ -281,7 +339,7 @@ async function analyzeImage() {
         // -------------------------------------------------
 
         saveDiagnosisToHistory(
-            data
+            result
         );
 
 
@@ -300,10 +358,8 @@ async function analyzeImage() {
             error
         );
 
-
         let message =
             "Unable to connect to the diagnosis server.";
-
 
         if (
             error &&
@@ -313,7 +369,6 @@ async function analyzeImage() {
             message = error.message;
 
         }
-
 
         showError(
             message
@@ -344,21 +399,19 @@ function getSelectedSymptoms() {
 
     const symptoms = [];
 
-
     /*
      * Supports checkboxes such as:
      *
-     * <input type="checkbox"
-     *        name="symptoms"
-     *        value="ear pain">
+     * <input
+     *     type="checkbox"
+     *     name="symptoms"
+     *     value="ear pain">
      */
-
 
     const checkedSymptoms =
         document.querySelectorAll(
             'input[name="symptoms"]:checked'
         );
-
 
     checkedSymptoms.forEach(
         checkbox => {
@@ -373,7 +426,6 @@ function getSelectedSymptoms() {
 
         }
     );
-
 
     return symptoms;
 
@@ -397,13 +449,11 @@ function getDuration() {
             "duration"
         );
 
-
     if (!durationElement) {
 
         return "";
 
     }
-
 
     return durationElement.value || "";
 
@@ -427,15 +477,255 @@ function getAge() {
             "age"
         );
 
-
     if (!ageElement) {
 
         return "";
 
     }
 
-
     return ageElement.value || "";
+
+}
+
+
+// =========================================================
+// CONVERT SYMPTOMS INTO CLINICAL FLAGS
+// =========================================================
+
+function getClinicalData(
+    symptoms,
+    duration
+) {
+
+    const normalizedSymptoms =
+        symptoms.map(
+            symptom =>
+                String(symptom)
+                    .toLowerCase()
+                    .trim()
+                    .replace(/_/g, " ")
+        );
+
+
+    function hasSymptom(
+        values
+    ) {
+
+        return values.some(
+            value =>
+                normalizedSymptoms.includes(
+                    value
+                )
+        );
+
+    }
+
+
+    return {
+
+        ear_pain: hasSymptom([
+            "ear pain",
+            "earache",
+            "pain"
+        ]),
+
+        fever: hasSymptom([
+            "fever",
+            "high fever"
+        ]),
+
+        hearing_loss: hasSymptom([
+            "hearing loss",
+            "hearing difficulty",
+            "reduced hearing"
+        ]),
+
+        ear_discharge: hasSymptom([
+            "ear discharge",
+            "discharge",
+            "fluid from ear"
+        ]),
+
+        itching: hasSymptom([
+            "itching",
+            "ear itching"
+        ]),
+
+        recent_cold: hasSymptom([
+            "recent cold",
+            "cold",
+            "cough",
+            "respiratory infection"
+        ]),
+
+        duration_days:
+            parseDurationToDays(
+                duration
+            )
+
+    };
+
+}
+
+
+// =========================================================
+// CONVERT DURATION TO DAYS
+// =========================================================
+
+function parseDurationToDays(
+    duration
+) {
+
+    if (
+        duration === null ||
+        duration === undefined ||
+        duration === ""
+    ) {
+
+        return 0;
+
+    }
+
+
+    // If the HTML already returns a number
+    if (
+        !isNaN(duration)
+    ) {
+
+        return Number(duration);
+
+    }
+
+
+    const value =
+        String(duration)
+            .toLowerCase()
+            .trim();
+
+
+    // Common duration options
+    if (
+        value.includes("today") ||
+        value.includes("1 day")
+    ) {
+
+        return 1;
+
+    }
+
+    if (
+        value.includes("2-3") ||
+        value.includes("2 to 3")
+    ) {
+
+        return 3;
+
+    }
+
+    if (
+        value.includes("4-7") ||
+        value.includes("4 to 7")
+    ) {
+
+        return 7;
+
+    }
+
+    if (
+        value.includes("week")
+    ) {
+
+        return 7;
+
+    }
+
+    if (
+        value.includes("month")
+    ) {
+
+        return 30;
+
+    }
+
+    return 0;
+
+}
+
+
+// =========================================================
+// NORMALIZE BACKEND RESPONSE
+// =========================================================
+
+function normalizeDiagnosisResponse(
+    data,
+    symptoms,
+    duration,
+    age
+) {
+
+    return {
+
+        ...data,
+
+        filename:
+            data.filename ||
+            selectedFile?.name ||
+            "Uploaded image",
+
+        prediction:
+            data.prediction ||
+            data.diagnosis ||
+            "Unknown",
+
+        confidence:
+            data.confidence ??
+            null,
+
+        confidence_percentage:
+            data.confidence_percentage ??
+            null,
+
+        age:
+            data.age ||
+            age ||
+            "",
+
+        symptoms:
+            data.symptoms ||
+            symptoms ||
+            [],
+
+        duration:
+            data.duration ||
+            duration ||
+            "",
+
+        recommendations:
+            Array.isArray(
+                data.recommendations
+            )
+                ? data.recommendations
+                : [],
+
+        precautions:
+            Array.isArray(
+                data.precautions
+            )
+                ? data.precautions
+                : [],
+
+        when_to_seek_care:
+            Array.isArray(
+                data.when_to_seek_care
+            )
+                ? data.when_to_seek_care
+                : [],
+
+        urgency:
+            data.urgency ||
+            "Clinical review recommended"
+
+    };
 
 }
 
@@ -444,7 +734,9 @@ function getAge() {
 // DISPLAY DIAGNOSIS RESULT
 // =========================================================
 
-function displayDiagnosisResult(data) {
+function displayDiagnosisResult(
+    data
+) {
 
     if (predictionResult) {
 
@@ -497,6 +789,76 @@ function displayDiagnosisResult(data) {
 
     }
 
+
+    // -----------------------------------------------------
+    // OPTIONAL MULTIMODAL RESULT ELEMENTS
+    // -----------------------------------------------------
+
+    const imagePrediction =
+        document.getElementById(
+            "imagePrediction"
+        );
+
+    if (imagePrediction) {
+
+        imagePrediction.textContent =
+            data.image_prediction ||
+            "N/A";
+
+    }
+
+
+    const imageConfidence =
+        document.getElementById(
+            "imageConfidence"
+        );
+
+    if (imageConfidence) {
+
+        imageConfidence.textContent =
+            formatConfidence(
+                data.image_confidence
+            );
+
+    }
+
+
+    const clinicalEvidence =
+        document.getElementById(
+            "clinicalEvidence"
+        );
+
+    if (clinicalEvidence) {
+
+        clinicalEvidence.textContent =
+            "Clinical symptoms included in analysis";
+
+    }
+
+}
+
+
+// =========================================================
+// FORMAT CONFIDENCE
+// =========================================================
+
+function formatConfidence(
+    confidence
+) {
+
+    if (
+        confidence === null ||
+        confidence === undefined
+    ) {
+
+        return "N/A";
+
+    }
+
+    return (
+        Number(confidence) * 100
+    ).toFixed(2) + "%";
+
 }
 
 
@@ -504,31 +866,29 @@ function displayDiagnosisResult(data) {
 // DISPLAY RECOMMENDATIONS
 // =========================================================
 
-function displayRecommendations(data) {
+function displayRecommendations(
+    data
+) {
 
     const recommendationSection =
         document.getElementById(
             "recommendationSection"
         );
 
-
     const recommendationsList =
         document.getElementById(
             "recommendationsList"
         );
-
 
     const precautionsList =
         document.getElementById(
             "precautionsList"
         );
 
-
     const seekCareList =
         document.getElementById(
             "seekCareList"
         );
-
 
     const urgencyResult =
         document.getElementById(
@@ -545,7 +905,6 @@ function displayRecommendations(data) {
         return;
 
     }
-
 
     recommendationSection.style.display =
         "block";
@@ -571,7 +930,6 @@ function displayRecommendations(data) {
     if (recommendationsList) {
 
         recommendationsList.innerHTML = "";
-
 
         if (
             Array.isArray(
@@ -618,7 +976,6 @@ function displayRecommendations(data) {
 
         precautionsList.innerHTML = "";
 
-
         if (
             Array.isArray(
                 data.precautions
@@ -663,7 +1020,6 @@ function displayRecommendations(data) {
     if (seekCareList) {
 
         seekCareList.innerHTML = "";
-
 
         if (
             Array.isArray(
@@ -715,7 +1071,6 @@ function hideRecommendationSection() {
             "recommendationSection"
         );
 
-
     if (section) {
 
         section.style.display =
@@ -730,7 +1085,9 @@ function hideRecommendationSection() {
 // SAVE DIAGNOSIS HISTORY
 // =========================================================
 
-function saveDiagnosisToHistory(data) {
+function saveDiagnosisToHistory(
+    data
+) {
 
     const HISTORY_KEY =
         "otitisDiagnosisHistory";
@@ -746,11 +1103,12 @@ function saveDiagnosisToHistory(data) {
                 HISTORY_KEY
             );
 
-
         if (existing) {
 
             history =
-                JSON.parse(existing);
+                JSON.parse(
+                    existing
+                );
 
         }
 
@@ -787,40 +1145,76 @@ function saveDiagnosisToHistory(data) {
             new Date().toLocaleTimeString(),
 
         filename:
-            data.filename || "",
+            data.filename ||
+            "",
 
         prediction:
-            data.prediction || "Unknown",
+            data.prediction ||
+            "Unknown",
 
         class_index:
-            data.class_index ?? null,
+            data.class_index ??
+            null,
 
         confidence:
-            data.confidence ?? null,
+            data.confidence ??
+            null,
 
         confidence_percentage:
-            data.confidence_percentage ?? null,
+            data.confidence_percentage ??
+            null,
+
+        image_prediction:
+            data.image_prediction ||
+            "",
+
+        image_confidence:
+            data.image_confidence ??
+            null,
+
+        clinical_data:
+            data.clinical_data ||
+            {},
+
+        clinical_features:
+            data.clinical_features ||
+            [],
+
+        clinical_scores:
+            data.clinical_scores ||
+            {},
+
+        combined_scores:
+            data.combined_scores ||
+            {},
 
         age:
-            data.age || "",
+            data.age ||
+            "",
 
         symptoms:
-            data.symptoms || [],
+            data.symptoms ||
+            [],
 
         duration:
-            data.duration || "",
+            data.duration ||
+            "",
 
         recommendations:
-            data.recommendations || [],
+            data.recommendations ||
+            [],
 
         precautions:
-            data.precautions || [],
+            data.precautions ||
+            [],
 
         when_to_seek_care:
-            data.when_to_seek_care || [],
+            data.when_to_seek_care ||
+            [],
 
         urgency:
-            data.urgency || ""
+            data.urgency ||
+            ""
 
     };
 
@@ -835,7 +1229,6 @@ function saveDiagnosisToHistory(data) {
 
 
     // Keep only latest 50 records
-
     history =
         history.slice(
             0,
@@ -851,7 +1244,9 @@ function saveDiagnosisToHistory(data) {
 
         localStorage.setItem(
             HISTORY_KEY,
-            JSON.stringify(history)
+            JSON.stringify(
+                history
+            )
         );
 
     }
@@ -881,13 +1276,11 @@ function getDiagnosisHistory() {
                 "otitisDiagnosisHistory"
             );
 
-
         if (!history) {
 
             return [];
 
         }
-
 
         return JSON.parse(
             history
@@ -913,11 +1306,12 @@ function getDiagnosisHistory() {
 // GET SINGLE DIAGNOSIS
 // =========================================================
 
-function getDiagnosisById(id) {
+function getDiagnosisById(
+    id
+) {
 
     const history =
         getDiagnosisHistory();
-
 
     return history.find(
         record =>
@@ -945,7 +1339,9 @@ function clearDiagnosisHistory() {
 // SHOW ERROR
 // =========================================================
 
-function showError(message) {
+function showError(
+    message
+) {
 
     if (!errorMessage) {
 
@@ -955,10 +1351,8 @@ function showError(message) {
 
     }
 
-
     errorMessage.textContent =
         message;
-
 
     showElement(
         errorMessage
@@ -971,14 +1365,15 @@ function showError(message) {
 // SHOW ELEMENT
 // =========================================================
 
-function showElement(element) {
+function showElement(
+    element
+) {
 
     if (!element) {
 
         return;
 
     }
-
 
     element.style.display =
         "";
@@ -990,14 +1385,15 @@ function showElement(element) {
 // HIDE ELEMENT
 // =========================================================
 
-function hideElement(element) {
+function hideElement(
+    element
+) {
 
     if (!element) {
 
         return;
 
     }
-
 
     element.style.display =
         "none";
@@ -1058,7 +1454,6 @@ function scrollToResults() {
             ".result-section"
         );
 
-
     if (
         resultSection &&
         typeof resultSection.scrollIntoView ===
@@ -1078,8 +1473,6 @@ function scrollToResults() {
 // =========================================================
 // EXPORT FUNCTIONS
 // =========================================================
-// These functions can also be used by dashboard.js
-// and report.js.
 
 window.getDiagnosisHistory =
     getDiagnosisHistory;

@@ -1,78 +1,162 @@
-/* =========================================================
-   OtitisAI-CDSS — Doctor Dashboard JavaScript
-   ========================================================= */
+// =========================================================
+// OtitisAI-CDSS — Doctor Dashboard JavaScript
+// =========================================================
+// Reads diagnosis history saved by app.js in localStorage.
+// Compatible with the /api/predict response structure.
+// =========================================================
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // -----------------------------------------------------
-    // Elements
-    // -----------------------------------------------------
-
-    const totalDiagnoses = document.getElementById("totalDiagnoses");
-    const averageConfidence = document.getElementById("averageConfidence");
-    const commonDiagnosis = document.getElementById("commonDiagnosis");
-    const lowConfidenceCount = document.getElementById("lowConfidenceCount");
-
-    const searchInput = document.getElementById("searchInput");
-    const refreshButton = document.getElementById("refreshButton");
-    const clearHistoryButton = document.getElementById("clearHistoryButton");
-
-    const diagnosisTableBody = document.getElementById("diagnosisTableBody");
-    const emptyState = document.getElementById("emptyState");
-    const noSearchResults = document.getElementById("noSearchResults");
-
-    const detailsSection = document.getElementById("detailsSection");
-    const closeDetailsButton = document.getElementById("closeDetailsButton");
-
-    const detailDiagnosis = document.getElementById("detailDiagnosis");
-    const detailConfidence = document.getElementById("detailConfidence");
-    const detailDate = document.getElementById("detailDate");
-    const detailAge = document.getElementById("detailAge");
-    const detailDuration = document.getElementById("detailDuration");
-    const detailFilename = document.getElementById("detailFilename");
-    const detailSymptoms = document.getElementById("detailSymptoms");
-    const detailRecommendations = document.getElementById("detailRecommendations");
-    const detailPrecautions = document.getElementById("detailPrecautions");
-    const detailSeekCare = document.getElementById("detailSeekCare");
-    const detailUrgency = document.getElementById("detailUrgency");
-
-    const viewReportButton = document.getElementById("viewReportButton");
-
-
-    // -----------------------------------------------------
-    // Local Storage
-    // -----------------------------------------------------
+    // =====================================================
+    // CONFIGURATION
+    // =====================================================
 
     const HISTORY_KEY = "otitisDiagnosisHistory";
 
-    function getHistory() {
-        try {
-            const history = JSON.parse(localStorage.getItem(HISTORY_KEY));
 
-            if (Array.isArray(history)) {
-                return history;
+    // =====================================================
+    // DOM ELEMENTS
+    // =====================================================
+
+    const totalDiagnoses =
+        document.getElementById("totalDiagnoses");
+
+    const averageConfidence =
+        document.getElementById("averageConfidence");
+
+    const commonDiagnosis =
+        document.getElementById("commonDiagnosis");
+
+    const lowConfidenceCount =
+        document.getElementById("lowConfidenceCount");
+
+    const searchInput =
+        document.getElementById("searchInput");
+
+    const refreshButton =
+        document.getElementById("refreshButton");
+
+    const clearHistoryButton =
+        document.getElementById("clearHistoryButton");
+
+    const diagnosisTableBody =
+        document.getElementById("diagnosisTableBody");
+
+    const emptyState =
+        document.getElementById("emptyState");
+
+    const noSearchResults =
+        document.getElementById("noSearchResults");
+
+    const detailsSection =
+        document.getElementById("detailsSection");
+
+    const closeDetailsButton =
+        document.getElementById("closeDetailsButton");
+
+    const detailDiagnosis =
+        document.getElementById("detailDiagnosis");
+
+    const detailConfidence =
+        document.getElementById("detailConfidence");
+
+    const detailDate =
+        document.getElementById("detailDate");
+
+    const detailAge =
+        document.getElementById("detailAge");
+
+    const detailDuration =
+        document.getElementById("detailDuration");
+
+    const detailFilename =
+        document.getElementById("detailFilename");
+
+    const detailSymptoms =
+        document.getElementById("detailSymptoms");
+
+    const detailRecommendations =
+        document.getElementById("detailRecommendations");
+
+    const detailPrecautions =
+        document.getElementById("detailPrecautions");
+
+    const detailSeekCare =
+        document.getElementById("detailSeekCare");
+
+    const detailUrgency =
+        document.getElementById("detailUrgency");
+
+    const viewReportButton =
+        document.getElementById("viewReportButton");
+
+
+    // =====================================================
+    // LOCAL STORAGE
+    // =====================================================
+
+    function getHistory() {
+
+        try {
+
+            const storedHistory =
+                localStorage.getItem(HISTORY_KEY);
+
+            if (!storedHistory) {
+                return [];
             }
 
-            return [];
+            const parsedHistory =
+                JSON.parse(storedHistory);
+
+            if (!Array.isArray(parsedHistory)) {
+                return [];
+            }
+
+            return parsedHistory;
+
         } catch (error) {
-            console.error("Unable to read diagnosis history:", error);
+
+            console.error(
+                "Unable to read diagnosis history:",
+                error
+            );
+
             return [];
         }
     }
 
 
     function saveHistory(history) {
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+
+        try {
+
+            localStorage.setItem(
+                HISTORY_KEY,
+                JSON.stringify(history)
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Unable to save diagnosis history:",
+                error
+            );
+
+        }
     }
 
 
-    // -----------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------
+    // =====================================================
+    // HTML SAFETY
+    // =====================================================
 
     function escapeHTML(value) {
 
-        if (value === null || value === undefined) {
+        if (
+            value === null ||
+            value === undefined
+        ) {
             return "";
         }
 
@@ -85,90 +169,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    function formatDate(dateValue) {
+    // =====================================================
+    // DIAGNOSIS
+    // =====================================================
 
-        if (!dateValue) {
-            return "Unknown";
-        }
-
-        const date = new Date(dateValue);
-
-        if (Number.isNaN(date.getTime())) {
-            return String(dateValue);
-        }
-
-        return date.toLocaleString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-    }
-
-
-    function formatDuration(duration) {
-
-        const durationMap = {
-            "less_than_1_week": "Less than 1 week",
-            "1_4_weeks": "1–4 weeks",
-            "more_than_1_month": "More than 1 month"
-        };
-
-        return durationMap[duration] || duration || "Not specified";
-    }
-
-
-    function formatConfidence(value) {
-
-        let confidence = Number(value);
-
-        if (Number.isNaN(confidence)) {
-            return "N/A";
-        }
-
-        // Backend may return either 0–1 or 0–100.
-        if (confidence <= 1) {
-            confidence *= 100;
-        }
-
-        return `${confidence.toFixed(1)}%`;
-    }
-
-
-    function getConfidenceNumber(value) {
-
-        let confidence = Number(value);
-
-        if (Number.isNaN(confidence)) {
-            return 0;
-        }
-
-        if (confidence <= 1) {
-            confidence *= 100;
-        }
-
-        return confidence;
-    }
-
-
-    function getConfidenceBadge(value) {
-
-        const confidence = getConfidenceNumber(value);
-
-        if (confidence >= 80) {
-            return `<span class="badge badge-success">${confidence.toFixed(1)}%</span>`;
-        }
-
-        if (confidence >= 60) {
-            return `<span class="badge badge-warning">${confidence.toFixed(1)}%</span>`;
-        }
-
-        return `<span class="badge badge-danger">${confidence.toFixed(1)}%</span>`;
-    }
-
-
-    function normalizeDiagnosis(item) {
+    function getDiagnosis(item) {
 
         return (
             item.prediction ||
@@ -180,160 +185,502 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    // =====================================================
+    // FILENAME
+    // =====================================================
+
+    function getFilename(item) {
+
+        return (
+            item.filename ||
+            item.file_name ||
+            "Uploaded image"
+        );
+    }
+
+
+    // =====================================================
+    // SYMPTOMS
+    // =====================================================
+
     function getSymptoms(item) {
 
         if (Array.isArray(item.symptoms)) {
-            return item.symptoms;
+
+            return item.symptoms
+                .filter(Boolean)
+                .map(symptom => String(symptom));
+
         }
 
+
         if (typeof item.symptoms === "string") {
+
             if (!item.symptoms.trim()) {
                 return [];
             }
 
             return item.symptoms
                 .split(",")
-                .map(item => item.trim())
+                .map(symptom => symptom.trim())
                 .filter(Boolean);
+
         }
 
         return [];
     }
 
+
+    // =====================================================
+    // RECOMMENDATIONS
+    // =====================================================
 
     function getRecommendations(item) {
 
         if (Array.isArray(item.recommendations)) {
-            return item.recommendations;
+
+            return item.recommendations
+                .filter(Boolean)
+                .map(item => String(item));
+
         }
 
-        if (typeof item.recommendations === "string") {
+        if (
+            typeof item.recommendations === "string" &&
+            item.recommendations.trim()
+        ) {
+
             return [item.recommendations];
+
         }
 
         return [];
     }
 
+
+    // =====================================================
+    // PRECAUTIONS
+    // =====================================================
 
     function getPrecautions(item) {
 
         if (Array.isArray(item.precautions)) {
-            return item.precautions;
+
+            return item.precautions
+                .filter(Boolean)
+                .map(item => String(item));
+
         }
 
-        if (typeof item.precautions === "string") {
+        if (
+            typeof item.precautions === "string" &&
+            item.precautions.trim()
+        ) {
+
             return [item.precautions];
+
         }
 
         return [];
     }
 
+
+    // =====================================================
+    // WHEN TO SEEK CARE
+    // =====================================================
 
     function getSeekCare(item) {
 
-        if (Array.isArray(item.when_to_seek_care)) {
-            return item.when_to_seek_care;
+        if (
+            Array.isArray(item.when_to_seek_care)
+        ) {
+
+            return item.when_to_seek_care
+                .filter(Boolean)
+                .map(item => String(item));
+
         }
 
-        if (typeof item.when_to_seek_care === "string") {
+        if (
+            typeof item.when_to_seek_care === "string" &&
+            item.when_to_seek_care.trim()
+        ) {
+
             return [item.when_to_seek_care];
+
         }
 
         return [];
     }
 
 
-    // -----------------------------------------------------
-    // Statistics
-    // -----------------------------------------------------
+    // =====================================================
+    // CONFIDENCE
+    // =====================================================
+
+    function getConfidenceNumber(value) {
+
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+            return 0;
+        }
+
+        let confidence =
+            Number(value);
+
+        if (Number.isNaN(confidence)) {
+            return 0;
+        }
+
+        /*
+         Backend can return:
+
+         confidence = 1
+         confidence_percentage = 100
+
+         OR
+
+         confidence = 0.85
+         confidence_percentage = 85
+
+         OR sometimes confidence may already be 85.
+        */
+
+        if (confidence > 0 && confidence <= 1) {
+
+            confidence *= 100;
+
+        }
+
+        return Math.max(
+            0,
+            Math.min(
+                confidence,
+                100
+            )
+        );
+    }
+
+
+    function getConfidence(item) {
+
+        if (
+            item.confidence_percentage !== null &&
+            item.confidence_percentage !== undefined &&
+            item.confidence_percentage !== ""
+        ) {
+
+            return getConfidenceNumber(
+                item.confidence_percentage
+            );
+
+        }
+
+        return getConfidenceNumber(
+            item.confidence
+        );
+    }
+
+
+    function formatConfidence(value) {
+
+        const confidence =
+            getConfidenceNumber(value);
+
+        if (confidence === 0) {
+            return "0%";
+        }
+
+        return `${confidence.toFixed(1)}%`;
+    }
+
+
+    // =====================================================
+    // CONFIDENCE BADGE
+    // =====================================================
+
+    function getConfidenceBadge(value) {
+
+        const confidence =
+            getConfidenceNumber(value);
+
+
+        let badgeClass =
+            "badge-danger";
+
+
+        if (confidence >= 80) {
+
+            badgeClass =
+                "badge-success";
+
+        } else if (confidence >= 60) {
+
+            badgeClass =
+                "badge-warning";
+
+        }
+
+
+        return `
+            <span class="badge ${badgeClass}">
+                ${confidence.toFixed(1)}%
+            </span>
+        `;
+    }
+
+
+    // =====================================================
+    // DATE
+    // =====================================================
+
+    function getDateValue(item) {
+
+        return (
+            item.timestamp ||
+            item.created_at ||
+            item.date ||
+            null
+        );
+    }
+
+
+    function formatDate(dateValue) {
+
+        if (!dateValue) {
+            return "Unknown";
+        }
+
+
+        const date =
+            new Date(dateValue);
+
+
+        if (Number.isNaN(date.getTime())) {
+
+            return String(dateValue);
+
+        }
+
+
+        return date.toLocaleString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+    }
+
+
+    // =====================================================
+    // DURATION
+    // =====================================================
+
+    function formatDuration(duration) {
+
+        if (
+            duration === null ||
+            duration === undefined ||
+            duration === ""
+        ) {
+
+            return "Not specified";
+
+        }
+
+
+        const durationMap = {
+
+            "less_than_1_week":
+                "Less than 1 week",
+
+            "1_4_weeks":
+                "1–4 weeks",
+
+            "more_than_1_month":
+                "More than 1 month",
+
+            "less than 1 week":
+                "Less than 1 week",
+
+            "1-4 weeks":
+                "1–4 weeks",
+
+            "more than 1 month":
+                "More than 1 month"
+
+        };
+
+
+        return (
+            durationMap[duration] ||
+            String(duration)
+        );
+    }
+
+
+    // =====================================================
+    // AGE
+    // =====================================================
+
+    function formatAge(age) {
+
+        if (
+            age === null ||
+            age === undefined ||
+            age === ""
+        ) {
+
+            return "Not specified";
+
+        }
+
+        return `${age} years`;
+    }
+
+
+    // =====================================================
+    // STATISTICS
+    // =====================================================
 
     function updateStatistics(history) {
 
-        const total = history.length;
+        const total =
+            history.length;
+
+
+        // -------------------------------------------------
+        // TOTAL
+        // -------------------------------------------------
 
         if (totalDiagnoses) {
-            totalDiagnoses.textContent = total;
+
+            totalDiagnoses.textContent =
+                total;
+
         }
+
+
+        // -------------------------------------------------
+        // EMPTY HISTORY
+        // -------------------------------------------------
 
         if (total === 0) {
 
             if (averageConfidence) {
-                averageConfidence.textContent = "0%";
+                averageConfidence.textContent =
+                    "0%";
             }
 
             if (commonDiagnosis) {
-                commonDiagnosis.textContent = "—";
+                commonDiagnosis.textContent =
+                    "—";
             }
 
             if (lowConfidenceCount) {
-                lowConfidenceCount.textContent = "0";
+                lowConfidenceCount.textContent =
+                    "0";
             }
 
             return;
         }
 
 
-        // Average confidence
-        const confidenceValues = history
-            .map(item => getConfidenceNumber(
-                item.confidence_percentage ?? item.confidence
-            ))
-            .filter(value => value > 0);
+        // -------------------------------------------------
+        // AVERAGE CONFIDENCE
+        // -------------------------------------------------
+
+        const confidenceValues =
+            history.map(
+                item => getConfidence(item)
+            );
 
 
-        const average = confidenceValues.length
-            ? confidenceValues.reduce((sum, value) => sum + value, 0) /
-              confidenceValues.length
-            : 0;
+        const average =
+            confidenceValues.reduce(
+                (sum, value) =>
+                    sum + value,
+                0
+            ) / confidenceValues.length;
 
 
         if (averageConfidence) {
-            averageConfidence.textContent = `${average.toFixed(1)}%`;
+
+            averageConfidence.textContent =
+                `${average.toFixed(1)}%`;
+
         }
 
 
-        // Low confidence
-        const lowConfidence = history.filter(item => {
+        // -------------------------------------------------
+        // LOW CONFIDENCE
+        // -------------------------------------------------
 
-            const confidence = getConfidenceNumber(
-                item.confidence_percentage ?? item.confidence
-            );
-
-            return confidence < 60;
-        }).length;
+        const lowConfidence =
+            history.filter(
+                item =>
+                    getConfidence(item) < 60
+            ).length;
 
 
         if (lowConfidenceCount) {
-            lowConfidenceCount.textContent = lowConfidence;
+
+            lowConfidenceCount.textContent =
+                lowConfidence;
+
         }
 
 
-        // Most common diagnosis
+        // -------------------------------------------------
+        // MOST COMMON DIAGNOSIS
+        // -------------------------------------------------
+
         const diagnosisCounts = {};
+
 
         history.forEach(item => {
 
-            const diagnosis = normalizeDiagnosis(item);
+            const diagnosis =
+                getDiagnosis(item);
+
 
             diagnosisCounts[diagnosis] =
                 (diagnosisCounts[diagnosis] || 0) + 1;
+
         });
 
 
-        const mostCommon = Object.entries(diagnosisCounts)
-            .sort((a, b) => b[1] - a[1])[0];
+        const mostCommon =
+            Object.entries(
+                diagnosisCounts
+            ).sort(
+                (a, b) =>
+                    b[1] - a[1]
+            )[0];
 
 
         if (commonDiagnosis) {
+
             commonDiagnosis.textContent =
-                mostCommon ? mostCommon[0] : "—";
+                mostCommon
+                    ? mostCommon[0]
+                    : "—";
+
         }
+
     }
 
 
-    // -----------------------------------------------------
-    // Render History Table
-    // -----------------------------------------------------
+    // =====================================================
+    // RENDER HISTORY
+    // =====================================================
 
     function renderHistory(history) {
 
@@ -341,378 +688,686 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+
         diagnosisTableBody.innerHTML = "";
 
+
+        // -------------------------------------------------
+        // NO RECORDS
+        // -------------------------------------------------
 
         if (history.length === 0) {
 
             if (emptyState) {
-                emptyState.classList.remove("hidden");
+
+                emptyState.style.display =
+                    "";
+
+                emptyState.classList.remove(
+                    "hidden"
+                );
+
             }
 
+
             if (noSearchResults) {
-                noSearchResults.classList.add("hidden");
+
+                noSearchResults.style.display =
+                    "none";
+
+                noSearchResults.classList.add(
+                    "hidden"
+                );
+
             }
 
             return;
         }
 
 
+        // -------------------------------------------------
+        // RECORDS EXIST
+        // -------------------------------------------------
+
         if (emptyState) {
-            emptyState.classList.add("hidden");
+
+            emptyState.style.display =
+                "none";
+
+            emptyState.classList.add(
+                "hidden"
+            );
+
         }
+
 
         if (noSearchResults) {
-            noSearchResults.classList.add("hidden");
+
+            noSearchResults.style.display =
+                "none";
+
+            noSearchResults.classList.add(
+                "hidden"
+            );
+
         }
 
 
-        history.forEach((item, index) => {
+        // -------------------------------------------------
+        // CREATE ROWS
+        // -------------------------------------------------
 
-            const diagnosis = normalizeDiagnosis(item);
+        history.forEach(
+            (item, index) => {
 
-            const confidence =
-                item.confidence_percentage ??
-                item.confidence ??
-                0;
+                const diagnosis =
+                    getDiagnosis(item);
 
-            const filename =
-                item.filename ||
-                item.file_name ||
-                "—";
+                const filename =
+                    getFilename(item);
 
-            const date =
-                item.timestamp ||
-                item.date ||
-                item.created_at;
+                const confidence =
+                    getConfidence(item);
 
+                const date =
+                    getDateValue(item);
 
-            const row = document.createElement("tr");
-
-
-            row.innerHTML = `
-                <td>
-                    <span class="diagnosis-name">
-                        ${escapeHTML(diagnosis)}
-                    </span>
-                </td>
-
-                <td>
-                    ${getConfidenceBadge(confidence)}
-                </td>
-
-                <td>
-                    <span class="date-text">
-                        ${escapeHTML(formatDate(date))}
-                    </span>
-                </td>
-
-                <td>
-                    <span class="filename" title="${escapeHTML(filename)}">
-                        ${escapeHTML(filename)}
-                    </span>
-                </td>
-
-                <td>
-                    <button
-                        class="view-button"
-                        type="button"
-                        data-index="${index}">
-                        View Details
-                    </button>
-                </td>
-            `;
+                const symptoms =
+                    getSymptoms(item);
 
 
-            diagnosisTableBody.appendChild(row);
-        });
+                let symptomsText =
+                    "None";
 
 
-        // Attach detail button events
+                if (symptoms.length > 0) {
+
+                    symptomsText =
+                        symptoms.join(", ");
+
+                }
+
+
+                const row =
+                    document.createElement("tr");
+
+
+                /*
+                 IMPORTANT:
+
+                 dashboard.html columns are:
+
+                 Date
+                 Image
+                 Diagnosis
+                 Confidence
+                 Symptoms
+                 Action
+                */
+
+
+                row.innerHTML = `
+
+                    <td>
+                        <span class="date-text">
+                            ${escapeHTML(
+                                formatDate(date)
+                            )}
+                        </span>
+                    </td>
+
+
+                    <td>
+                        <span
+                            class="filename"
+                            title="${escapeHTML(
+                                filename
+                            )}"
+                        >
+                            ${escapeHTML(
+                                filename
+                            )}
+                        </span>
+                    </td>
+
+
+                    <td>
+                        <span class="diagnosis-name">
+                            ${escapeHTML(
+                                diagnosis
+                            )}
+                        </span>
+                    </td>
+
+
+                    <td>
+                        ${getConfidenceBadge(
+                            confidence
+                        )}
+                    </td>
+
+
+                    <td>
+                        <span
+                            title="${escapeHTML(
+                                symptomsText
+                            )}"
+                        >
+                            ${escapeHTML(
+                                symptomsText
+                            )}
+                        </span>
+                    </td>
+
+
+                    <td>
+                        <button
+                            type="button"
+                            class="view-button"
+                            data-index="${index}"
+                        >
+                            View Details
+                        </button>
+                    </td>
+
+                `;
+
+
+                diagnosisTableBody.appendChild(
+                    row
+                );
+
+            }
+        );
+
+
+        // -------------------------------------------------
+        // VIEW BUTTONS
+        // -------------------------------------------------
+
         const viewButtons =
-            diagnosisTableBody.querySelectorAll(".view-button");
+            diagnosisTableBody.querySelectorAll(
+                ".view-button"
+            );
 
 
         viewButtons.forEach(button => {
 
-            button.addEventListener("click", () => {
+            button.addEventListener(
+                "click",
+                () => {
 
-                const index = Number(button.dataset.index);
+                    const index =
+                        Number(
+                            button.dataset.index
+                        );
 
-                if (!Number.isNaN(index)) {
-                    showDetails(history[index]);
+
+                    if (
+                        Number.isInteger(index) &&
+                        history[index]
+                    ) {
+
+                        showDetails(
+                            history[index]
+                        );
+
+                    }
+
                 }
-            });
+            );
+
         });
+
     }
 
 
-    // -----------------------------------------------------
-    // Show Diagnosis Details
-    // -----------------------------------------------------
+    // =====================================================
+    // SHOW DETAILS
+    // =====================================================
 
     function showDetails(item) {
 
-        if (!item || !detailsSection) {
+        if (
+            !item ||
+            !detailsSection
+        ) {
             return;
         }
 
 
-        const diagnosis = normalizeDiagnosis(item);
+        const diagnosis =
+            getDiagnosis(item);
 
         const confidence =
-            item.confidence_percentage ??
-            item.confidence ??
-            0;
+            getConfidence(item);
 
         const date =
-            item.timestamp ||
-            item.date ||
-            item.created_at;
+            getDateValue(item);
 
+        const filename =
+            getFilename(item);
+
+        const symptoms =
+            getSymptoms(item);
+
+        const recommendations =
+            getRecommendations(item);
+
+        const precautions =
+            getPrecautions(item);
+
+        const seekCare =
+            getSeekCare(item);
+
+
+        // -------------------------------------------------
+        // BASIC INFORMATION
+        // -------------------------------------------------
 
         if (detailDiagnosis) {
-            detailDiagnosis.textContent = diagnosis;
+
+            detailDiagnosis.textContent =
+                diagnosis;
+
         }
 
 
         if (detailConfidence) {
+
             detailConfidence.textContent =
-                formatConfidence(confidence);
+                `${confidence.toFixed(1)}%`;
+
         }
 
 
         if (detailDate) {
+
             detailDate.textContent =
                 formatDate(date);
+
         }
 
 
         if (detailAge) {
+
             detailAge.textContent =
-                item.age ? `${item.age} years` : "Not specified";
+                formatAge(item.age);
+
         }
 
 
         if (detailDuration) {
+
             detailDuration.textContent =
-                formatDuration(item.duration);
+                formatDuration(
+                    item.duration
+                );
+
         }
 
 
         if (detailFilename) {
+
             detailFilename.textContent =
-                item.filename ||
-                item.file_name ||
-                "Not available";
+                filename;
+
         }
 
 
-        // Symptoms
-        const symptoms = getSymptoms(item);
+        // -------------------------------------------------
+        // SYMPTOMS
+        // -------------------------------------------------
 
         if (detailSymptoms) {
 
             if (symptoms.length > 0) {
 
-                detailSymptoms.innerHTML = symptoms
-                    .map(symptom =>
-                        `<span class="badge badge-primary">
-                            ${escapeHTML(symptom)}
-                        </span>`
-                    )
-                    .join(" ");
+                detailSymptoms.innerHTML =
+                    symptoms
+                        .map(
+                            symptom => `
+                                <span
+                                    class="badge badge-primary"
+                                >
+                                    ${escapeHTML(
+                                        symptom
+                                    )}
+                                </span>
+                            `
+                        )
+                        .join(" ");
 
             } else {
 
-                detailSymptoms.textContent =
-                    "No symptoms recorded";
+                detailSymptoms.innerHTML =
+                    "<li>No symptoms recorded</li>";
+
             }
+
         }
 
 
-        // Recommendations
+        // -------------------------------------------------
+        // RECOMMENDATIONS
+        // -------------------------------------------------
+
         populateList(
             detailRecommendations,
-            getRecommendations(item),
+            recommendations,
             "No recommendations available"
         );
 
 
-        // Precautions
+        // -------------------------------------------------
+        // PRECAUTIONS
+        // -------------------------------------------------
+
         populateList(
             detailPrecautions,
-            getPrecautions(item),
+            precautions,
             "No precautions available"
         );
 
 
-        // When to seek care
+        // -------------------------------------------------
+        // SEEK CARE
+        // -------------------------------------------------
+
         populateList(
             detailSeekCare,
-            getSeekCare(item),
+            seekCare,
             "No additional care information available"
         );
 
 
-        // Urgency
+        // -------------------------------------------------
+        // URGENCY
+        // -------------------------------------------------
+
         if (detailUrgency) {
 
             detailUrgency.textContent =
                 item.urgency ||
-                "Routine clinical review recommended based on the available information.";
+                "AI result available — clinical confirmation recommended";
+
         }
 
 
-        // Report button
+        // -------------------------------------------------
+        // REPORT BUTTON
+        // -------------------------------------------------
+
         if (viewReportButton) {
 
-            viewReportButton.onclick = () => {
+            viewReportButton.onclick =
+                function () {
 
-                try {
-                    sessionStorage.setItem(
-                        "selectedDiagnosisReport",
-                        JSON.stringify(item)
-                    );
-                } catch (error) {
-                    console.error(
-                        "Unable to store report data:",
-                        error
-                    );
-                }
+                    try {
 
-                window.location.href = "report.html";
-            };
+                        sessionStorage.setItem(
+                            "selectedDiagnosisReport",
+                            JSON.stringify(item)
+                        );
+
+                    } catch (error) {
+
+                        console.error(
+                            "Unable to store report data:",
+                            error
+                        );
+
+                    }
+
+                    window.location.href =
+                        "report.html";
+
+                };
+
         }
 
 
-        detailsSection.classList.remove("hidden");
+        // -------------------------------------------------
+        // SHOW DETAILS
+        // -------------------------------------------------
 
-        setTimeout(() => {
-            detailsSection.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-        }, 100);
+        detailsSection.style.display =
+            "";
+
+        detailsSection.classList.remove(
+            "hidden"
+        );
+
+
+        setTimeout(
+            () => {
+
+                detailsSection.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+            },
+            100
+        );
+
     }
 
 
-    // -----------------------------------------------------
-    // Populate Lists
-    // -----------------------------------------------------
+    // =====================================================
+    // POPULATE LIST
+    // =====================================================
 
-    function populateList(element, items, emptyMessage) {
+    function populateList(
+        element,
+        items,
+        emptyMessage
+    ) {
 
         if (!element) {
             return;
         }
 
 
-        if (!items || items.length === 0) {
+        if (
+            !Array.isArray(items) ||
+            items.length === 0
+        ) {
 
             element.innerHTML =
-                `<li>${escapeHTML(emptyMessage)}</li>`;
+                `<li>${escapeHTML(
+                    emptyMessage
+                )}</li>`;
 
             return;
         }
 
 
-        element.innerHTML = items
-            .map(item =>
-                `<li>${escapeHTML(item)}</li>`
-            )
-            .join("");
+        element.innerHTML =
+            items
+                .map(
+                    item =>
+                        `<li>${escapeHTML(
+                            item
+                        )}</li>`
+                )
+                .join("");
+
     }
 
 
-    // -----------------------------------------------------
-    // Search
-    // -----------------------------------------------------
+    // =====================================================
+    // SEARCH
+    // =====================================================
 
     function performSearch() {
 
-        const history = getHistory();
+        const history =
+            getHistory();
+
 
         const searchTerm =
-            searchInput ?
-            searchInput.value.trim().toLowerCase() :
-            "";
+            searchInput
+                ? searchInput.value
+                    .trim()
+                    .toLowerCase()
+                : "";
 
+
+        // -------------------------------------------------
+        // SHOW ALL
+        // -------------------------------------------------
 
         if (!searchTerm) {
 
-            renderHistory(history);
+            renderHistory(
+                history
+            );
+
             return;
+
         }
 
 
-        const filtered = history.filter(item => {
+        // -------------------------------------------------
+        // FILTER
+        // -------------------------------------------------
 
-            const diagnosis =
-                normalizeDiagnosis(item).toLowerCase();
+        const filtered =
+            history.filter(item => {
 
-            const filename =
-                (
-                    item.filename ||
-                    item.file_name ||
-                    ""
-                ).toLowerCase();
-
-            const symptoms =
-                getSymptoms(item)
-                    .join(" ")
-                    .toLowerCase();
-
-            const duration =
-                formatDuration(item.duration)
-                    .toLowerCase();
+                const diagnosis =
+                    getDiagnosis(item)
+                        .toLowerCase();
 
 
-            return (
-                diagnosis.includes(searchTerm) ||
-                filename.includes(searchTerm) ||
-                symptoms.includes(searchTerm) ||
-                duration.includes(searchTerm)
-            );
-        });
+                const filename =
+                    getFilename(item)
+                        .toLowerCase();
 
+
+                const symptoms =
+                    getSymptoms(item)
+                        .join(" ")
+                        .toLowerCase();
+
+
+                const duration =
+                    formatDuration(
+                        item.duration
+                    )
+                        .toLowerCase();
+
+
+                const age =
+                    String(
+                        item.age || ""
+                    )
+                        .toLowerCase();
+
+
+                return (
+
+                    diagnosis.includes(
+                        searchTerm
+                    ) ||
+
+                    filename.includes(
+                        searchTerm
+                    ) ||
+
+                    symptoms.includes(
+                        searchTerm
+                    ) ||
+
+                    duration.includes(
+                        searchTerm
+                    ) ||
+
+                    age.includes(
+                        searchTerm
+                    )
+
+                );
+
+            });
+
+
+        // -------------------------------------------------
+        // NO RESULTS
+        // -------------------------------------------------
 
         if (filtered.length === 0) {
 
-            diagnosisTableBody.innerHTML = "";
+            diagnosisTableBody.innerHTML =
+                "";
+
 
             if (emptyState) {
-                emptyState.classList.add("hidden");
+
+                emptyState.style.display =
+                    "none";
+
+                emptyState.classList.add(
+                    "hidden"
+                );
+
             }
+
 
             if (noSearchResults) {
-                noSearchResults.classList.remove("hidden");
+
+                noSearchResults.style.display =
+                    "";
+
+                noSearchResults.classList.remove(
+                    "hidden"
+                );
+
             }
 
+
             return;
+
         }
 
 
-        renderHistory(filtered);
+        // -------------------------------------------------
+        // SHOW FILTERED RESULTS
+        // -------------------------------------------------
+
+        renderHistory(
+            filtered
+        );
+
     }
 
 
-    // -----------------------------------------------------
-    // Clear History
-    // -----------------------------------------------------
+    // =====================================================
+    // CLEAR HISTORY
+    // =====================================================
 
     function clearHistory() {
 
-        const history = getHistory();
+        const history =
+            getHistory();
+
 
         if (history.length === 0) {
+
+            alert(
+                "There is no diagnosis history to clear."
+            );
+
             return;
+
         }
 
 
-        const confirmed = window.confirm(
-            "Are you sure you want to delete all diagnosis history?"
-        );
+        const confirmed =
+            window.confirm(
+                "Are you sure you want to delete all diagnosis history?"
+            );
 
 
         if (!confirmed) {
@@ -720,97 +1375,159 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        localStorage.removeItem(HISTORY_KEY);
+        localStorage.removeItem(
+            HISTORY_KEY
+        );
 
 
+        // Hide details
         if (detailsSection) {
-            detailsSection.classList.add("hidden");
+
+            detailsSection.style.display =
+                "none";
+
+            detailsSection.classList.add(
+                "hidden"
+            );
+
         }
 
 
+        // Clear search
         if (searchInput) {
-            searchInput.value = "";
+
+            searchInput.value =
+                "";
+
         }
 
 
+        // Update dashboard
         updateStatistics([]);
 
         renderHistory([]);
 
-        console.log("Diagnosis history cleared.");
+
+        console.log(
+            "Diagnosis history cleared."
+        );
+
     }
 
 
-    // -----------------------------------------------------
-    // Close Details
-    // -----------------------------------------------------
+    // =====================================================
+    // CLOSE DETAILS
+    // =====================================================
 
     function closeDetails() {
 
-        if (detailsSection) {
-            detailsSection.classList.add("hidden");
+        if (!detailsSection) {
+            return;
         }
+
+
+        detailsSection.style.display =
+            "none";
+
+        detailsSection.classList.add(
+            "hidden"
+        );
+
     }
 
 
-    // -----------------------------------------------------
-    // Refresh Dashboard
-    // -----------------------------------------------------
+    // =====================================================
+    // REFRESH DASHBOARD
+    // =====================================================
 
     function refreshDashboard() {
 
-        const history = getHistory();
+        const history =
+            getHistory();
 
-        updateStatistics(history);
 
-        if (searchInput && searchInput.value.trim()) {
+        updateStatistics(
+            history
+        );
+
+
+        if (
+            searchInput &&
+            searchInput.value.trim()
+        ) {
+
             performSearch();
+
         } else {
-            renderHistory(history);
+
+            renderHistory(
+                history
+            );
+
         }
+
     }
 
 
-    // -----------------------------------------------------
-    // Event Listeners
-    // -----------------------------------------------------
+    // =====================================================
+    // EVENT LISTENERS
+    // =====================================================
 
     if (searchInput) {
+
         searchInput.addEventListener(
             "input",
             performSearch
         );
+
     }
 
 
     if (refreshButton) {
+
         refreshButton.addEventListener(
             "click",
             refreshDashboard
         );
+
     }
 
 
     if (clearHistoryButton) {
+
         clearHistoryButton.addEventListener(
             "click",
             clearHistory
         );
+
     }
 
 
     if (closeDetailsButton) {
+
         closeDetailsButton.addEventListener(
             "click",
             closeDetails
         );
+
     }
 
 
-    // -----------------------------------------------------
-    // Initial Load
-    // -----------------------------------------------------
+    // =====================================================
+    // INITIALIZE DASHBOARD
+    // =====================================================
 
     refreshDashboard();
+
+
+    // =====================================================
+    // EXPOSE FUNCTIONS
+    // =====================================================
+
+    window.refreshOtitisDashboard =
+        refreshDashboard;
+
+    window.getOtitisDiagnosisHistory =
+        getHistory;
 
 });

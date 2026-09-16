@@ -37,7 +37,6 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-
     return {
         "application": "OtitisAI-CDSS",
         "status": "online",
@@ -52,7 +51,6 @@ def root():
 
 @app.get("/api/health")
 def health_check():
-
     return {
         "status": "healthy",
         "message": "Diagnosis API is ready"
@@ -75,20 +73,24 @@ async def predict(
     # CHECK IMAGE FILE
     # -----------------------------------------------------
 
-    if not file.content_type:
+    filename = file.filename or ""
 
+    allowed_extensions = (
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp",
+        ".bmp"
+    )
+
+    if not filename.lower().endswith(allowed_extensions):
         raise HTTPException(
             status_code=400,
-            detail="Image file type could not be detected."
+            detail=(
+                "Please upload a supported image file: "
+                "JPG, JPEG, PNG, WEBP or BMP."
+            )
         )
-
-    if not file.content_type.startswith("image/"):
-
-        raise HTTPException(
-            status_code=400,
-            detail="Please upload a valid image file."
-        )
-
 
     try:
 
@@ -99,12 +101,10 @@ async def predict(
         image_bytes = await file.read()
 
         if not image_bytes:
-
             raise HTTPException(
                 status_code=400,
                 detail="Uploaded image is empty."
             )
-
 
         # -------------------------------------------------
         # OPEN IMAGE
@@ -116,23 +116,23 @@ async def predict(
                 io.BytesIO(image_bytes)
             )
 
-            # Make sure image is completely loaded
+            # Completely load image into memory
             image.load()
 
-        except Exception:
+        except Exception as e:
+
+            print("Image opening error:", str(e))
 
             raise HTTPException(
                 status_code=400,
                 detail="The uploaded file is not a valid image."
             )
 
-
         # -------------------------------------------------
         # RUN AI MODEL
         # -------------------------------------------------
 
         result = predict_image(image)
-
 
         # -------------------------------------------------
         # EXTRACT PREDICTION RESULT
@@ -153,7 +153,6 @@ async def predict(
             None
         )
 
-
         # -------------------------------------------------
         # PROCESS SYMPTOMS
         # -------------------------------------------------
@@ -170,23 +169,16 @@ async def predict(
 
             symptom_list = []
 
-
         # -------------------------------------------------
         # GENERATE CLINICAL GUIDANCE
         # -------------------------------------------------
 
         guidance = generate_recommendations(
-
             prediction=prediction,
-
             symptoms=symptom_list,
-
             duration=duration,
-
             confidence=confidence
-
         )
-
 
         # -------------------------------------------------
         # CONFIDENCE PERCENTAGE
@@ -206,7 +198,6 @@ async def predict(
             except (ValueError, TypeError):
 
                 confidence_percentage = None
-
 
         # -------------------------------------------------
         # RETURN COMPLETE RESPONSE
@@ -232,24 +223,27 @@ async def predict(
 
             "duration": duration,
 
-            "recommendations": guidance[
-                "recommendations"
-            ],
+            "recommendations": guidance.get(
+                "recommendations",
+                []
+            ),
 
-            "precautions": guidance[
-                "precautions"
-            ],
+            "precautions": guidance.get(
+                "precautions",
+                []
+            ),
 
-            "when_to_seek_care": guidance[
-                "when_to_seek_care"
-            ],
+            "when_to_seek_care": guidance.get(
+                "when_to_seek_care",
+                []
+            ),
 
-            "urgency": guidance[
-                "urgency"
-            ]
+            "urgency": guidance.get(
+                "urgency",
+                "Routine"
+            )
 
         }
-
 
     # -----------------------------------------------------
     # HTTP EXCEPTION
@@ -258,7 +252,6 @@ async def predict(
     except HTTPException:
 
         raise
-
 
     # -----------------------------------------------------
     # GENERAL ERROR
@@ -272,11 +265,8 @@ async def predict(
         )
 
         raise HTTPException(
-
             status_code=500,
-
             detail=f"Prediction failed: {str(e)}"
-
         )
 
 

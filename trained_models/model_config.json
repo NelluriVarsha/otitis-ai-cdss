@@ -1,0 +1,16 @@
+{
+    "classes": [
+        "Acute Otitis Media",
+        "Cerumen Impaction",
+        "Chronic Otitis Media",
+        "Myringosclerosis",
+        "Normal"
+    ],
+    "num_classes": 5,
+    "image_feature_size": 768,
+    "clinical_input_size": 8,
+    "clinical_feature_size": 128,
+    "fused_feature_size": 896,
+    "severity_classes": 3,
+    "device": "cpu"
+}
