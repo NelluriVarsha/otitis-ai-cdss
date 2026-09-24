@@ -1,1533 +1,1131 @@
-// =========================================================
-// OtitisAI-CDSS — Doctor Dashboard JavaScript
-// =========================================================
-// Reads diagnosis history saved by app.js in localStorage.
-// Compatible with the /api/predict response structure.
-// =========================================================
+// ============================================================
+// OtitisAI-CDSS - Dashboard JavaScript
+// ============================================================
 
-document.addEventListener("DOMContentLoaded", () => {
-
-    // =====================================================
-    // CONFIGURATION
-    // =====================================================
-
-    const HISTORY_KEY = "otitisDiagnosisHistory";
+const HISTORY_KEY = "otitisDiagnosisHistory";
 
 
-    // =====================================================
-    // DOM ELEMENTS
-    // =====================================================
+// ============================================================
+// DOM ELEMENTS
+// ============================================================
 
-    const totalDiagnoses =
-        document.getElementById("totalDiagnoses");
+const totalDiagnoses = document.getElementById("totalDiagnoses");
+const averageConfidence = document.getElementById("averageConfidence");
+const commonDiagnosis = document.getElementById("commonDiagnosis");
+const lowConfidenceCount = document.getElementById("lowConfidenceCount");
 
-    const averageConfidence =
-        document.getElementById("averageConfidence");
+const diagnosisTableBody = document.getElementById("diagnosisTableBody");
 
-    const commonDiagnosis =
-        document.getElementById("commonDiagnosis");
+const emptyState = document.getElementById("emptyState");
+const noSearchResults = document.getElementById("noSearchResults");
 
-    const lowConfidenceCount =
-        document.getElementById("lowConfidenceCount");
+const searchInput = document.getElementById("searchInput");
 
-    const searchInput =
-        document.getElementById("searchInput");
+const refreshButton = document.getElementById("refreshButton");
+const clearHistoryButton = document.getElementById("clearHistoryButton");
 
-    const refreshButton =
-        document.getElementById("refreshButton");
+const detailsSection = document.getElementById("detailsSection");
+const closeDetailsButton = document.getElementById("closeDetailsButton");
 
-    const clearHistoryButton =
-        document.getElementById("clearHistoryButton");
+const detailDiagnosis = document.getElementById("detailDiagnosis");
+const detailConfidence = document.getElementById("detailConfidence");
+const detailDate = document.getElementById("detailDate");
+const detailAge = document.getElementById("detailAge");
+const detailDuration = document.getElementById("detailDuration");
+const detailFilename = document.getElementById("detailFilename");
 
-    const diagnosisTableBody =
-        document.getElementById("diagnosisTableBody");
+const detailSymptoms = document.getElementById("detailSymptoms");
+const detailRecommendations =
+    document.getElementById("detailRecommendations");
 
-    const emptyState =
-        document.getElementById("emptyState");
+const detailPrecautions =
+    document.getElementById("detailPrecautions");
 
-    const noSearchResults =
-        document.getElementById("noSearchResults");
+const detailSeekCare =
+    document.getElementById("detailSeekCare");
 
-    const detailsSection =
-        document.getElementById("detailsSection");
+const detailUrgency =
+    document.getElementById("detailUrgency");
 
-    const closeDetailsButton =
-        document.getElementById("closeDetailsButton");
-
-    const detailDiagnosis =
-        document.getElementById("detailDiagnosis");
-
-    const detailConfidence =
-        document.getElementById("detailConfidence");
-
-    const detailDate =
-        document.getElementById("detailDate");
-
-    const detailAge =
-        document.getElementById("detailAge");
-
-    const detailDuration =
-        document.getElementById("detailDuration");
-
-    const detailFilename =
-        document.getElementById("detailFilename");
-
-    const detailSymptoms =
-        document.getElementById("detailSymptoms");
-
-    const detailRecommendations =
-        document.getElementById("detailRecommendations");
-
-    const detailPrecautions =
-        document.getElementById("detailPrecautions");
-
-    const detailSeekCare =
-        document.getElementById("detailSeekCare");
-
-    const detailUrgency =
-        document.getElementById("detailUrgency");
-
-    const viewReportButton =
-        document.getElementById("viewReportButton");
+const viewReportButton =
+    document.getElementById("viewReportButton");
 
 
-    // =====================================================
-    // LOCAL STORAGE
-    // =====================================================
+// ============================================================
+// GET HISTORY
+// ============================================================
 
-    function getHistory() {
+function getHistory() {
+    try {
+        const storedHistory = localStorage.getItem(HISTORY_KEY);
 
-        try {
-
-            const storedHistory =
-                localStorage.getItem(HISTORY_KEY);
-
-            if (!storedHistory) {
-                return [];
-            }
-
-            const parsedHistory =
-                JSON.parse(storedHistory);
-
-            if (!Array.isArray(parsedHistory)) {
-                return [];
-            }
-
-            return parsedHistory;
-
-        } catch (error) {
-
-            console.error(
-                "Unable to read diagnosis history:",
-                error
-            );
-
+        if (!storedHistory) {
             return [];
         }
-    }
 
+        const parsedHistory = JSON.parse(storedHistory);
 
-    function saveHistory(history) {
+        return Array.isArray(parsedHistory)
+            ? parsedHistory
+            : [];
 
-        try {
-
-            localStorage.setItem(
-                HISTORY_KEY,
-                JSON.stringify(history)
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Unable to save diagnosis history:",
-                error
-            );
-
-        }
-    }
-
-
-    // =====================================================
-    // HTML SAFETY
-    // =====================================================
-
-    function escapeHTML(value) {
-
-        if (
-            value === null ||
-            value === undefined
-        ) {
-            return "";
-        }
-
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-
-    // =====================================================
-    // DIAGNOSIS
-    // =====================================================
-
-    function getDiagnosis(item) {
-
-        return (
-            item.prediction ||
-            item.diagnosis ||
-            item.predicted_class ||
-            item.class_name ||
-            "Unknown"
-        );
-    }
-
-
-    // =====================================================
-    // FILENAME
-    // =====================================================
-
-    function getFilename(item) {
-
-        return (
-            item.filename ||
-            item.file_name ||
-            "Uploaded image"
-        );
-    }
-
-
-    // =====================================================
-    // SYMPTOMS
-    // =====================================================
-
-    function getSymptoms(item) {
-
-        if (Array.isArray(item.symptoms)) {
-
-            return item.symptoms
-                .filter(Boolean)
-                .map(symptom => String(symptom));
-
-        }
-
-
-        if (typeof item.symptoms === "string") {
-
-            if (!item.symptoms.trim()) {
-                return [];
-            }
-
-            return item.symptoms
-                .split(",")
-                .map(symptom => symptom.trim())
-                .filter(Boolean);
-
-        }
-
+    } catch (error) {
+        console.error("Error reading diagnosis history:", error);
         return [];
     }
+}
 
 
-    // =====================================================
-    // RECOMMENDATIONS
-    // =====================================================
+// ============================================================
+// SAVE HISTORY
+// ============================================================
 
-    function getRecommendations(item) {
-
-        if (Array.isArray(item.recommendations)) {
-
-            return item.recommendations
-                .filter(Boolean)
-                .map(item => String(item));
-
-        }
-
-        if (
-            typeof item.recommendations === "string" &&
-            item.recommendations.trim()
-        ) {
-
-            return [item.recommendations];
-
-        }
-
-        return [];
-    }
-
-
-    // =====================================================
-    // PRECAUTIONS
-    // =====================================================
-
-    function getPrecautions(item) {
-
-        if (Array.isArray(item.precautions)) {
-
-            return item.precautions
-                .filter(Boolean)
-                .map(item => String(item));
-
-        }
-
-        if (
-            typeof item.precautions === "string" &&
-            item.precautions.trim()
-        ) {
-
-            return [item.precautions];
-
-        }
-
-        return [];
-    }
-
-
-    // =====================================================
-    // WHEN TO SEEK CARE
-    // =====================================================
-
-    function getSeekCare(item) {
-
-        if (
-            Array.isArray(item.when_to_seek_care)
-        ) {
-
-            return item.when_to_seek_care
-                .filter(Boolean)
-                .map(item => String(item));
-
-        }
-
-        if (
-            typeof item.when_to_seek_care === "string" &&
-            item.when_to_seek_care.trim()
-        ) {
-
-            return [item.when_to_seek_care];
-
-        }
-
-        return [];
-    }
-
-
-    // =====================================================
-    // CONFIDENCE
-    // =====================================================
-
-    function getConfidenceNumber(value) {
-
-        if (
-            value === null ||
-            value === undefined ||
-            value === ""
-        ) {
-            return 0;
-        }
-
-        let confidence =
-            Number(value);
-
-        if (Number.isNaN(confidence)) {
-            return 0;
-        }
-
-        /*
-         Backend can return:
-
-         confidence = 1
-         confidence_percentage = 100
-
-         OR
-
-         confidence = 0.85
-         confidence_percentage = 85
-
-         OR sometimes confidence may already be 85.
-        */
-
-        if (confidence > 0 && confidence <= 1) {
-
-            confidence *= 100;
-
-        }
-
-        return Math.max(
-            0,
-            Math.min(
-                confidence,
-                100
-            )
+function saveHistory(history) {
+    try {
+        localStorage.setItem(
+            HISTORY_KEY,
+            JSON.stringify(history)
         );
+
+        return true;
+
+    } catch (error) {
+        console.error("Error saving diagnosis history:", error);
+        return false;
+    }
+}
+
+
+// ============================================================
+// GET DIAGNOSIS
+// ============================================================
+
+function getDiagnosis(record) {
+    return (
+        record?.prediction ||
+        record?.diagnosis ||
+        record?.result ||
+        "Unknown"
+    );
+}
+
+
+// ============================================================
+// GET FILENAME
+// ============================================================
+
+function getFilename(record) {
+    return (
+        record?.filename ||
+        record?.fileName ||
+        record?.imageName ||
+        "Unknown image"
+    );
+}
+
+
+// ============================================================
+// GET SYMPTOMS
+// ============================================================
+
+function getSymptoms(record) {
+
+    const symptoms = record?.symptoms;
+
+    if (Array.isArray(symptoms)) {
+        return symptoms;
     }
 
-
-    function getConfidence(item) {
-
-        if (
-            item.confidence_percentage !== null &&
-            item.confidence_percentage !== undefined &&
-            item.confidence_percentage !== ""
-        ) {
-
-            return getConfidenceNumber(
-                item.confidence_percentage
-            );
-
-        }
-
-        return getConfidenceNumber(
-            item.confidence
-        );
+    if (typeof symptoms === "string" && symptoms.trim()) {
+        return symptoms
+            .split(",")
+            .map(item => item.trim())
+            .filter(Boolean);
     }
 
+    return [];
+}
 
-    function formatConfidence(value) {
 
-        const confidence =
-            getConfidenceNumber(value);
+// ============================================================
+// GET RECOMMENDATIONS
+// ============================================================
 
-        if (confidence === 0) {
-            return "0%";
-        }
+function getRecommendations(record) {
 
-        return `${confidence.toFixed(1)}%`;
+    const recommendations = record?.recommendations;
+
+    if (Array.isArray(recommendations)) {
+        return recommendations;
     }
 
-
-    // =====================================================
-    // CONFIDENCE BADGE
-    // =====================================================
-
-    function getConfidenceBadge(value) {
-
-        const confidence =
-            getConfidenceNumber(value);
-
-
-        let badgeClass =
-            "badge-danger";
-
-
-        if (confidence >= 80) {
-
-            badgeClass =
-                "badge-success";
-
-        } else if (confidence >= 60) {
-
-            badgeClass =
-                "badge-warning";
-
-        }
-
-
-        return `
-            <span class="badge ${badgeClass}">
-                ${confidence.toFixed(1)}%
-            </span>
-        `;
+    if (
+        typeof recommendations === "string" &&
+        recommendations.trim()
+    ) {
+        return [recommendations];
     }
 
+    return [];
+}
 
-    // =====================================================
-    // DATE
-    // =====================================================
 
-    function getDateValue(item) {
+// ============================================================
+// GET PRECAUTIONS
+// ============================================================
 
-        return (
-            item.timestamp ||
-            item.created_at ||
-            item.date ||
-            null
-        );
+function getPrecautions(record) {
+
+    const precautions = record?.precautions;
+
+    if (Array.isArray(precautions)) {
+        return precautions;
     }
 
-
-    function formatDate(dateValue) {
-
-        if (!dateValue) {
-            return "Unknown";
-        }
-
-
-        const date =
-            new Date(dateValue);
-
-
-        if (Number.isNaN(date.getTime())) {
-
-            return String(dateValue);
-
-        }
-
-
-        return date.toLocaleString(
-            "en-IN",
-            {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
+    if (
+        typeof precautions === "string" &&
+        precautions.trim()
+    ) {
+        return [precautions];
     }
 
-
-    // =====================================================
-    // DURATION
-    // =====================================================
-
-    function formatDuration(duration) {
-
-        if (
-            duration === null ||
-            duration === undefined ||
-            duration === ""
-        ) {
-
-            return "Not specified";
-
-        }
+    return [];
+}
 
 
-        const durationMap = {
+// ============================================================
+// GET SEEK CARE INFORMATION
+// ============================================================
 
-            "less_than_1_week":
-                "Less than 1 week",
+function getSeekCare(record) {
 
-            "1_4_weeks":
-                "1–4 weeks",
+    const seekCare = record?.when_to_seek_care;
 
-            "more_than_1_month":
-                "More than 1 month",
+    if (Array.isArray(seekCare)) {
+        return seekCare;
+    }
 
-            "less than 1 week":
-                "Less than 1 week",
+    if (
+        typeof seekCare === "string" &&
+        seekCare.trim()
+    ) {
+        return [seekCare];
+    }
 
-            "1-4 weeks":
-                "1–4 weeks",
+    return [];
+}
 
-            "more than 1 month":
-                "More than 1 month"
 
+// ============================================================
+// GET CONFIDENCE NUMBER
+// ============================================================
+
+function getConfidenceNumber(record) {
+
+    let confidence =
+        record?.confidence_percentage ??
+        record?.confidence;
+
+    if (
+        confidence === null ||
+        confidence === undefined ||
+        confidence === ""
+    ) {
+        return null;
+    }
+
+    confidence = Number(confidence);
+
+    if (Number.isNaN(confidence)) {
+        return null;
+    }
+
+    // Backend confidence can be 0-1
+    if (confidence >= 0 && confidence <= 1) {
+        confidence = confidence * 100;
+    }
+
+    // Keep confidence inside valid percentage range
+    confidence = Math.max(
+        0,
+        Math.min(100, confidence)
+    );
+
+    return confidence;
+}
+
+
+// ============================================================
+// FORMAT CONFIDENCE
+// ============================================================
+
+function formatConfidence(record) {
+
+    const confidence = getConfidenceNumber(record);
+
+    if (confidence === null) {
+        return "N/A";
+    }
+
+    return `${confidence.toFixed(1)}%`;
+}
+
+
+// ============================================================
+// CONFIDENCE BADGE
+// ============================================================
+
+function getConfidenceBadge(record) {
+
+    const confidence = getConfidenceNumber(record);
+
+    if (confidence === null) {
+        return {
+            text: "N/A",
+            className: "confidence-unknown"
         };
+    }
+
+    if (confidence >= 80) {
+        return {
+            text: `${confidence.toFixed(1)}%`,
+            className: "confidence-high"
+        };
+    }
+
+    if (confidence >= 60) {
+        return {
+            text: `${confidence.toFixed(1)}%`,
+            className: "confidence-medium"
+        };
+    }
+
+    return {
+        text: `${confidence.toFixed(1)}%`,
+        className: "confidence-low"
+    };
+}
 
 
-        return (
-            durationMap[duration] ||
-            String(duration)
-        );
+// ============================================================
+// GET DATE
+// ============================================================
+
+function getDateValue(record) {
+
+    return (
+        record?.date ||
+        record?.timestamp ||
+        record?.createdAt ||
+        record?.created_at ||
+        null
+    );
+}
+
+
+// ============================================================
+// FORMAT DATE
+// ============================================================
+
+function formatDate(record) {
+
+    const dateValue = getDateValue(record);
+
+    if (!dateValue) {
+        return "Unknown";
+    }
+
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+        return String(dateValue);
+    }
+
+    return date.toLocaleString();
+}
+
+
+// ============================================================
+// FORMAT AGE
+// ============================================================
+
+function formatAge(record) {
+
+    const age = record?.age;
+
+    if (
+        age === undefined ||
+        age === null ||
+        String(age).trim() === ""
+    ) {
+        return "Not provided";
+    }
+
+    return `${age} years`;
+}
+
+
+// ============================================================
+// FORMAT DURATION
+// ============================================================
+
+function formatDuration(record) {
+
+    const duration =
+        record?.duration ||
+        record?.symptomDuration;
+
+    if (
+        duration === undefined ||
+        duration === null ||
+        String(duration).trim() === ""
+    ) {
+        return "Not provided";
+    }
+
+    return String(duration);
+}
+
+
+// ============================================================
+// SAFE HTML
+// ============================================================
+
+function escapeHTML(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+// ============================================================
+// UPDATE STATISTICS
+// ============================================================
+
+function updateStatistics(history) {
+
+    // Total diagnoses
+    if (totalDiagnoses) {
+        totalDiagnoses.textContent = history.length;
     }
 
 
-    // =====================================================
-    // AGE
-    // =====================================================
-
-    function formatAge(age) {
-
-        if (
-            age === null ||
-            age === undefined ||
-            age === ""
-        ) {
-
-            return "Not specified";
-
-        }
-
-        return `${age} years`;
-    }
-
-
-    // =====================================================
-    // STATISTICS
-    // =====================================================
-
-    function updateStatistics(history) {
-
-        const total =
-            history.length;
-
-
-        // -------------------------------------------------
-        // TOTAL
-        // -------------------------------------------------
-
-        if (totalDiagnoses) {
-
-            totalDiagnoses.textContent =
-                total;
-
-        }
-
-
-        // -------------------------------------------------
-        // EMPTY HISTORY
-        // -------------------------------------------------
-
-        if (total === 0) {
-
-            if (averageConfidence) {
-                averageConfidence.textContent =
-                    "0%";
-            }
-
-            if (commonDiagnosis) {
-                commonDiagnosis.textContent =
-                    "—";
-            }
-
-            if (lowConfidenceCount) {
-                lowConfidenceCount.textContent =
-                    "0";
-            }
-
-            return;
-        }
-
-
-        // -------------------------------------------------
-        // AVERAGE CONFIDENCE
-        // -------------------------------------------------
-
-        const confidenceValues =
-            history.map(
-                item => getConfidence(item)
-            );
-
-
-        const average =
-            confidenceValues.reduce(
-                (sum, value) =>
-                    sum + value,
-                0
-            ) / confidenceValues.length;
-
+    // No records
+    if (history.length === 0) {
 
         if (averageConfidence) {
+            averageConfidence.textContent = "0%";
+        }
+
+        if (commonDiagnosis) {
+            commonDiagnosis.textContent = "—";
+        }
+
+        if (lowConfidenceCount) {
+            lowConfidenceCount.textContent = "0";
+        }
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Average confidence
+    // --------------------------------------------------------
+
+    const confidenceValues = history
+        .map(record => getConfidenceNumber(record))
+        .filter(value => value !== null);
+
+    if (averageConfidence) {
+
+        if (confidenceValues.length > 0) {
+
+            const total = confidenceValues.reduce(
+                (sum, value) => sum + value,
+                0
+            );
+
+            const average =
+                total / confidenceValues.length;
 
             averageConfidence.textContent =
                 `${average.toFixed(1)}%`;
 
+        } else {
+
+            averageConfidence.textContent = "N/A";
         }
-
-
-        // -------------------------------------------------
-        // LOW CONFIDENCE
-        // -------------------------------------------------
-
-        const lowConfidence =
-            history.filter(
-                item =>
-                    getConfidence(item) < 60
-            ).length;
-
-
-        if (lowConfidenceCount) {
-
-            lowConfidenceCount.textContent =
-                lowConfidence;
-
-        }
-
-
-        // -------------------------------------------------
-        // MOST COMMON DIAGNOSIS
-        // -------------------------------------------------
-
-        const diagnosisCounts = {};
-
-
-        history.forEach(item => {
-
-            const diagnosis =
-                getDiagnosis(item);
-
-
-            diagnosisCounts[diagnosis] =
-                (diagnosisCounts[diagnosis] || 0) + 1;
-
-        });
-
-
-        const mostCommon =
-            Object.entries(
-                diagnosisCounts
-            ).sort(
-                (a, b) =>
-                    b[1] - a[1]
-            )[0];
-
-
-        if (commonDiagnosis) {
-
-            commonDiagnosis.textContent =
-                mostCommon
-                    ? mostCommon[0]
-                    : "—";
-
-        }
-
     }
 
 
-    // =====================================================
-    // RENDER HISTORY
-    // =====================================================
-
-    function renderHistory(history) {
-
-        if (!diagnosisTableBody) {
-            return;
-        }
-
-
-        diagnosisTableBody.innerHTML = "";
-
-
-        // -------------------------------------------------
-        // NO RECORDS
-        // -------------------------------------------------
-
-        if (history.length === 0) {
-
-            if (emptyState) {
-
-                emptyState.style.display =
-                    "";
-
-                emptyState.classList.remove(
-                    "hidden"
-                );
-
-            }
-
-
-            if (noSearchResults) {
-
-                noSearchResults.style.display =
-                    "none";
-
-                noSearchResults.classList.add(
-                    "hidden"
-                );
-
-            }
-
-            return;
-        }
-
-
-        // -------------------------------------------------
-        // RECORDS EXIST
-        // -------------------------------------------------
-
-        if (emptyState) {
-
-            emptyState.style.display =
-                "none";
-
-            emptyState.classList.add(
-                "hidden"
-            );
-
-        }
-
-
-        if (noSearchResults) {
-
-            noSearchResults.style.display =
-                "none";
-
-            noSearchResults.classList.add(
-                "hidden"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // CREATE ROWS
-        // -------------------------------------------------
-
-        history.forEach(
-            (item, index) => {
-
-                const diagnosis =
-                    getDiagnosis(item);
-
-                const filename =
-                    getFilename(item);
-
-                const confidence =
-                    getConfidence(item);
-
-                const date =
-                    getDateValue(item);
-
-                const symptoms =
-                    getSymptoms(item);
-
-
-                let symptomsText =
-                    "None";
-
-
-                if (symptoms.length > 0) {
-
-                    symptomsText =
-                        symptoms.join(", ");
-
-                }
-
-
-                const row =
-                    document.createElement("tr");
-
-
-                /*
-                 IMPORTANT:
-
-                 dashboard.html columns are:
-
-                 Date
-                 Image
-                 Diagnosis
-                 Confidence
-                 Symptoms
-                 Action
-                */
-
-
-                row.innerHTML = `
-
-                    <td>
-                        <span class="date-text">
-                            ${escapeHTML(
-                                formatDate(date)
-                            )}
-                        </span>
-                    </td>
-
-
-                    <td>
-                        <span
-                            class="filename"
-                            title="${escapeHTML(
-                                filename
-                            )}"
-                        >
-                            ${escapeHTML(
-                                filename
-                            )}
-                        </span>
-                    </td>
-
-
-                    <td>
-                        <span class="diagnosis-name">
-                            ${escapeHTML(
-                                diagnosis
-                            )}
-                        </span>
-                    </td>
-
-
-                    <td>
-                        ${getConfidenceBadge(
-                            confidence
-                        )}
-                    </td>
-
-
-                    <td>
-                        <span
-                            title="${escapeHTML(
-                                symptomsText
-                            )}"
-                        >
-                            ${escapeHTML(
-                                symptomsText
-                            )}
-                        </span>
-                    </td>
-
-
-                    <td>
-                        <button
-                            type="button"
-                            class="view-button"
-                            data-index="${index}"
-                        >
-                            View Details
-                        </button>
-                    </td>
-
-                `;
-
-
-                diagnosisTableBody.appendChild(
-                    row
-                );
-
-            }
-        );
-
-
-        // -------------------------------------------------
-        // VIEW BUTTONS
-        // -------------------------------------------------
-
-        const viewButtons =
-            diagnosisTableBody.querySelectorAll(
-                ".view-button"
-            );
-
-
-        viewButtons.forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const index =
-                        Number(
-                            button.dataset.index
-                        );
-
-
-                    if (
-                        Number.isInteger(index) &&
-                        history[index]
-                    ) {
-
-                        showDetails(
-                            history[index]
-                        );
-
-                    }
-
-                }
-            );
-
-        });
-
-    }
-
-
-    // =====================================================
-    // SHOW DETAILS
-    // =====================================================
-
-    function showDetails(item) {
-
-        if (
-            !item ||
-            !detailsSection
-        ) {
-            return;
-        }
-
-
-        const diagnosis =
-            getDiagnosis(item);
+    // --------------------------------------------------------
+    // Low confidence count
+    // --------------------------------------------------------
+
+    const lowConfidence = history.filter(record => {
 
         const confidence =
-            getConfidence(item);
+            getConfidenceNumber(record);
 
-        const date =
-            getDateValue(item);
+        return (
+            confidence !== null &&
+            confidence < 60
+        );
+
+    }).length;
+
+    if (lowConfidenceCount) {
+        lowConfidenceCount.textContent =
+            lowConfidence;
+    }
+
+
+    // --------------------------------------------------------
+    // Most common diagnosis
+    // --------------------------------------------------------
+
+    const diagnosisCounts = {};
+
+    history.forEach(record => {
+
+        const diagnosis =
+            getDiagnosis(record);
+
+        if (!diagnosisCounts[diagnosis]) {
+            diagnosisCounts[diagnosis] = 0;
+        }
+
+        diagnosisCounts[diagnosis]++;
+    });
+
+
+    let mostCommon = "—";
+    let highestCount = 0;
+
+    Object.entries(diagnosisCounts).forEach(
+        ([diagnosis, count]) => {
+
+            if (count > highestCount) {
+
+                highestCount = count;
+                mostCommon = diagnosis;
+            }
+        }
+    );
+
+
+    if (commonDiagnosis) {
+        commonDiagnosis.textContent =
+            mostCommon;
+    }
+}
+
+
+// ============================================================
+// RENDER HISTORY
+// ============================================================
+
+function renderHistory(history = getHistory()) {
+
+    if (!diagnosisTableBody) {
+        return;
+    }
+
+    diagnosisTableBody.innerHTML = "";
+
+
+    // No history
+    if (history.length === 0) {
+
+        if (emptyState) {
+            emptyState.style.display = "block";
+        }
+
+        if (noSearchResults) {
+            noSearchResults.style.display = "none";
+        }
+
+        return;
+    }
+
+
+    if (emptyState) {
+        emptyState.style.display = "none";
+    }
+
+    if (noSearchResults) {
+        noSearchResults.style.display = "none";
+    }
+
+
+    history.forEach((record, index) => {
+
+        const row = document.createElement("tr");
+
+        const diagnosis =
+            getDiagnosis(record);
 
         const filename =
-            getFilename(item);
+            getFilename(record);
 
         const symptoms =
-            getSymptoms(item);
-
-        const recommendations =
-            getRecommendations(item);
-
-        const precautions =
-            getPrecautions(item);
-
-        const seekCare =
-            getSeekCare(item);
-
-
-        // -------------------------------------------------
-        // BASIC INFORMATION
-        // -------------------------------------------------
-
-        if (detailDiagnosis) {
-
-            detailDiagnosis.textContent =
-                diagnosis;
-
-        }
-
-
-        if (detailConfidence) {
-
-            detailConfidence.textContent =
-                `${confidence.toFixed(1)}%`;
-
-        }
-
-
-        if (detailDate) {
-
-            detailDate.textContent =
-                formatDate(date);
-
-        }
-
-
-        if (detailAge) {
-
-            detailAge.textContent =
-                formatAge(item.age);
-
-        }
-
-
-        if (detailDuration) {
-
-            detailDuration.textContent =
-                formatDuration(
-                    item.duration
-                );
-
-        }
-
-
-        if (detailFilename) {
-
-            detailFilename.textContent =
-                filename;
-
-        }
-
-
-        // -------------------------------------------------
-        // SYMPTOMS
-        // -------------------------------------------------
-
-        if (detailSymptoms) {
-
-            if (symptoms.length > 0) {
-
-                detailSymptoms.innerHTML =
-                    symptoms
-                        .map(
-                            symptom => `
-                                <span
-                                    class="badge badge-primary"
-                                >
-                                    ${escapeHTML(
-                                        symptom
-                                    )}
-                                </span>
-                            `
-                        )
-                        .join(" ");
-
-            } else {
-
-                detailSymptoms.innerHTML =
-                    "<li>No symptoms recorded</li>";
-
-            }
-
-        }
-
-
-        // -------------------------------------------------
-        // RECOMMENDATIONS
-        // -------------------------------------------------
-
-        populateList(
-            detailRecommendations,
-            recommendations,
-            "No recommendations available"
-        );
-
-
-        // -------------------------------------------------
-        // PRECAUTIONS
-        // -------------------------------------------------
-
-        populateList(
-            detailPrecautions,
-            precautions,
-            "No precautions available"
-        );
-
-
-        // -------------------------------------------------
-        // SEEK CARE
-        // -------------------------------------------------
-
-        populateList(
-            detailSeekCare,
-            seekCare,
-            "No additional care information available"
-        );
-
-
-        // -------------------------------------------------
-        // URGENCY
-        // -------------------------------------------------
-
-        if (detailUrgency) {
-
-            detailUrgency.textContent =
-                item.urgency ||
-                "AI result available — clinical confirmation recommended";
-
-        }
-
-
-        // -------------------------------------------------
-        // REPORT BUTTON
-        // -------------------------------------------------
-
-        if (viewReportButton) {
-
-            viewReportButton.onclick =
-                function () {
-
-                    try {
-
-                        sessionStorage.setItem(
-                            "selectedDiagnosisReport",
-                            JSON.stringify(item)
-                        );
-
-                    } catch (error) {
-
-                        console.error(
-                            "Unable to store report data:",
-                            error
-                        );
-
-                    }
-
-                    window.location.href =
-                        "report.html";
-
-                };
-
-        }
-
-
-        // -------------------------------------------------
-        // SHOW DETAILS
-        // -------------------------------------------------
-
-        detailsSection.style.display =
-            "";
-
-        detailsSection.classList.remove(
-            "hidden"
-        );
-
-
-        setTimeout(
-            () => {
-
-                detailsSection.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-
-            },
-            100
-        );
-
-    }
-
-
-    // =====================================================
-    // POPULATE LIST
-    // =====================================================
-
-    function populateList(
-        element,
-        items,
-        emptyMessage
-    ) {
-
-        if (!element) {
-            return;
-        }
-
-
-        if (
-            !Array.isArray(items) ||
-            items.length === 0
-        ) {
-
-            element.innerHTML =
-                `<li>${escapeHTML(
-                    emptyMessage
-                )}</li>`;
-
-            return;
-        }
-
-
-        element.innerHTML =
-            items
-                .map(
-                    item =>
-                        `<li>${escapeHTML(
-                            item
-                        )}</li>`
-                )
-                .join("");
-
-    }
-
-
-    // =====================================================
-    // SEARCH
-    // =====================================================
-
-    function performSearch() {
-
-        const history =
-            getHistory();
-
-
-        const searchTerm =
-            searchInput
-                ? searchInput.value
-                    .trim()
-                    .toLowerCase()
-                : "";
-
-
-        // -------------------------------------------------
-        // SHOW ALL
-        // -------------------------------------------------
-
-        if (!searchTerm) {
-
-            renderHistory(
-                history
+            getSymptoms(record);
+
+        const confidenceBadge =
+            getConfidenceBadge(record);
+
+
+        const symptomsText =
+            symptoms.length > 0
+                ? symptoms.join(", ")
+                : "None";
+
+
+        row.innerHTML = `
+            <td>
+                ${escapeHTML(formatDate(record))}
+            </td>
+
+            <td>
+                <span class="image-name">
+                    ${escapeHTML(filename)}
+                </span>
+            </td>
+
+            <td>
+                <span class="diagnosis-name">
+                    ${escapeHTML(diagnosis)}
+                </span>
+            </td>
+
+            <td>
+                <span class="confidence-badge ${confidenceBadge.className}">
+                    ${escapeHTML(confidenceBadge.text)}
+                </span>
+            </td>
+
+            <td>
+                <span class="symptoms-text">
+                    ${escapeHTML(symptomsText)}
+                </span>
+            </td>
+
+            <td>
+                <button
+                    type="button"
+                    class="view-button"
+                    data-index="${index}">
+                    View Details
+                </button>
+            </td>
+        `;
+
+
+        const viewButton =
+            row.querySelector(".view-button");
+
+        if (viewButton) {
+
+            viewButton.addEventListener(
+                "click",
+                () => showDetails(record)
             );
-
-            return;
-
         }
 
 
-        // -------------------------------------------------
-        // FILTER
-        // -------------------------------------------------
-
-        const filtered =
-            history.filter(item => {
-
-                const diagnosis =
-                    getDiagnosis(item)
-                        .toLowerCase();
+        diagnosisTableBody.appendChild(row);
+    });
+}
 
 
-                const filename =
-                    getFilename(item)
-                        .toLowerCase();
+// ============================================================
+// SHOW DETAILS
+// ============================================================
+
+function showDetails(record) {
+
+    if (!record) {
+        return;
+    }
 
 
-                const symptoms =
-                    getSymptoms(item)
-                        .join(" ")
-                        .toLowerCase();
+    // Show details section
+    if (detailsSection) {
+        detailsSection.style.display = "block";
+    }
 
 
-                const duration =
-                    formatDuration(
-                        item.duration
+    // Diagnosis
+    if (detailDiagnosis) {
+        detailDiagnosis.textContent =
+            getDiagnosis(record);
+    }
+
+
+    // Confidence
+    if (detailConfidence) {
+        detailConfidence.textContent =
+            formatConfidence(record);
+    }
+
+
+    // Date
+    if (detailDate) {
+        detailDate.textContent =
+            formatDate(record);
+    }
+
+
+    // Age
+    if (detailAge) {
+        detailAge.textContent =
+            formatAge(record);
+    }
+
+
+    // Duration
+    if (detailDuration) {
+        detailDuration.textContent =
+            formatDuration(record);
+    }
+
+
+    // Filename
+    if (detailFilename) {
+        detailFilename.textContent =
+            getFilename(record);
+    }
+
+
+    // Symptoms
+    if (detailSymptoms) {
+
+        const symptoms =
+            getSymptoms(record);
+
+        if (symptoms.length > 0) {
+
+            detailSymptoms.innerHTML =
+                symptoms
+                    .map(
+                        symptom =>
+                            `<span class="symptom-tag">
+                                ${escapeHTML(symptom)}
+                            </span>`
                     )
-                        .toLowerCase();
-
-
-                const age =
-                    String(
-                        item.age || ""
-                    )
-                        .toLowerCase();
-
-
-                return (
-
-                    diagnosis.includes(
-                        searchTerm
-                    ) ||
-
-                    filename.includes(
-                        searchTerm
-                    ) ||
-
-                    symptoms.includes(
-                        searchTerm
-                    ) ||
-
-                    duration.includes(
-                        searchTerm
-                    ) ||
-
-                    age.includes(
-                        searchTerm
-                    )
-
-                );
-
-            });
-
-
-        // -------------------------------------------------
-        // NO RESULTS
-        // -------------------------------------------------
-
-        if (filtered.length === 0) {
-
-            diagnosisTableBody.innerHTML =
-                "";
-
-
-            if (emptyState) {
-
-                emptyState.style.display =
-                    "none";
-
-                emptyState.classList.add(
-                    "hidden"
-                );
-
-            }
-
-
-            if (noSearchResults) {
-
-                noSearchResults.style.display =
-                    "";
-
-                noSearchResults.classList.remove(
-                    "hidden"
-                );
-
-            }
-
-
-            return;
-
-        }
-
-
-        // -------------------------------------------------
-        // SHOW FILTERED RESULTS
-        // -------------------------------------------------
-
-        renderHistory(
-            filtered
-        );
-
-    }
-
-
-    // =====================================================
-    // CLEAR HISTORY
-    // =====================================================
-
-    function clearHistory() {
-
-        const history =
-            getHistory();
-
-
-        if (history.length === 0) {
-
-            alert(
-                "There is no diagnosis history to clear."
-            );
-
-            return;
-
-        }
-
-
-        const confirmed =
-            window.confirm(
-                "Are you sure you want to delete all diagnosis history?"
-            );
-
-
-        if (!confirmed) {
-            return;
-        }
-
-
-        localStorage.removeItem(
-            HISTORY_KEY
-        );
-
-
-        // Hide details
-        if (detailsSection) {
-
-            detailsSection.style.display =
-                "none";
-
-            detailsSection.classList.add(
-                "hidden"
-            );
-
-        }
-
-
-        // Clear search
-        if (searchInput) {
-
-            searchInput.value =
-                "";
-
-        }
-
-
-        // Update dashboard
-        updateStatistics([]);
-
-        renderHistory([]);
-
-
-        console.log(
-            "Diagnosis history cleared."
-        );
-
-    }
-
-
-    // =====================================================
-    // CLOSE DETAILS
-    // =====================================================
-
-    function closeDetails() {
-
-        if (!detailsSection) {
-            return;
-        }
-
-
-        detailsSection.style.display =
-            "none";
-
-        detailsSection.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    // =====================================================
-    // REFRESH DASHBOARD
-    // =====================================================
-
-    function refreshDashboard() {
-
-        const history =
-            getHistory();
-
-
-        updateStatistics(
-            history
-        );
-
-
-        if (
-            searchInput &&
-            searchInput.value.trim()
-        ) {
-
-            performSearch();
+                    .join("");
 
         } else {
 
-            renderHistory(
-                history
-            );
+            detailSymptoms.textContent =
+                "No symptoms provided.";
+        }
+    }
 
+
+    // Recommendations
+    populateList(
+        detailRecommendations,
+        getRecommendations(record),
+        "No recommendations available."
+    );
+
+
+    // Precautions
+    populateList(
+        detailPrecautions,
+        getPrecautions(record),
+        "No precautions available."
+    );
+
+
+    // When to seek care
+    populateList(
+        detailSeekCare,
+        getSeekCare(record),
+        "No additional care guidance available."
+    );
+
+
+    // Urgency
+    if (detailUrgency) {
+
+        detailUrgency.textContent =
+            record?.urgency ||
+            "Clinical confirmation recommended.";
+    }
+
+
+    // Save selected report
+    try {
+
+        sessionStorage.setItem(
+            "selectedDiagnosisReport",
+            JSON.stringify(record)
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Unable to save selected report:",
+            error
+        );
+    }
+
+
+    // Scroll to details
+    setTimeout(() => {
+
+        if (detailsSection) {
+
+            detailsSection.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
         }
 
+    }, 50);
+}
+
+
+// ============================================================
+// POPULATE LIST
+// ============================================================
+
+function populateList(
+    element,
+    items,
+    emptyMessage
+) {
+
+    if (!element) {
+        return;
     }
 
 
-    // =====================================================
-    // EVENT LISTENERS
-    // =====================================================
+    element.innerHTML = "";
+
+
+    if (
+        !Array.isArray(items) ||
+        items.length === 0
+    ) {
+
+        const li =
+            document.createElement("li");
+
+        li.textContent =
+            emptyMessage;
+
+        element.appendChild(li);
+
+        return;
+    }
+
+
+    items.forEach(item => {
+
+        const li =
+            document.createElement("li");
+
+        li.textContent =
+            item;
+
+        element.appendChild(li);
+    });
+}
+
+
+// ============================================================
+// SEARCH HISTORY
+// ============================================================
+
+function searchHistory() {
+
+    const history =
+        getHistory();
+
+    const query =
+        searchInput?.value
+            ?.trim()
+            .toLowerCase() || "";
+
+
+    if (!query) {
+
+        renderHistory(history);
+        return;
+    }
+
+
+    const filteredHistory =
+        history.filter(record => {
+
+            const diagnosis =
+                getDiagnosis(record)
+                    .toLowerCase();
+
+            const filename =
+                getFilename(record)
+                    .toLowerCase();
+
+            const symptoms =
+                getSymptoms(record)
+                    .join(" ")
+                    .toLowerCase();
+
+            const duration =
+                formatDuration(record)
+                    .toLowerCase();
+
+            const age =
+                String(record?.age || "")
+                    .toLowerCase();
+
+            return (
+                diagnosis.includes(query) ||
+                filename.includes(query) ||
+                symptoms.includes(query) ||
+                duration.includes(query) ||
+                age.includes(query)
+            );
+        });
+
+
+    if (
+        filteredHistory.length === 0
+    ) {
+
+        if (diagnosisTableBody) {
+            diagnosisTableBody.innerHTML = "";
+        }
+
+        if (emptyState) {
+            emptyState.style.display = "none";
+        }
+
+        if (noSearchResults) {
+            noSearchResults.style.display = "block";
+        }
+
+        return;
+    }
+
+
+    renderHistory(filteredHistory);
+}
+
+
+// ============================================================
+// CLEAR HISTORY
+// ============================================================
+
+function clearHistory() {
+
+    const history =
+        getHistory();
+
+    if (history.length === 0) {
+
+        alert("There is no diagnosis history to clear.");
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to clear all diagnosis history?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    localStorage.removeItem(
+        HISTORY_KEY
+    );
+
+
+    closeDetails();
+
+
+    updateStatistics([]);
+    renderHistory([]);
+
 
     if (searchInput) {
-
-        searchInput.addEventListener(
-            "input",
-            performSearch
-        );
-
+        searchInput.value = "";
     }
 
 
-    if (refreshButton) {
+    alert("Diagnosis history cleared successfully.");
+}
 
-        refreshButton.addEventListener(
-            "click",
-            refreshDashboard
-        );
 
+// ============================================================
+// CLOSE DETAILS
+// ============================================================
+
+function closeDetails() {
+
+    if (detailsSection) {
+
+        detailsSection.style.display =
+            "none";
+    }
+}
+
+
+// ============================================================
+// REFRESH DASHBOARD
+// ============================================================
+
+function refreshDashboard() {
+
+    const history =
+        getHistory();
+
+
+    updateStatistics(history);
+
+
+    if (
+        searchInput &&
+        searchInput.value.trim()
+    ) {
+
+        searchHistory();
+
+    } else {
+
+        renderHistory(history);
     }
 
 
-    if (clearHistoryButton) {
+    closeDetails();
+}
 
-        clearHistoryButton.addEventListener(
-            "click",
-            clearHistory
+
+// ============================================================
+// VIEW REPORT
+// ============================================================
+
+function viewReport() {
+
+    const selectedReport =
+        sessionStorage.getItem(
+            "selectedDiagnosisReport"
         );
 
+
+    if (!selectedReport) {
+
+        alert(
+            "Please select a diagnosis before viewing the report."
+        );
+
+        return;
     }
 
 
-    if (closeDetailsButton) {
+    window.location.href =
+        "report.html";
+}
 
-        closeDetailsButton.addEventListener(
-            "click",
-            closeDetails
-        );
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+
+if (searchInput) {
+
+    searchInput.addEventListener(
+        "input",
+        searchHistory
+    );
+}
+
+
+if (refreshButton) {
+
+    refreshButton.addEventListener(
+        "click",
+        refreshDashboard
+    );
+}
+
+
+if (clearHistoryButton) {
+
+    clearHistoryButton.addEventListener(
+        "click",
+        clearHistory
+    );
+}
+
+
+if (closeDetailsButton) {
+
+    closeDetailsButton.addEventListener(
+        "click",
+        closeDetails
+    );
+}
+
+
+if (viewReportButton) {
+
+    viewReportButton.addEventListener(
+        "click",
+        viewReport
+    );
+}
+
+
+// ============================================================
+// INITIALIZE DASHBOARD
+// ============================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        const history =
+            getHistory();
+
+        updateStatistics(history);
+        renderHistory(history);
 
     }
+);
 
 
-    // =====================================================
-    // INITIALIZE DASHBOARD
-    // =====================================================
+// ============================================================
+// GLOBAL FUNCTIONS
+// ============================================================
 
-    refreshDashboard();
+window.refreshOtitisDashboard =
+    refreshDashboard;
 
+window.getOtitisDiagnosisHistory =
+    getHistory;
 
-    // =====================================================
-    // EXPOSE FUNCTIONS
-    // =====================================================
+window.showOtitisDiagnosisDetails =
+    showDetails;
 
-    window.refreshOtitisDashboard =
-        refreshDashboard;
-
-    window.getOtitisDiagnosisHistory =
-        getHistory;
-
-});
+window.clearOtitisDiagnosisHistory =
+    clearHistory;

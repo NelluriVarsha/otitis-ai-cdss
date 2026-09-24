@@ -1,6 +1,13 @@
 // =========================================================
-// OtitisAI-CDSS - Diagnosis Page JavaScript
-// Multimodal: Image + Symptoms + Clinical Data
+// OtitisAI-CDSS
+// Diagnosis Page JavaScript
+// Multimodal: Otoscopic Image + Clinical Symptoms
+// Includes: Diagnosis + Confidence + Severity + Recommendations
+// =========================================================
+
+
+// =========================================================
+// API CONFIGURATION
 // =========================================================
 
 const API_URL = "http://127.0.0.1:8000";
@@ -10,105 +17,265 @@ const API_URL = "http://127.0.0.1:8000";
 // DOM ELEMENTS
 // =========================================================
 
-const imageInput = document.getElementById("imageInput");
-const imagePreview = document.getElementById("imagePreview");
-const uploadArea = document.getElementById("uploadArea");
+const imageInput =
+    document.getElementById("imageInput");
 
-const analyzeButton = document.getElementById("analyzeButton");
+const imagePreview =
+    document.getElementById("imagePreview");
 
-const loadingMessage = document.getElementById("loadingMessage");
-const errorMessage = document.getElementById("errorMessage");
+const uploadArea =
+    document.getElementById("uploadArea");
 
-const predictionResult = document.getElementById("predictionResult");
-const confidenceResult = document.getElementById("confidenceResult");
-const filenameResult = document.getElementById("filenameResult");
+const analyzeButton =
+    document.getElementById("analyzeButton");
+
+const loadingMessage =
+    document.getElementById("loadingMessage");
+
+const errorMessage =
+    document.getElementById("errorMessage");
+
+const predictionResult =
+    document.getElementById("predictionResult");
+
+const confidenceResult =
+    document.getElementById("confidenceResult");
+
+const filenameResult =
+    document.getElementById("filenameResult");
 
 
 // =========================================================
-// SELECTED IMAGE
+// OPTIONAL RESULT ELEMENTS
+// =========================================================
+
+const severityResult =
+    document.getElementById("severityResult");
+
+const severityScoreResult =
+    document.getElementById("severityScore");
+
+const severityFactorsResult =
+    document.getElementById("severityFactors");
+
+const recommendationsList =
+    document.getElementById("recommendationsList");
+
+const precautionsList =
+    document.getElementById("precautionsList");
+
+const seekCareList =
+    document.getElementById("whenToSeekCare");
+
+const urgencyResult =
+    document.getElementById("urgencyResult");
+
+
+// =========================================================
+// APPLICATION STATE
 // =========================================================
 
 let selectedFile = null;
 
-
-// =========================================================
-// PAGE INITIALIZATION
-// =========================================================
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    setupImageUpload();
-
-    setupAnalyzeButton();
-
-    hideElement(loadingMessage);
-    hideElement(errorMessage);
-
-    hideRecommendationSection();
-
-});
+let latestDiagnosis = null;
 
 
 // =========================================================
-// IMAGE UPLOAD
+// INITIALIZATION
 // =========================================================
 
-function setupImageUpload() {
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        initializeImageUpload();
+
+        initializeAnalyzeButton();
+
+        initializeResetButton();
+
+        initializeNavigation();
+
+        initializeSymptomControls();
+
+    }
+);
+
+
+// =========================================================
+// IMAGE UPLOAD INITIALIZATION
+// =========================================================
+
+function initializeImageUpload() {
 
     if (!imageInput) {
         return;
     }
 
-    imageInput.addEventListener("change", function () {
+    imageInput.addEventListener(
+        "change",
+        handleImageSelection
+    );
 
-        const file = this.files[0];
 
-        if (!file) {
-            return;
-        }
+    if (uploadArea) {
 
-        // Check file type
-        if (!file.type.startsWith("image/")) {
+        uploadArea.addEventListener(
+            "dragover",
+            event => {
 
-            showError(
-                "Please select a valid image file."
-            );
+                event.preventDefault();
 
-            imageInput.value = "";
+                uploadArea.classList.add(
+                    "drag-over"
+                );
 
-            return;
-        }
+            }
+        );
 
-        selectedFile = file;
 
-        hideElement(errorMessage);
+        uploadArea.addEventListener(
+            "dragleave",
+            () => {
 
-        displayImagePreview(file);
+                uploadArea.classList.remove(
+                    "drag-over"
+                );
 
-    });
+            }
+        );
+
+
+        uploadArea.addEventListener(
+            "drop",
+            event => {
+
+                event.preventDefault();
+
+                uploadArea.classList.remove(
+                    "drag-over"
+                );
+
+                const files =
+                    event.dataTransfer.files;
+
+                if (
+                    files &&
+                    files.length > 0
+                ) {
+
+                    selectedFile =
+                        files[0];
+
+                    displayImagePreview(
+                        selectedFile
+                    );
+
+                }
+
+            }
+        );
+
+    }
 
 }
 
 
 // =========================================================
-// IMAGE PREVIEW
+// HANDLE IMAGE SELECTION
+// =========================================================
+
+function handleImageSelection(event) {
+
+    const files =
+        event.target.files;
+
+    if (
+        !files ||
+        files.length === 0
+    ) {
+
+        selectedFile = null;
+
+        return;
+
+    }
+
+    selectedFile = files[0];
+
+    displayImagePreview(
+        selectedFile
+    );
+
+}
+
+
+// =========================================================
+// DISPLAY IMAGE PREVIEW
 // =========================================================
 
 function displayImagePreview(file) {
+
+    if (!file) {
+        return;
+    }
+
+
+    const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/webp",
+        "image/bmp"
+    ];
+
+
+    if (
+        file.type &&
+        !allowedTypes.includes(file.type)
+    ) {
+
+        showError(
+            "Please select a JPG, JPEG, PNG, WEBP or BMP image."
+        );
+
+        selectedFile = null;
+
+        return;
+
+    }
+
 
     if (!imagePreview) {
         return;
     }
 
-    const reader = new FileReader();
 
-    reader.onload = function (event) {
+    const reader =
+        new FileReader();
 
-        imagePreview.src = event.target.result;
 
-        imagePreview.style.display = "block";
+    reader.onload =
+        event => {
 
-    };
+            imagePreview.src =
+                event.target.result;
+
+            imagePreview.style.display =
+                "block";
+
+        };
+
+
+    reader.onerror =
+        () => {
+
+            showError(
+                "Unable to preview the selected image."
+            );
+
+        };
+
 
     reader.readAsDataURL(file);
 
@@ -119,11 +286,12 @@ function displayImagePreview(file) {
 // ANALYZE BUTTON
 // =========================================================
 
-function setupAnalyzeButton() {
+function initializeAnalyzeButton() {
 
     if (!analyzeButton) {
         return;
     }
+
 
     analyzeButton.addEventListener(
         "click",
@@ -134,10 +302,13 @@ function setupAnalyzeButton() {
 
 
 // =========================================================
-// ANALYZE IMAGE + CLINICAL DATA
+// MAIN ANALYSIS FUNCTION
 // =========================================================
 
 async function analyzeImage() {
+
+    hideError();
+
 
     // -----------------------------------------------------
     // CHECK IMAGE
@@ -150,43 +321,51 @@ async function analyzeImage() {
         );
 
         return;
+
     }
 
 
     // -----------------------------------------------------
-    // GET CLINICAL DATA
+    // COLLECT CLINICAL DATA
     // -----------------------------------------------------
 
-    const symptoms = getSelectedSymptoms();
+    const symptoms =
+        getSelectedSymptoms();
 
-    const duration = getDuration();
 
-    const age = getAge();
+    const duration =
+        getDuration();
 
-    const clinicalData =
-        getClinicalData(symptoms, duration);
+
+    const age =
+        getAge();
 
 
     // -----------------------------------------------------
     // CREATE FORM DATA
     // -----------------------------------------------------
 
-    const formData = new FormData();
+    const formData =
+        new FormData();
+
 
     formData.append(
         "file",
         selectedFile
     );
 
+
     formData.append(
         "symptoms",
         symptoms.join(",")
     );
 
+
     formData.append(
         "duration",
         duration
     );
+
 
     formData.append(
         "age",
@@ -195,49 +374,14 @@ async function analyzeImage() {
 
 
     // -----------------------------------------------------
-    // ADD INDIVIDUAL CLINICAL FLAGS
+    // SHOW LOADING
     // -----------------------------------------------------
 
-    formData.append(
-        "ear_pain",
-        clinicalData.ear_pain
+    showLoading();
+
+    setAnalyzeButtonLoading(
+        true
     );
-
-    formData.append(
-        "fever",
-        clinicalData.fever
-    );
-
-    formData.append(
-        "hearing_loss",
-        clinicalData.hearing_loss
-    );
-
-    formData.append(
-        "ear_discharge",
-        clinicalData.ear_discharge
-    );
-
-    formData.append(
-        "itching",
-        clinicalData.itching
-    );
-
-    formData.append(
-        "recent_cold",
-        clinicalData.recent_cold
-    );
-
-
-    // -----------------------------------------------------
-    // UI STATE
-    // -----------------------------------------------------
-
-    hideElement(errorMessage);
-
-    showElement(loadingMessage);
-
-    setAnalyzeButtonLoading(true);
 
 
     try {
@@ -246,26 +390,30 @@ async function analyzeImage() {
         // SEND REQUEST TO FASTAPI
         // -------------------------------------------------
 
-        const response = await fetch(
-            `${API_URL}/api/predict`,
-            {
-                method: "POST",
-                body: formData
-            }
-        );
+        const response =
+            await fetch(
+                `${API_URL}/api/predict`,
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
 
 
         // -------------------------------------------------
-        // CHECK HTTP RESPONSE
+        // READ JSON
         // -------------------------------------------------
 
         let data;
 
+
         try {
 
-            data = await response.json();
+            data =
+                await response.json();
 
-        } catch (jsonError) {
+        }
+        catch (jsonError) {
 
             throw new Error(
                 "The diagnosis server returned an invalid response."
@@ -275,8 +423,8 @@ async function analyzeImage() {
 
 
         // -------------------------------------------------
-        // CHECK SERVER ERROR
-        // -----------------------------------------------------
+        // HTTP ERROR
+        // -------------------------------------------------
 
         if (!response.ok) {
 
@@ -289,7 +437,7 @@ async function analyzeImage() {
 
 
         // -------------------------------------------------
-        // CHECK SUCCESS
+        // SERVER SUCCESS CHECK
         // -------------------------------------------------
 
         if (
@@ -308,16 +456,25 @@ async function analyzeImage() {
         // NORMALIZE RESPONSE
         // -------------------------------------------------
 
-        const result = normalizeDiagnosisResponse(
-            data,
-            symptoms,
-            duration,
-            age
-        );
+        const result =
+            normalizeDiagnosisResponse(
+                data,
+                symptoms,
+                duration,
+                age
+            );
 
 
         // -------------------------------------------------
-        // DISPLAY DIAGNOSIS
+        // SAVE LATEST RESULT
+        // -------------------------------------------------
+
+        latestDiagnosis =
+            result;
+
+
+        // -------------------------------------------------
+        // DISPLAY RESULT
         // -------------------------------------------------
 
         displayDiagnosisResult(
@@ -344,13 +501,12 @@ async function analyzeImage() {
 
 
         // -------------------------------------------------
-        // SCROLL TO RESULT
+        // SCROLL TO RESULTS
         // -------------------------------------------------
 
         scrollToResults();
 
     }
-
     catch (error) {
 
         console.error(
@@ -358,29 +514,30 @@ async function analyzeImage() {
             error
         );
 
+
         let message =
             "Unable to connect to the diagnosis server.";
+
 
         if (
             error &&
             error.message
         ) {
 
-            message = error.message;
+            message =
+                error.message;
 
         }
+
 
         showError(
             message
         );
 
     }
-
     finally {
 
-        hideElement(
-            loadingMessage
-        );
+        hideLoading();
 
         setAnalyzeButtonLoading(
             false
@@ -399,33 +556,29 @@ function getSelectedSymptoms() {
 
     const symptoms = [];
 
-    /*
-     * Supports checkboxes such as:
-     *
-     * <input
-     *     type="checkbox"
-     *     name="symptoms"
-     *     value="ear pain">
-     */
 
     const checkedSymptoms =
         document.querySelectorAll(
             'input[name="symptoms"]:checked'
         );
 
+
     checkedSymptoms.forEach(
         checkbox => {
 
-            if (checkbox.value) {
+            if (
+                checkbox.value
+            ) {
 
                 symptoms.push(
-                    checkbox.value
+                    checkbox.value.trim()
                 );
 
             }
 
         }
     );
+
 
     return symptoms;
 
@@ -438,24 +591,57 @@ function getSelectedSymptoms() {
 
 function getDuration() {
 
-    /*
-     * Supports:
-     *
-     * <select id="duration">
-     */
+    const possibleElements = [
 
-    const durationElement =
         document.getElementById(
             "duration"
-        );
+        ),
 
-    if (!durationElement) {
+        document.getElementById(
+            "durationInput"
+        ),
 
-        return "";
+        document.getElementById(
+            "symptomDuration"
+        )
+
+    ];
+
+
+    for (
+        const element
+        of possibleElements
+    ) {
+
+        if (element) {
+
+            return (
+                element.value ||
+                ""
+            ).trim();
+
+        }
 
     }
 
-    return durationElement.value || "";
+
+    const selected =
+        document.querySelector(
+            'select[name="duration"]'
+        );
+
+
+    if (selected) {
+
+        return (
+            selected.value ||
+            ""
+        ).trim();
+
+    }
+
+
+    return "";
 
 }
 
@@ -466,188 +652,41 @@ function getDuration() {
 
 function getAge() {
 
-    /*
-     * Supports:
-     *
-     * <input id="age">
-     */
+    const possibleElements = [
 
-    const ageElement =
         document.getElementById(
             "age"
-        );
+        ),
 
-    if (!ageElement) {
+        document.getElementById(
+            "ageInput"
+        ),
 
-        return "";
+        document.getElementById(
+            "patientAge"
+        )
 
-    }
-
-    return ageElement.value || "";
-
-}
-
-
-// =========================================================
-// CONVERT SYMPTOMS INTO CLINICAL FLAGS
-// =========================================================
-
-function getClinicalData(
-    symptoms,
-    duration
-) {
-
-    const normalizedSymptoms =
-        symptoms.map(
-            symptom =>
-                String(symptom)
-                    .toLowerCase()
-                    .trim()
-                    .replace(/_/g, " ")
-        );
+    ];
 
 
-    function hasSymptom(
-        values
+    for (
+        const element
+        of possibleElements
     ) {
 
-        return values.some(
-            value =>
-                normalizedSymptoms.includes(
-                    value
-                )
-        );
+        if (element) {
+
+            return (
+                element.value ||
+                ""
+            ).trim();
+
+        }
 
     }
 
 
-    return {
-
-        ear_pain: hasSymptom([
-            "ear pain",
-            "earache",
-            "pain"
-        ]),
-
-        fever: hasSymptom([
-            "fever",
-            "high fever"
-        ]),
-
-        hearing_loss: hasSymptom([
-            "hearing loss",
-            "hearing difficulty",
-            "reduced hearing"
-        ]),
-
-        ear_discharge: hasSymptom([
-            "ear discharge",
-            "discharge",
-            "fluid from ear"
-        ]),
-
-        itching: hasSymptom([
-            "itching",
-            "ear itching"
-        ]),
-
-        recent_cold: hasSymptom([
-            "recent cold",
-            "cold",
-            "cough",
-            "respiratory infection"
-        ]),
-
-        duration_days:
-            parseDurationToDays(
-                duration
-            )
-
-    };
-
-}
-
-
-// =========================================================
-// CONVERT DURATION TO DAYS
-// =========================================================
-
-function parseDurationToDays(
-    duration
-) {
-
-    if (
-        duration === null ||
-        duration === undefined ||
-        duration === ""
-    ) {
-
-        return 0;
-
-    }
-
-
-    // If the HTML already returns a number
-    if (
-        !isNaN(duration)
-    ) {
-
-        return Number(duration);
-
-    }
-
-
-    const value =
-        String(duration)
-            .toLowerCase()
-            .trim();
-
-
-    // Common duration options
-    if (
-        value.includes("today") ||
-        value.includes("1 day")
-    ) {
-
-        return 1;
-
-    }
-
-    if (
-        value.includes("2-3") ||
-        value.includes("2 to 3")
-    ) {
-
-        return 3;
-
-    }
-
-    if (
-        value.includes("4-7") ||
-        value.includes("4 to 7")
-    ) {
-
-        return 7;
-
-    }
-
-    if (
-        value.includes("week")
-    ) {
-
-        return 7;
-
-    }
-
-    if (
-        value.includes("month")
-    ) {
-
-        return 30;
-
-    }
-
-    return 0;
+    return "";
 
 }
 
@@ -667,38 +706,82 @@ function normalizeDiagnosisResponse(
 
         ...data,
 
+
         filename:
             data.filename ||
-            selectedFile?.name ||
-            "Uploaded image",
+            (
+                selectedFile
+                    ? selectedFile.name
+                    : "Uploaded image"
+            ),
+
 
         prediction:
             data.prediction ||
             data.diagnosis ||
             "Unknown",
 
+
+        class_index:
+            data.class_index ??
+            null,
+
+
         confidence:
             data.confidence ??
             null,
 
+
         confidence_percentage:
             data.confidence_percentage ??
             null,
+
 
         age:
             data.age ||
             age ||
             "",
 
+
         symptoms:
-            data.symptoms ||
-            symptoms ||
-            [],
+            Array.isArray(
+                data.symptoms
+            )
+                ? data.symptoms
+                : symptoms,
+
 
         duration:
             data.duration ||
             duration ||
             "",
+
+
+        // -------------------------------------------------
+        // SEVERITY
+        // -------------------------------------------------
+
+        severity:
+            data.severity ||
+            "Not available",
+
+
+        severity_score:
+            data.severity_score ??
+            null,
+
+
+        severity_factors:
+            Array.isArray(
+                data.severity_factors
+            )
+                ? data.severity_factors
+                : [],
+
+
+        // -------------------------------------------------
+        // RECOMMENDATIONS
+        // -------------------------------------------------
 
         recommendations:
             Array.isArray(
@@ -707,6 +790,7 @@ function normalizeDiagnosisResponse(
                 ? data.recommendations
                 : [],
 
+
         precautions:
             Array.isArray(
                 data.precautions
@@ -714,12 +798,14 @@ function normalizeDiagnosisResponse(
                 ? data.precautions
                 : [],
 
+
         when_to_seek_care:
             Array.isArray(
                 data.when_to_seek_care
             )
                 ? data.when_to_seek_care
                 : [],
+
 
         urgency:
             data.urgency ||
@@ -738,6 +824,10 @@ function displayDiagnosisResult(
     data
 ) {
 
+    // -----------------------------------------------------
+    // DIAGNOSIS
+    // -----------------------------------------------------
+
     if (predictionResult) {
 
         predictionResult.textContent =
@@ -747,39 +837,24 @@ function displayDiagnosisResult(
     }
 
 
+    // -----------------------------------------------------
+    // CONFIDENCE
+    // -----------------------------------------------------
+
     if (confidenceResult) {
 
-        if (
-            data.confidence_percentage !== null &&
-            data.confidence_percentage !== undefined
-        ) {
-
-            confidenceResult.textContent =
-                `${data.confidence_percentage}%`;
-
-        }
-
-        else if (
-            data.confidence !== null &&
-            data.confidence !== undefined
-        ) {
-
-            confidenceResult.textContent =
-                `${(
-                    Number(data.confidence) * 100
-                ).toFixed(2)}%`;
-
-        }
-
-        else {
-
-            confidenceResult.textContent =
-                "N/A";
-
-        }
+        confidenceResult.textContent =
+            formatConfidence(
+                data.confidence_percentage,
+                data.confidence
+            );
 
     }
 
+
+    // -----------------------------------------------------
+    // FILENAME
+    // -----------------------------------------------------
 
     if (filenameResult) {
 
@@ -791,7 +866,16 @@ function displayDiagnosisResult(
 
 
     // -----------------------------------------------------
-    // OPTIONAL MULTIMODAL RESULT ELEMENTS
+    // SEVERITY
+    // -----------------------------------------------------
+
+    displaySeverity(
+        data
+    );
+
+
+    // -----------------------------------------------------
+    // OPTIONAL MULTIMODAL ELEMENTS
     // -----------------------------------------------------
 
     const imagePrediction =
@@ -799,10 +883,12 @@ function displayDiagnosisResult(
             "imagePrediction"
         );
 
+
     if (imagePrediction) {
 
         imagePrediction.textContent =
             data.image_prediction ||
+            data.prediction ||
             "N/A";
 
     }
@@ -813,10 +899,12 @@ function displayDiagnosisResult(
             "imageConfidence"
         );
 
+
     if (imageConfidence) {
 
         imageConfidence.textContent =
             formatConfidence(
+                data.image_confidence_percentage,
                 data.image_confidence
             );
 
@@ -828,10 +916,197 @@ function displayDiagnosisResult(
             "clinicalEvidence"
         );
 
+
     if (clinicalEvidence) {
 
-        clinicalEvidence.textContent =
-            "Clinical symptoms included in analysis";
+        if (
+            data.symptoms &&
+            data.symptoms.length > 0
+        ) {
+
+            clinicalEvidence.textContent =
+                data.symptoms.join(", ");
+
+        }
+        else {
+
+            clinicalEvidence.textContent =
+                "No symptoms provided";
+
+        }
+
+    }
+
+}
+
+
+// =========================================================
+// DISPLAY SEVERITY
+// =========================================================
+
+function displaySeverity(
+    data
+) {
+
+    const severity =
+        data.severity ||
+        "Not available";
+
+
+    // -----------------------------------------------------
+    // SEVERITY TEXT
+    // -----------------------------------------------------
+
+    if (severityResult) {
+
+        severityResult.textContent =
+            severity;
+
+    }
+
+
+    // -----------------------------------------------------
+    // SEVERITY SCORE
+    // -----------------------------------------------------
+
+    if (severityScoreResult) {
+
+        if (
+            data.severity_score !== null &&
+            data.severity_score !== undefined
+        ) {
+
+            severityScoreResult.textContent =
+                data.severity_score;
+
+        }
+        else {
+
+            severityScoreResult.textContent =
+                "N/A";
+
+        }
+
+    }
+
+
+    // -----------------------------------------------------
+    // SEVERITY FACTORS
+    // -----------------------------------------------------
+
+    if (severityFactorsResult) {
+
+        severityFactorsResult.innerHTML = "";
+
+
+        const factors =
+            Array.isArray(
+                data.severity_factors
+            )
+                ? data.severity_factors
+                : [];
+
+
+        if (
+            factors.length === 0
+        ) {
+
+            const item =
+                document.createElement(
+                    "li"
+                );
+
+            item.textContent =
+                "No severity factors available.";
+
+            severityFactorsResult.appendChild(
+                item
+            );
+
+        }
+        else {
+
+            factors.forEach(
+                factor => {
+
+                    const item =
+                        document.createElement(
+                            "li"
+                        );
+
+                    item.textContent =
+                        factor;
+
+                    severityFactorsResult.appendChild(
+                        item
+                    );
+
+                }
+            );
+
+        }
+
+    }
+
+
+    // -----------------------------------------------------
+    // SEVERITY COLOR / CLASS
+    // -----------------------------------------------------
+
+    const severityContainer =
+        document.getElementById(
+            "severityContainer"
+        );
+
+
+    if (severityContainer) {
+
+        severityContainer.classList.remove(
+            "severity-mild",
+            "severity-moderate",
+            "severity-severe",
+            "severity-unknown"
+        );
+
+
+        const normalized =
+            severity.toLowerCase();
+
+
+        if (
+            normalized === "mild"
+        ) {
+
+            severityContainer.classList.add(
+                "severity-mild"
+            );
+
+        }
+        else if (
+            normalized === "moderate"
+        ) {
+
+            severityContainer.classList.add(
+                "severity-moderate"
+            );
+
+        }
+        else if (
+            normalized === "severe"
+        ) {
+
+            severityContainer.classList.add(
+                "severity-severe"
+            );
+
+        }
+        else {
+
+            severityContainer.classList.add(
+                "severity-unknown"
+            );
+
+        }
 
     }
 
@@ -843,21 +1118,39 @@ function displayDiagnosisResult(
 // =========================================================
 
 function formatConfidence(
-    confidence
+    percentage,
+    rawConfidence
 ) {
 
     if (
-        confidence === null ||
-        confidence === undefined
+        percentage !== null &&
+        percentage !== undefined &&
+        !Number.isNaN(
+            Number(percentage)
+        )
     ) {
 
-        return "N/A";
+        return `${Number(percentage).toFixed(2)}%`;
 
     }
 
-    return (
-        Number(confidence) * 100
-    ).toFixed(2) + "%";
+
+    if (
+        rawConfidence !== null &&
+        rawConfidence !== undefined &&
+        !Number.isNaN(
+            Number(rawConfidence)
+        )
+    ) {
+
+        return `${(
+            Number(rawConfidence) * 100
+        ).toFixed(2)}%`;
+
+    }
+
+
+    return "N/A";
 
 }
 
@@ -870,44 +1163,37 @@ function displayRecommendations(
     data
 ) {
 
-    const recommendationSection =
-        document.getElementById(
-            "recommendationSection"
-        );
+    // -----------------------------------------------------
+    // RECOMMENDATIONS
+    // -----------------------------------------------------
 
-    const recommendationsList =
-        document.getElementById(
-            "recommendationsList"
-        );
-
-    const precautionsList =
-        document.getElementById(
-            "precautionsList"
-        );
-
-    const seekCareList =
-        document.getElementById(
-            "seekCareList"
-        );
-
-    const urgencyResult =
-        document.getElementById(
-            "urgencyResult"
-        );
+    renderList(
+        recommendationsList,
+        data.recommendations,
+        "No recommendations available."
+    );
 
 
     // -----------------------------------------------------
-    // SECTION
+    // PRECAUTIONS
     // -----------------------------------------------------
 
-    if (!recommendationSection) {
+    renderList(
+        precautionsList,
+        data.precautions,
+        "No precautions available."
+    );
 
-        return;
 
-    }
+    // -----------------------------------------------------
+    // WHEN TO SEEK CARE
+    // -----------------------------------------------------
 
-    recommendationSection.style.display =
-        "block";
+    renderList(
+        seekCareList,
+        data.when_to_seek_care,
+        "No additional warning signs available."
+    );
 
 
     // -----------------------------------------------------
@@ -922,161 +1208,66 @@ function displayRecommendations(
 
     }
 
-
-    // -----------------------------------------------------
-    // RECOMMENDATIONS
-    // -----------------------------------------------------
-
-    if (recommendationsList) {
-
-        recommendationsList.innerHTML = "";
-
-        if (
-            Array.isArray(
-                data.recommendations
-            ) &&
-            data.recommendations.length > 0
-        ) {
-
-            data.recommendations.forEach(
-                item => {
-
-                    const li =
-                        document.createElement(
-                            "li"
-                        );
-
-                    li.textContent =
-                        item;
-
-                    recommendationsList.appendChild(
-                        li
-                    );
-
-                }
-            );
-
-        }
-
-        else {
-
-            recommendationsList.innerHTML =
-                "<li>No specific recommendations available.</li>";
-
-        }
-
-    }
-
-
-    // -----------------------------------------------------
-    // PRECAUTIONS
-    // -----------------------------------------------------
-
-    if (precautionsList) {
-
-        precautionsList.innerHTML = "";
-
-        if (
-            Array.isArray(
-                data.precautions
-            ) &&
-            data.precautions.length > 0
-        ) {
-
-            data.precautions.forEach(
-                item => {
-
-                    const li =
-                        document.createElement(
-                            "li"
-                        );
-
-                    li.textContent =
-                        item;
-
-                    precautionsList.appendChild(
-                        li
-                    );
-
-                }
-            );
-
-        }
-
-        else {
-
-            precautionsList.innerHTML =
-                "<li>No specific precautions available.</li>";
-
-        }
-
-    }
-
-
-    // -----------------------------------------------------
-    // WHEN TO SEEK CARE
-    // -----------------------------------------------------
-
-    if (seekCareList) {
-
-        seekCareList.innerHTML = "";
-
-        if (
-            Array.isArray(
-                data.when_to_seek_care
-            ) &&
-            data.when_to_seek_care.length > 0
-        ) {
-
-            data.when_to_seek_care.forEach(
-                item => {
-
-                    const li =
-                        document.createElement(
-                            "li"
-                        );
-
-                    li.textContent =
-                        item;
-
-                    seekCareList.appendChild(
-                        li
-                    );
-
-                }
-            );
-
-        }
-
-        else {
-
-            seekCareList.innerHTML =
-                "<li>Seek medical advice if symptoms persist or worsen.</li>";
-
-        }
-
-    }
-
 }
 
 
 // =========================================================
-// HIDE RECOMMENDATION SECTION
+// GENERIC LIST RENDERER
 // =========================================================
 
-function hideRecommendationSection() {
+function renderList(
+    element,
+    items,
+    emptyMessage
+) {
 
-    const section =
-        document.getElementById(
-            "recommendationSection"
+    if (!element) {
+        return;
+    }
+
+
+    element.innerHTML = "";
+
+
+    if (
+        !Array.isArray(items) ||
+        items.length === 0
+    ) {
+
+        const li =
+            document.createElement(
+                "li"
+            );
+
+        li.textContent =
+            emptyMessage;
+
+        element.appendChild(
+            li
         );
 
-    if (section) {
-
-        section.style.display =
-            "none";
+        return;
 
     }
+
+
+    items.forEach(
+        item => {
+
+            const li =
+                document.createElement(
+                    "li"
+                );
+
+            li.textContent =
+                item;
+
+            element.appendChild(
+                li
+            );
+
+        }
+    );
 
 }
 
@@ -1086,171 +1277,142 @@ function hideRecommendationSection() {
 // =========================================================
 
 function saveDiagnosisToHistory(
-    data
+    result
 ) {
-
-    const HISTORY_KEY =
-        "otitisDiagnosisHistory";
-
-
-    let history = [];
-
 
     try {
 
         const existing =
             localStorage.getItem(
-                HISTORY_KEY
+                "otitisDiagnosisHistory"
             );
+
+
+        let history = [];
+
 
         if (existing) {
 
-            history =
-                JSON.parse(
-                    existing
-                );
+            try {
+
+                history =
+                    JSON.parse(
+                        existing
+                    );
+
+            }
+            catch (error) {
+
+                history = [];
+
+            }
 
         }
 
-    }
 
-    catch (error) {
+        if (
+            !Array.isArray(history)
+        ) {
 
-        console.error(
-            "Unable to read diagnosis history:",
-            error
-        );
+            history = [];
 
-        history = [];
-
-    }
+        }
 
 
-    // -----------------------------------------------------
-    // CREATE RECORD
-    // -----------------------------------------------------
+        const historyItem = {
 
-    const record = {
-
-        id:
-            Date.now(),
-
-        timestamp:
-            new Date().toISOString(),
-
-        date:
-            new Date().toLocaleDateString(),
-
-        time:
-            new Date().toLocaleTimeString(),
-
-        filename:
-            data.filename ||
-            "",
-
-        prediction:
-            data.prediction ||
-            "Unknown",
-
-        class_index:
-            data.class_index ??
-            null,
-
-        confidence:
-            data.confidence ??
-            null,
-
-        confidence_percentage:
-            data.confidence_percentage ??
-            null,
-
-        image_prediction:
-            data.image_prediction ||
-            "",
-
-        image_confidence:
-            data.image_confidence ??
-            null,
-
-        clinical_data:
-            data.clinical_data ||
-            {},
-
-        clinical_features:
-            data.clinical_features ||
-            [],
-
-        clinical_scores:
-            data.clinical_scores ||
-            {},
-
-        combined_scores:
-            data.combined_scores ||
-            {},
-
-        age:
-            data.age ||
-            "",
-
-        symptoms:
-            data.symptoms ||
-            [],
-
-        duration:
-            data.duration ||
-            "",
-
-        recommendations:
-            data.recommendations ||
-            [],
-
-        precautions:
-            data.precautions ||
-            [],
-
-        when_to_seek_care:
-            data.when_to_seek_care ||
-            [],
-
-        urgency:
-            data.urgency ||
-            ""
-
-    };
+            id:
+                Date.now(),
 
 
-    // -----------------------------------------------------
-    // ADD TO HISTORY
-    // -----------------------------------------------------
-
-    history.unshift(
-        record
-    );
+            timestamp:
+                new Date().toISOString(),
 
 
-    // Keep only latest 50 records
-    history =
-        history.slice(
-            0,
-            50
+            filename:
+                result.filename,
+
+
+            prediction:
+                result.prediction,
+
+
+            class_index:
+                result.class_index,
+
+
+            confidence:
+                result.confidence,
+
+
+            confidence_percentage:
+                result.confidence_percentage,
+
+
+            severity:
+                result.severity,
+
+
+            severity_score:
+                result.severity_score,
+
+
+            severity_factors:
+                result.severity_factors,
+
+
+            age:
+                result.age,
+
+
+            symptoms:
+                result.symptoms,
+
+
+            duration:
+                result.duration,
+
+
+            recommendations:
+                result.recommendations,
+
+
+            precautions:
+                result.precautions,
+
+
+            when_to_seek_care:
+                result.when_to_seek_care,
+
+
+            urgency:
+                result.urgency
+
+        };
+
+
+        history.unshift(
+            historyItem
         );
 
 
-    // -----------------------------------------------------
-    // SAVE
-    // -----------------------------------------------------
+        // Keep latest 50 records
+        history =
+            history.slice(
+                0,
+                50
+            );
 
-    try {
 
         localStorage.setItem(
-            HISTORY_KEY,
+            "otitisDiagnosisHistory",
             JSON.stringify(
                 history
             )
         );
 
-    }
 
+    }
     catch (error) {
 
         console.error(
@@ -1264,38 +1426,294 @@ function saveDiagnosisToHistory(
 
 
 // =========================================================
-// GET DIAGNOSIS HISTORY
+// RESET BUTTON
 // =========================================================
 
-function getDiagnosisHistory() {
+function initializeResetButton() {
 
-    try {
+    const resetButton =
+        document.getElementById(
+            "resetButton"
+        );
 
-        const history =
-            localStorage.getItem(
-                "otitisDiagnosisHistory"
-            );
 
-        if (!history) {
+    if (!resetButton) {
+        return;
+    }
 
-            return [];
+
+    resetButton.addEventListener(
+        "click",
+        resetDiagnosisForm
+    );
+
+}
+
+
+// =========================================================
+// RESET FORM
+// =========================================================
+
+function resetDiagnosisForm() {
+
+    selectedFile = null;
+
+    latestDiagnosis = null;
+
+
+    if (imageInput) {
+
+        imageInput.value = "";
+
+    }
+
+
+    if (imagePreview) {
+
+        imagePreview.src = "";
+
+        imagePreview.style.display =
+            "none";
+
+    }
+
+
+    // -----------------------------------------------------
+    // UNCHECK SYMPTOMS
+    // -----------------------------------------------------
+
+    const checkboxes =
+        document.querySelectorAll(
+            'input[name="symptoms"]'
+        );
+
+
+    checkboxes.forEach(
+        checkbox => {
+
+            checkbox.checked =
+                false;
 
         }
+    );
 
-        return JSON.parse(
-            history
+
+    // -----------------------------------------------------
+    // RESET AGE
+    // -----------------------------------------------------
+
+    const ageInput =
+        document.getElementById(
+            "age"
         );
+
+
+    if (ageInput) {
+
+        ageInput.value = "";
 
     }
 
-    catch (error) {
 
-        console.error(
-            "Unable to load history:",
-            error
+    // -----------------------------------------------------
+    // RESET DURATION
+    // -----------------------------------------------------
+
+    const durationInput =
+        document.getElementById(
+            "duration"
         );
 
-        return [];
+
+    if (durationInput) {
+
+        durationInput.value = "";
+
+    }
+
+
+    // -----------------------------------------------------
+    // CLEAR RESULTS
+    // -----------------------------------------------------
+
+    if (predictionResult) {
+
+        predictionResult.textContent =
+            "—";
+
+    }
+
+
+    if (confidenceResult) {
+
+        confidenceResult.textContent =
+            "—";
+
+    }
+
+
+    if (severityResult) {
+
+        severityResult.textContent =
+            "—";
+
+    }
+
+
+    if (severityScoreResult) {
+
+        severityScoreResult.textContent =
+            "—";
+
+    }
+
+
+    if (severityFactorsResult) {
+
+        severityFactorsResult.innerHTML =
+            "";
+
+    }
+
+
+    if (recommendationsList) {
+
+        recommendationsList.innerHTML =
+            "";
+
+    }
+
+
+    if (precautionsList) {
+
+        precautionsList.innerHTML =
+            "";
+
+    }
+
+
+    if (seekCareList) {
+
+        seekCareList.innerHTML =
+            "";
+
+    }
+
+
+    if (urgencyResult) {
+
+        urgencyResult.textContent =
+            "—";
+
+    }
+
+
+    hideError();
+
+}
+
+
+// =========================================================
+// NAVIGATION
+// =========================================================
+
+function initializeNavigation() {
+
+    const dashboardLinks =
+        document.querySelectorAll(
+            '[data-page="dashboard"]'
+        );
+
+
+    dashboardLinks.forEach(
+        link => {
+
+            link.addEventListener(
+                "click",
+                () => {
+
+                    window.location.href =
+                        "dashboard.html";
+
+                }
+            );
+
+        }
+    );
+
+
+    const reportLinks =
+        document.querySelectorAll(
+            '[data-page="report"]'
+        );
+
+
+    reportLinks.forEach(
+        link => {
+
+            link.addEventListener(
+                "click",
+                () => {
+
+                    window.location.href =
+                        "report.html";
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+// =========================================================
+// SYMPTOM CONTROLS
+// =========================================================
+
+function initializeSymptomControls() {
+
+    const symptomInputs =
+        document.querySelectorAll(
+            'input[name="symptoms"]'
+        );
+
+
+    symptomInputs.forEach(
+        input => {
+
+            input.addEventListener(
+                "change",
+                () => {
+
+                    input.parentElement
+                        ?.classList.toggle(
+                            "selected",
+                            input.checked
+                        );
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+// =========================================================
+// SHOW LOADING
+// =========================================================
+
+function showLoading() {
+
+    if (loadingMessage) {
+
+        loadingMessage.style.display =
+            "block";
+
+        loadingMessage.textContent =
+            "Analyzing otoscopic image and clinical information...";
 
     }
 
@@ -1303,34 +1721,59 @@ function getDiagnosisHistory() {
 
 
 // =========================================================
-// GET SINGLE DIAGNOSIS
+// HIDE LOADING
 // =========================================================
 
-function getDiagnosisById(
-    id
+function hideLoading() {
+
+    if (loadingMessage) {
+
+        loadingMessage.style.display =
+            "none";
+
+    }
+
+}
+
+
+// =========================================================
+// ANALYZE BUTTON LOADING STATE
+// =========================================================
+
+function setAnalyzeButtonLoading(
+    loading
 ) {
 
-    const history =
-        getDiagnosisHistory();
-
-    return history.find(
-        record =>
-            String(record.id) ===
-            String(id)
-    );
-
-}
+    if (!analyzeButton) {
+        return;
+    }
 
 
-// =========================================================
-// CLEAR DIAGNOSIS HISTORY
-// =========================================================
+    if (loading) {
 
-function clearDiagnosisHistory() {
+        analyzeButton.disabled =
+            true;
 
-    localStorage.removeItem(
-        "otitisDiagnosisHistory"
-    );
+
+        analyzeButton.dataset.originalText =
+            analyzeButton.textContent;
+
+
+        analyzeButton.textContent =
+            "Analyzing...";
+
+    }
+    else {
+
+        analyzeButton.disabled =
+            false;
+
+
+        analyzeButton.textContent =
+            analyzeButton.dataset.originalText ||
+            "Analyze Image";
+
+    }
 
 }
 
@@ -1351,94 +1794,34 @@ function showError(
 
     }
 
+
     errorMessage.textContent =
         message;
 
-    showElement(
-        errorMessage
-    );
+
+    errorMessage.style.display =
+        "block";
 
 }
 
 
 // =========================================================
-// SHOW ELEMENT
+// HIDE ERROR
 // =========================================================
 
-function showElement(
-    element
-) {
+function hideError() {
 
-    if (!element) {
-
+    if (!errorMessage) {
         return;
-
     }
 
-    element.style.display =
+
+    errorMessage.textContent =
         "";
 
-}
 
-
-// =========================================================
-// HIDE ELEMENT
-// =========================================================
-
-function hideElement(
-    element
-) {
-
-    if (!element) {
-
-        return;
-
-    }
-
-    element.style.display =
+    errorMessage.style.display =
         "none";
-
-}
-
-
-// =========================================================
-// ANALYZE BUTTON LOADING STATE
-// =========================================================
-
-function setAnalyzeButtonLoading(
-    loading
-) {
-
-    if (!analyzeButton) {
-
-        return;
-
-    }
-
-
-    if (loading) {
-
-        analyzeButton.disabled =
-            true;
-
-        analyzeButton.dataset.originalText =
-            analyzeButton.textContent;
-
-        analyzeButton.textContent =
-            "Analyzing...";
-
-    }
-
-    else {
-
-        analyzeButton.disabled =
-            false;
-
-        analyzeButton.textContent =
-            analyzeButton.dataset.originalText ||
-            "Analyze Image";
-
-    }
 
 }
 
@@ -1449,21 +1832,50 @@ function setAnalyzeButtonLoading(
 
 function scrollToResults() {
 
-    const resultSection =
-        document.querySelector(
-            ".result-section"
+    const results =
+        document.getElementById(
+            "results"
         );
 
-    if (
-        resultSection &&
-        typeof resultSection.scrollIntoView ===
-        "function"
-    ) {
 
-        resultSection.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
+    if (results) {
+
+        setTimeout(
+            () => {
+
+                results.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+            },
+            100
+        );
+
+        return;
+
+    }
+
+
+    const resultSection =
+        document.querySelector(
+            ".results-section"
+        );
+
+
+    if (resultSection) {
+
+        setTimeout(
+            () => {
+
+                resultSection.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+            },
+            100
+        );
 
     }
 
@@ -1471,14 +1883,69 @@ function scrollToResults() {
 
 
 // =========================================================
-// EXPORT FUNCTIONS
+// CONNECTION TEST
 // =========================================================
 
-window.getDiagnosisHistory =
-    getDiagnosisHistory;
+async function checkBackendConnection() {
 
-window.getDiagnosisById =
-    getDiagnosisById;
+    try {
 
-window.clearDiagnosisHistory =
-    clearDiagnosisHistory;
+        const response =
+            await fetch(
+                `${API_URL}/api/health`
+            );
+
+
+        if (!response.ok) {
+
+            return false;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        return (
+            data.status ===
+            "healthy"
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Backend connection failed:",
+            error
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+// =========================================================
+// EXPOSE FUNCTIONS GLOBALLY
+// =========================================================
+
+window.analyzeImage =
+    analyzeImage;
+
+window.resetDiagnosisForm =
+    resetDiagnosisForm;
+
+window.checkBackendConnection =
+    checkBackendConnection;
+
+window.getSelectedSymptoms =
+    getSelectedSymptoms;
+
+window.getDuration =
+    getDuration;
+
+window.getAge =
+    getAge;

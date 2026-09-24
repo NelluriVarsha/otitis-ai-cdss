@@ -1,1757 +1,887 @@
-/* ============================================================
-   OtitisAI-CDSS
-   Complete Diagnosis Report JavaScript
-   ============================================================ */
+// ============================================================
+// OtitisAI-CDSS - Report JavaScript
+// ============================================================
 
-"use strict";
+const REPORT_STORAGE_KEY = "selectedDiagnosisReport";
 
 
-/* ============================================================
-   CONSTANTS
-   ============================================================ */
+// ============================================================
+// DOM ELEMENTS
+// ============================================================
 
-const HISTORY_KEY = "otitisDiagnosisHistory";
-const SELECTED_REPORT_KEY = "selectedDiagnosisReport";
+const reportStatus =
+    document.getElementById("reportStatus");
 
+const reportDate =
+    document.getElementById("reportDate");
 
-/* ============================================================
-   PAGE INITIALIZATION
-   ============================================================ */
+const reportDiagnosis =
+    document.getElementById("reportDiagnosis");
 
-document.addEventListener("DOMContentLoaded", function () {
+const reportConfidence =
+    document.getElementById("reportConfidence");
 
-    initializeReport();
+const reportSeverity =
+    document.getElementById("reportSeverity");
 
-});
+const reportSeverityScore =
+    document.getElementById("reportSeverityScore");
 
+const reportAge =
+    document.getElementById("reportAge");
 
-/* ============================================================
-   INITIALIZE REPORT
-   ============================================================ */
+const reportDuration =
+    document.getElementById("reportDuration");
 
-function initializeReport() {
+const reportFilename =
+    document.getElementById("reportFilename");
 
-    console.log("OtitisAI-CDSS Report Page Loaded");
+const reportDiagnosisDate =
+    document.getElementById("reportDiagnosisDate");
 
-    const reportData = getReportData();
+const reportImageFilename =
+    document.getElementById("reportImageFilename");
 
-    console.log("Report data:", reportData);
+const reportSymptoms =
+    document.getElementById("reportSymptoms");
 
+const reportSeverityFactors =
+    document.getElementById("reportSeverityFactors");
 
-    if (!reportData) {
+const reportRecommendations =
+    document.getElementById("reportRecommendations");
 
-        showNoReportMessage();
+const reportPrecautions =
+    document.getElementById("reportPrecautions");
 
-        setupReportButtons(null);
+const reportSeekCare =
+    document.getElementById("reportSeekCare");
 
-        return;
-    }
+const reportUrgency =
+    document.getElementById("reportUrgency");
 
+const printReportButton =
+    document.getElementById("printReportButton");
 
-    hideNoReportMessage();
-
-    createReportContainerIfNeeded();
-
-    displayReport(reportData);
-
-    setupReportButtons(reportData);
-
-}
-
-
-/* ============================================================
-   GET REPORT DATA
-   ============================================================ */
-
-function getReportData() {
-
-    /*
-     * Priority 1:
-     * Selected report from Dashboard
-     */
-
-    try {
-
-        const selectedReport =
-            sessionStorage.getItem(
-                SELECTED_REPORT_KEY
-            );
-
-        if (selectedReport) {
-
-            const parsed =
-                JSON.parse(selectedReport);
-
-            if (parsed) {
-
-                console.log(
-                    "Using selected diagnosis report."
-                );
-
-                return parsed;
-
-            }
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Error reading selected report:",
-            error
-        );
-
-    }
-
-
-    /*
-     * Priority 2:
-     * Most recent diagnosis from localStorage
-     */
-
-    try {
-
-        const history =
-            JSON.parse(
-                localStorage.getItem(
-                    HISTORY_KEY
-                ) || "[]"
-            );
-
-
-        if (
-            Array.isArray(history) &&
-            history.length > 0
-        ) {
-
-            console.log(
-                "Using latest diagnosis from history."
-            );
-
-            return history[0];
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Error reading diagnosis history:",
-            error
-        );
-
-    }
-
-
-    return null;
-
-}
-
-
-/* ============================================================
-   CREATE REPORT CONTAINER
-   ============================================================ */
-
-function createReportContainerIfNeeded() {
-
-    let reportContent =
-        document.getElementById(
-            "reportContent"
-        );
-
-
-    if (reportContent) {
-
-        reportContent.classList.remove("hidden");
-
-        return;
-
-    }
-
-
-    /*
-     * Find main page container.
-     */
-
-    let main =
-        document.querySelector("main");
-
-
-    if (!main) {
-
-        main =
-            document.querySelector(
-                ".report-page"
-            );
-
-    }
-
-
-    if (!main) {
-
-        main =
-            document.body;
-
-    }
-
-
-    /*
-     * Create report container.
-     */
-
-    reportContent =
-        document.createElement("div");
-
-    reportContent.id =
-        "reportContent";
-
-    reportContent.className =
-        "report-content";
-
-
-    /*
-     * Insert after the page header if possible.
-     */
-
-    const pageHeader =
-        document.querySelector(
-            ".report-header"
-        );
-
-
-    if (
-        pageHeader &&
-        pageHeader.parentNode
-    ) {
-
-        pageHeader.parentNode.insertBefore(
-            reportContent,
-            pageHeader.nextSibling
-        );
-
-    }
-
-    else {
-
-        main.appendChild(
-            reportContent
-        );
-
-    }
-
-
-    console.log(
-        "Report content container created."
+const printReportButtonBottom =
+    document.getElementById(
+        "printReportButtonBottom"
     );
 
+
+// ============================================================
+// GET SELECTED REPORT
+// ============================================================
+
+function getSelectedReport() {
+
+    try {
+
+        const storedReport =
+            sessionStorage.getItem(
+                REPORT_STORAGE_KEY
+            );
+
+        if (!storedReport) {
+            return null;
+        }
+
+        return JSON.parse(storedReport);
+
+    } catch (error) {
+
+        console.error(
+            "Error reading selected diagnosis:",
+            error
+        );
+
+        return null;
+    }
 }
 
 
-/* ============================================================
-   DISPLAY REPORT
-   ============================================================ */
+// ============================================================
+// GET DIAGNOSIS
+// ============================================================
 
-function displayReport(data) {
+function getDiagnosis(record) {
 
-    const prediction =
-        data.prediction ||
-        data.diagnosis ||
-        data.predicted_class ||
-        "Unknown";
-
-
-    /*
-     * Confidence
-     */
-
-    let confidence = null;
+    return (
+        record?.prediction ||
+        record?.diagnosis ||
+        record?.result ||
+        "Unknown"
+    );
+}
 
 
-    if (
-        data.confidence_percentage !== null &&
-        data.confidence_percentage !== undefined
-    ) {
+// ============================================================
+// GET FILENAME
+// ============================================================
 
-        confidence =
-            Number(
-                data.confidence_percentage
-            );
+function getFilename(record) {
 
-    }
-
-    else if (
-        data.confidence !== null &&
-        data.confidence !== undefined
-    ) {
-
-        confidence =
-            Number(data.confidence);
-
-        /*
-         * Backend usually returns confidence
-         * between 0 and 1.
-         */
-
-        if (
-            confidence >= 0 &&
-            confidence <= 1
-        ) {
-
-            confidence =
-                confidence * 100;
-
-        }
-
-    }
+    return (
+        record?.filename ||
+        record?.fileName ||
+        record?.imageName ||
+        "Unknown image"
+    );
+}
 
 
-    if (!Number.isFinite(confidence)) {
+// ============================================================
+// GET SYMPTOMS
+// ============================================================
 
-        confidence = 0;
-
-    }
-
-
-    confidence =
-        Math.max(
-            0,
-            Math.min(
-                100,
-                confidence
-            )
-        );
-
-
-    /*
-     * Other information
-     */
-
-    const filename =
-        data.filename ||
-        "Uploaded otoscopic image";
-
-
-    const age =
-        data.age ||
-        "Not provided";
-
-
-    const duration =
-        data.duration ||
-        "Not provided";
-
+function getSymptoms(record) {
 
     const symptoms =
-        normalizeArray(
-            data.symptoms
-        );
+        record?.symptoms;
 
-
-    const recommendations =
-        normalizeArray(
-            data.recommendations
-        );
-
-
-    const precautions =
-        normalizeArray(
-            data.precautions
-        );
-
-
-    const seekCare =
-        normalizeArray(
-            data.when_to_seek_care ||
-            data.seekCare ||
-            data.whenToSeekCare
-        );
-
-
-    const urgency =
-        data.urgency ||
-        "Clinical review recommended";
-
-
-    const reportDate =
-        data.date ||
-        data.timestamp ||
-        data.created_at ||
-        new Date();
-
-
-    /*
-     * Build complete report.
-     */
-
-    const reportHTML = `
-
-        <div class="generated-report">
-
-            <!-- =========================================
-                 REPORT HEADER
-                 ========================================= -->
-
-            <div class="report-card report-summary">
-
-                <div class="report-card-header">
-
-                    <div>
-                        <span class="report-label">
-                            DIAGNOSIS RESULT
-                        </span>
-
-                        <h2>
-                            ${escapeHTML(prediction)}
-                        </h2>
-                    </div>
-
-                    <div class="report-status">
-                        AI Analysis
-                    </div>
-
-                </div>
-
-
-                <div class="report-main-result">
-
-                    <div class="diagnosis-box">
-
-                        <span class="small-label">
-                            Diagnosis
-                        </span>
-
-                        <strong>
-                            ${escapeHTML(prediction)}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="confidence-box">
-
-                        <span class="small-label">
-                            Confidence
-                        </span>
-
-                        <strong>
-                            ${confidence.toFixed(1)}%
-                        </strong>
-
-                        <div class="confidence-bar">
-
-                            <div
-                                class="confidence-progress"
-                                style="width:${confidence}%"
-                            ></div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- =========================================
-                 PATIENT / IMAGE INFORMATION
-                 ========================================= -->
-
-            <div class="report-card">
-
-                <div class="report-card-title">
-                    Patient & Examination Information
-                </div>
-
-
-                <div class="report-grid">
-
-                    <div class="report-field">
-
-                        <span>
-                            Image
-                        </span>
-
-                        <strong>
-                            ${escapeHTML(filename)}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="report-field">
-
-                        <span>
-                            Age
-                        </span>
-
-                        <strong>
-                            ${escapeHTML(String(age))}
-                            ${
-                                age !== "Not provided"
-                                    ? " years"
-                                    : ""
-                            }
-                        </strong>
-
-                    </div>
-
-
-                    <div class="report-field">
-
-                        <span>
-                            Symptom Duration
-                        </span>
-
-                        <strong>
-                            ${escapeHTML(
-                                formatDuration(duration)
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="report-field">
-
-                        <span>
-                            Report Date
-                        </span>
-
-                        <strong>
-                            ${escapeHTML(
-                                formatDate(reportDate)
-                            )}
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- =========================================
-                 SYMPTOMS
-                 ========================================= -->
-
-            <div class="report-card">
-
-                <div class="report-card-title">
-                    Clinical Symptoms
-                </div>
-
-
-                <div class="symptoms-container">
-
-                    ${
-                        symptoms.length > 0
-                            ? symptoms.map(
-                                symptom =>
-                                    `
-                                    <span class="symptom-tag">
-                                        ${escapeHTML(
-                                            formatSymptom(symptom)
-                                        )}
-                                    </span>
-                                    `
-                            ).join("")
-                            :
-                            `
-                            <span class="empty-message">
-                                No symptoms reported.
-                            </span>
-                            `
-                    }
-
-                </div>
-
-            </div>
-
-
-            <!-- =========================================
-                 IMAGE / CLINICAL INFORMATION
-                 ========================================= -->
-
-            <div class="report-card">
-
-                <div class="report-card-title">
-                    Multimodal Analysis
-                </div>
-
-
-                <div class="analysis-grid">
-
-                    <div class="analysis-item">
-
-                        <span>
-                            Image Analysis
-                        </span>
-
-                        <strong>
-                            ${
-                                data.image_prediction ||
-                                prediction
-                            }
-                        </strong>
-
-                    </div>
-
-
-                    <div class="analysis-item">
-
-                        <span>
-                            Image Confidence
-                        </span>
-
-                        <strong>
-                            ${
-                                data.image_confidence !==
-                                undefined &&
-                                data.image_confidence !== null
-                                    ?
-                                    formatConfidence(
-                                        data.image_confidence
-                                    )
-                                    :
-                                    "N/A"
-                            }
-                        </strong>
-
-                    </div>
-
-
-                    <div class="analysis-item">
-
-                        <span>
-                            Clinical Data
-                        </span>
-
-                        <strong>
-                            ${
-                                symptoms.length > 0
-                                    ? "Included"
-                                    : "Not provided"
-                            }
-                        </strong>
-
-                    </div>
-
-
-                    <div class="analysis-item">
-
-                        <span>
-                            Analysis Type
-                        </span>
-
-                        <strong>
-                            Image + Clinical Data
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- =========================================
-                 RECOMMENDATIONS
-                 ========================================= -->
-
-            <div class="report-card">
-
-                <div class="report-card-title">
-                    Clinical Recommendations
-                </div>
-
-
-                ${
-                    createListHTML(
-                        recommendations,
-                        "No specific recommendations available."
-                    )
-                }
-
-            </div>
-
-
-            <!-- =========================================
-                 PRECAUTIONS
-                 ========================================= -->
-
-            <div class="report-card">
-
-                <div class="report-card-title">
-                    Precautions
-                </div>
-
-
-                ${
-                    createListHTML(
-                        precautions,
-                        "No specific precautions available."
-                    )
-                }
-
-            </div>
-
-
-            <!-- =========================================
-                 WHEN TO SEEK CARE
-                 ========================================= -->
-
-            <div class="report-card">
-
-                <div class="report-card-title">
-                    When to Seek Medical Care
-                </div>
-
-
-                ${
-                    createListHTML(
-                        seekCare,
-                        "Consult a qualified healthcare professional if symptoms persist or worsen."
-                    )
-                }
-
-            </div>
-
-
-            <!-- =========================================
-                 URGENCY
-                 ========================================= -->
-
-            <div class="report-card urgency-card">
-
-                <div class="report-card-title">
-                    Clinical Review Status
-                </div>
-
-
-                <div class="
-                    urgency-value
-                    ${getUrgencyClass(urgency)}
-                ">
-
-                    ${escapeHTML(
-                        formatUrgency(urgency)
-                    )}
-
-                </div>
-
-
-                <p class="report-disclaimer">
-
-                    This AI-generated result is intended
-                    for educational and clinical decision-support
-                    purposes and should not replace assessment
-                    by a qualified healthcare professional.
-
-                </p>
-
-            </div>
-
-
-            <!-- =========================================
-                 REPORT FOOTER
-                 ========================================= -->
-
-            <div class="report-generated">
-
-                Report generated by
-                <strong>
-                    OtitisAI-CDSS
-                </strong>
-
-                <br>
-
-                ${escapeHTML(
-                    formatDateTime(new Date())
-                )}
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    /*
-     * Put HTML into report container.
-     */
-
-    const reportContent =
-        document.getElementById(
-            "reportContent"
-        );
-
-
-    if (reportContent) {
-
-        reportContent.innerHTML =
-            reportHTML;
-
-        reportContent.classList.remove(
-            "hidden"
-        );
-
+    if (Array.isArray(symptoms)) {
+        return symptoms;
     }
-
-
-    /*
-     * Also update existing elements if your
-     * report.html already contains them.
-     */
-
-    setText(
-        "reportDiagnosis",
-        prediction
-    );
-
-
-    setText(
-        "reportConfidence",
-        `${confidence.toFixed(1)}%`
-    );
-
-
-    setText(
-        "reportFilename",
-        filename
-    );
-
-
-    setText(
-        "reportAge",
-        age === "Not provided"
-            ? "Not provided"
-            : `${age} years`
-    );
-
-
-    setText(
-        "reportDuration",
-        formatDuration(duration)
-    );
-
-
-    setText(
-        "reportDate",
-        formatDate(reportDate)
-    );
-
-
-    setText(
-        "reportUrgency",
-        formatUrgency(urgency)
-    );
-
-
-    setText(
-        "generatedTime",
-        formatDateTime(new Date())
-    );
-
-
-    /*
-     * Existing confidence progress bar.
-     */
-
-    const progress =
-        document.getElementById(
-            "confidenceProgress"
-        );
-
-
-    if (progress) {
-
-        progress.style.width =
-            `${confidence}%`;
-
-    }
-
-
-    /*
-     * Existing symptom container.
-     */
-
-    displayExistingSymptoms(
-        symptoms
-    );
-
-
-    /*
-     * Existing list elements.
-     */
-
-    displayExistingList(
-        "reportRecommendations",
-        recommendations,
-        "No specific recommendations available."
-    );
-
-
-    displayExistingList(
-        "reportPrecautions",
-        precautions,
-        "No specific precautions available."
-    );
-
-
-    displayExistingList(
-        "reportSeekCare",
-        seekCare,
-        "Consult a qualified healthcare professional if symptoms persist or worsen."
-    );
-
-
-    console.log(
-        "Diagnosis report displayed successfully."
-    );
-
-}
-
-
-/* ============================================================
-   CREATE LIST HTML
-   ============================================================ */
-
-function createListHTML(
-    items,
-    emptyMessage
-) {
 
     if (
-        !Array.isArray(items) ||
-        items.length === 0
+        typeof symptoms === "string" &&
+        symptoms.trim()
     ) {
 
-        return `
-            <p class="empty-message">
-                ${escapeHTML(emptyMessage)}
-            </p>
-        `;
-
-    }
-
-
-    return `
-
-        <ul class="report-list">
-
-            ${items.map(
-                item =>
-                    `
-                    <li>
-                        ${escapeHTML(
-                            formatText(item)
-                        )}
-                    </li>
-                    `
-            ).join("")}
-
-        </ul>
-
-    `;
-
-}
-
-
-/* ============================================================
-   EXISTING SYMPTOM DISPLAY
-   ============================================================ */
-
-function displayExistingSymptoms(
-    symptoms
-) {
-
-    const container =
-        document.getElementById(
-            "reportSymptoms"
-        );
-
-
-    if (!container) {
-
-        return;
-
-    }
-
-
-    container.innerHTML = "";
-
-
-    if (
-        !symptoms ||
-        symptoms.length === 0
-    ) {
-
-        const empty =
-            document.createElement(
-                "span"
-            );
-
-        empty.className =
-            "symptom-tag empty";
-
-        empty.textContent =
-            "No symptoms reported";
-
-        container.appendChild(
-            empty
-        );
-
-        return;
-
-    }
-
-
-    symptoms.forEach(
-        function (symptom) {
-
-            const tag =
-                document.createElement(
-                    "span"
-                );
-
-            tag.className =
-                "symptom-tag";
-
-            tag.textContent =
-                formatSymptom(
-                    symptom
-                );
-
-            container.appendChild(
-                tag
-            );
-
-        }
-    );
-
-}
-
-
-/* ============================================================
-   EXISTING LIST DISPLAY
-   ============================================================ */
-
-function displayExistingList(
-    elementId,
-    items,
-    emptyMessage
-) {
-
-    const list =
-        document.getElementById(
-            elementId
-        );
-
-
-    if (!list) {
-
-        return;
-
-    }
-
-
-    list.innerHTML = "";
-
-
-    if (
-        !items ||
-        items.length === 0
-    ) {
-
-        const li =
-            document.createElement(
-                "li"
-            );
-
-        li.textContent =
-            emptyMessage;
-
-        list.appendChild(
-            li
-        );
-
-        return;
-
-    }
-
-
-    items.forEach(
-        function (item) {
-
-            const li =
-                document.createElement(
-                    "li"
-                );
-
-            li.textContent =
-                formatText(item);
-
-            list.appendChild(
-                li
-            );
-
-        }
-    );
-
-}
-
-
-/* ============================================================
-   BUTTON SETUP
-   ============================================================ */
-
-function setupReportButtons(
-    reportData
-) {
-
-    const printButton =
-        document.getElementById(
-            "printButton"
-        );
-
-
-    const downloadButton =
-        document.getElementById(
-            "downloadButton"
-        );
-
-
-    /*
-     * PRINT
-     */
-
-    if (printButton) {
-
-        printButton.onclick =
-            function () {
-
-                if (!reportData) {
-
-                    alert(
-                        "There is no diagnosis report available."
-                    );
-
-                    return;
-
-                }
-
-
-                printReport();
-
-            };
-
-    }
-
-
-    /*
-     * DOWNLOAD PDF
-     */
-
-    if (downloadButton) {
-
-        downloadButton.onclick =
-            function () {
-
-                if (!reportData) {
-
-                    alert(
-                        "There is no diagnosis report available."
-                    );
-
-                    return;
-
-                }
-
-
-                downloadPDF();
-
-            };
-
-    }
-
-}
-
-
-/* ============================================================
-   PRINT REPORT
-   ============================================================ */
-
-function printReport() {
-
-    window.print();
-
-}
-
-
-/* ============================================================
-   DOWNLOAD PDF
-   ============================================================ */
-
-function downloadPDF() {
-
-    /*
-     * Browser print dialog allows the user to select:
-     *
-     * Microsoft Print to PDF
-     * Save as PDF
-     *
-     * This does not require jsPDF or another library.
-     */
-
-    window.print();
-
-}
-
-
-/* ============================================================
-   NO REPORT MESSAGE
-   ============================================================ */
-
-function showNoReportMessage() {
-
-    const existing =
-        document.getElementById(
-            "noReportMessage"
-        );
-
-
-    if (existing) {
-
-        existing.classList.remove(
-            "hidden"
-        );
-
-        existing.style.display =
-            "block";
-
-        return;
-
-    }
-
-
-    /*
-     * Create message if it doesn't exist.
-     */
-
-    const message =
-        document.createElement(
-            "div"
-        );
-
-
-    message.id =
-        "noReportMessage";
-
-
-    message.className =
-        "no-report-message";
-
-
-    message.innerHTML = `
-
-        <div class="no-report-box">
-
-            <h2>
-                No Diagnosis Report Available
-            </h2>
-
-            <p>
-                Please complete an AI diagnosis first.
-            </p>
-
-            <a
-                href="app.html"
-                class="report-action-link"
-            >
-                Go to AI Diagnosis
-            </a>
-
-        </div>
-
-    `;
-
-
-    const main =
-        document.querySelector(
-            "main"
-        ) || document.body;
-
-
-    main.appendChild(
-        message
-    );
-
-}
-
-
-/* ============================================================
-   HIDE NO REPORT MESSAGE
-   ============================================================ */
-
-function hideNoReportMessage() {
-
-    const element =
-        document.getElementById(
-            "noReportMessage"
-        );
-
-
-    if (!element) {
-
-        return;
-
-    }
-
-
-    element.classList.add(
-        "hidden"
-    );
-
-
-    element.style.display =
-        "none";
-
-}
-
-
-/* ============================================================
-   NORMALIZE ARRAY
-   ============================================================ */
-
-function normalizeArray(
-    value
-) {
-
-    if (Array.isArray(value)) {
-
-        return value
-            .filter(
-                function (item) {
-
-                    return (
-                        item !== null &&
-                        item !== undefined &&
-                        String(item).trim() !== ""
-                    );
-
-                }
-            )
-            .map(
-                function (item) {
-
-                    return String(
-                        item
-                    ).trim();
-
-                }
-            );
-
-    }
-
-
-    if (typeof value === "string") {
-
-        return value
-            .split(/\n|,/)
-            .map(
-                function (item) {
-
-                    return item.trim();
-
-                }
-            )
+        return symptoms
+            .split(",")
+            .map(item => item.trim())
             .filter(Boolean);
-
     }
-
 
     return [];
-
 }
 
 
-/* ============================================================
-   FORMAT SYMPTOM
-   ============================================================ */
+// ============================================================
+// GET RECOMMENDATIONS
+// ============================================================
 
-function formatSymptom(
-    symptom
-) {
+function getRecommendations(record) {
 
-    return String(symptom)
-        .replace(/_/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .replace(
-            /\b\w/g,
-            function (letter) {
+    const recommendations =
+        record?.recommendations;
 
-                return letter.toUpperCase();
-
-            }
-        );
-
-}
-
-
-/* ============================================================
-   FORMAT DURATION
-   ============================================================ */
-
-function formatDuration(
-    duration
-) {
+    if (Array.isArray(recommendations)) {
+        return recommendations;
+    }
 
     if (
-        duration === null ||
-        duration === undefined ||
-        duration === ""
+        typeof recommendations === "string" &&
+        recommendations.trim()
     ) {
 
-        return "Not provided";
-
+        return [recommendations];
     }
 
-
-    const value =
-        String(duration)
-            .toLowerCase()
-            .trim();
-
-
-    const values = {
-
-        "less_than_1_week":
-            "Less than 1 week",
-
-        "1_4_weeks":
-            "1–4 weeks",
-
-        "more_than_1_month":
-            "More than 1 month",
-
-        "less than 1 week":
-            "Less than 1 week",
-
-        "1-4 weeks":
-            "1–4 weeks",
-
-        "1 to 4 weeks":
-            "1–4 weeks",
-
-        "more than 1 month":
-            "More than 1 month"
-
-    };
-
-
-    if (values[value]) {
-
-        return values[value];
-
-    }
-
-
-    return formatSymptom(
-        duration
-    );
-
+    return [];
 }
 
 
-/* ============================================================
-   FORMAT CONFIDENCE
-   ============================================================ */
+// ============================================================
+// GET PRECAUTIONS
+// ============================================================
 
-function formatConfidence(
-    confidence
-) {
+function getPrecautions(record) {
 
-    let value =
-        Number(confidence);
+    const precautions =
+        record?.precautions;
+
+    if (Array.isArray(precautions)) {
+        return precautions;
+    }
+
+    if (
+        typeof precautions === "string" &&
+        precautions.trim()
+    ) {
+
+        return [precautions];
+    }
+
+    return [];
+}
 
 
-    if (!Number.isFinite(value)) {
+// ============================================================
+// GET WHEN TO SEEK CARE
+// ============================================================
 
+function getSeekCare(record) {
+
+    const seekCare =
+        record?.when_to_seek_care;
+
+    if (Array.isArray(seekCare)) {
+        return seekCare;
+    }
+
+    if (
+        typeof seekCare === "string" &&
+        seekCare.trim()
+    ) {
+
+        return [seekCare];
+    }
+
+    return [];
+}
+
+
+// ============================================================
+// GET SEVERITY FACTORS
+// ============================================================
+
+function getSeverityFactors(record) {
+
+    const factors =
+        record?.severity_factors;
+
+    if (Array.isArray(factors)) {
+        return factors;
+    }
+
+    if (
+        typeof factors === "string" &&
+        factors.trim()
+    ) {
+
+        return factors
+            .split(",")
+            .map(item => item.trim())
+            .filter(Boolean);
+    }
+
+    return [];
+}
+
+
+// ============================================================
+// GET CONFIDENCE
+// ============================================================
+
+function getConfidenceNumber(record) {
+
+    let confidence =
+        record?.confidence_percentage ??
+        record?.confidence;
+
+    if (
+        confidence === null ||
+        confidence === undefined ||
+        confidence === ""
+    ) {
+        return null;
+    }
+
+    confidence = Number(confidence);
+
+    if (Number.isNaN(confidence)) {
+        return null;
+    }
+
+    // Backend may return 0-1
+    if (
+        confidence >= 0 &&
+        confidence <= 1
+    ) {
+        confidence *= 100;
+    }
+
+    return Math.max(
+        0,
+        Math.min(100, confidence)
+    );
+}
+
+
+// ============================================================
+// FORMAT CONFIDENCE
+// ============================================================
+
+function formatConfidence(record) {
+
+    const confidence =
+        getConfidenceNumber(record);
+
+    if (confidence === null) {
         return "N/A";
-
     }
 
-
-    /*
-     * Convert 0–1 to percentage.
-     */
-
-    if (
-        value >= 0 &&
-        value <= 1
-    ) {
-
-        value =
-            value * 100;
-
-    }
+    return `${confidence.toFixed(1)}%`;
+}
 
 
-    value =
-        Math.max(
-            0,
-            Math.min(
-                100,
-                value
-            )
-        );
+// ============================================================
+// GET DATE
+// ============================================================
 
+function getDateValue(record) {
 
     return (
-        value.toFixed(1) +
-        "%"
+        record?.date ||
+        record?.timestamp ||
+        record?.createdAt ||
+        record?.created_at ||
+        null
     );
-
 }
 
 
-/* ============================================================
-   FORMAT URGENCY
-   ============================================================ */
+// ============================================================
+// FORMAT DATE
+// ============================================================
 
-function formatUrgency(
-    value
-) {
-
-    const text =
-        String(
-            value ||
-            "Clinical review recommended"
-        )
-        .replace(
-            /_/g,
-            " "
-        )
-        .trim();
-
-
-    return (
-        text.charAt(0).toUpperCase() +
-        text.slice(1)
-    );
-
-}
-
-
-/* ============================================================
-   URGENCY CLASS
-   ============================================================ */
-
-function getUrgencyClass(
-    value
-) {
-
-    const normalized =
-        String(value)
-            .toLowerCase()
-            .trim();
-
-
-    if (
-        normalized.includes("urgent") ||
-        normalized.includes("high") ||
-        normalized.includes("immediate")
-    ) {
-
-        return "urgent";
-
-    }
-
-
-    if (
-        normalized.includes("moderate") ||
-        normalized.includes("soon")
-    ) {
-
-        return "moderate";
-
-    }
-
-
-    return "routine";
-
-}
-
-
-/* ============================================================
-   FORMAT TEXT
-   ============================================================ */
-
-function formatText(
-    value
-) {
-
-    return String(value)
-        .replace(
-            /\s+/g,
-            " "
-        )
-        .trim();
-
-}
-
-
-/* ============================================================
-   FORMAT DATE
-   ============================================================ */
-
-function formatDate(
-    value
-) {
+function formatDate(value) {
 
     if (!value) {
-
         return "Not available";
-
     }
-
-
-    /*
-     * If already formatted text,
-     * don't destroy it.
-     */
 
     const date =
         new Date(value);
-
 
     if (
         Number.isNaN(
             date.getTime()
         )
     ) {
-
         return String(value);
-
     }
 
-
-    return date.toLocaleString(
-        "en-IN",
-        {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    );
-
+    return date.toLocaleString();
 }
 
 
-/* ============================================================
-   FORMAT DATETIME
-   ============================================================ */
+// ============================================================
+// FORMAT AGE
+// ============================================================
 
-function formatDateTime(
-    value
-) {
+function formatAge(record) {
 
-    return new Date(
-        value
-    ).toLocaleString(
-        "en-IN",
-        {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    );
+    const age =
+        record?.age;
 
+    if (
+        age === null ||
+        age === undefined ||
+        String(age).trim() === ""
+    ) {
+        return "Not provided";
+    }
+
+    return `${age} years`;
 }
 
 
-/* ============================================================
-   ESCAPE HTML
-   ============================================================ */
+// ============================================================
+// FORMAT DURATION
+// ============================================================
 
-function escapeHTML(
-    value
-) {
+function formatDuration(record) {
 
-    return String(value)
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+    const duration =
+        record?.duration ||
+        record?.symptomDuration;
 
+    if (
+        duration === null ||
+        duration === undefined ||
+        String(duration).trim() === ""
+    ) {
+        return "Not provided";
+    }
+
+    return String(duration);
 }
 
 
-/* ============================================================
-   SET TEXT SAFELY
-   ============================================================ */
+// ============================================================
+// POPULATE LIST
+// ============================================================
 
-function setText(
-    elementId,
-    value
+function populateList(
+    element,
+    items,
+    emptyMessage
 ) {
-
-    const element =
-        document.getElementById(
-            elementId
-        );
-
 
     if (!element) {
+        return;
+    }
+
+    element.innerHTML = "";
+
+
+    if (
+        !Array.isArray(items) ||
+        items.length === 0
+    ) {
+
+        const li =
+            document.createElement("li");
+
+        li.textContent =
+            emptyMessage;
+
+        element.appendChild(li);
 
         return;
-
     }
 
 
-    element.textContent =
-        (
-            value === null ||
-            value === undefined ||
-            value === ""
-        )
-            ? "—"
-            : String(value);
+    items.forEach(item => {
 
+        const li =
+            document.createElement("li");
+
+        li.textContent =
+            item;
+
+        element.appendChild(li);
+    });
 }
 
 
-/* ============================================================
-   EXPORT FUNCTIONS
-   ============================================================ */
+// ============================================================
+// POPULATE SYMPTOMS
+// ============================================================
 
-window.printReport =
+function populateSymptoms(symptoms) {
+
+    if (!reportSymptoms) {
+        return;
+    }
+
+    reportSymptoms.innerHTML = "";
+
+
+    if (
+        !Array.isArray(symptoms) ||
+        symptoms.length === 0
+    ) {
+
+        const empty =
+            document.createElement("span");
+
+        empty.className =
+            "empty-value";
+
+        empty.textContent =
+            "No symptoms provided.";
+
+        reportSymptoms.appendChild(empty);
+
+        return;
+    }
+
+
+    symptoms.forEach(symptom => {
+
+        const tag =
+            document.createElement("span");
+
+        tag.className =
+            "symptom-tag";
+
+        tag.textContent =
+            symptom;
+
+        reportSymptoms.appendChild(tag);
+    });
+}
+
+
+// ============================================================
+// LOAD REPORT
+// ============================================================
+
+function loadReport() {
+
+    const record =
+        getSelectedReport();
+
+
+    // --------------------------------------------------------
+    // No report selected
+    // --------------------------------------------------------
+
+    if (!record) {
+
+        console.warn(
+            "No selected diagnosis report found."
+        );
+
+
+        if (reportStatus) {
+            reportStatus.textContent =
+                "No Diagnosis Report Selected";
+        }
+
+
+        if (reportDate) {
+            reportDate.textContent =
+                "Please complete a diagnosis first.";
+        }
+
+
+        if (reportDiagnosis) {
+            reportDiagnosis.textContent =
+                "No report available";
+        }
+
+
+        if (reportConfidence) {
+            reportConfidence.textContent =
+                "N/A";
+        }
+
+
+        if (reportSeverity) {
+            reportSeverity.textContent =
+                "N/A";
+        }
+
+
+        if (reportSeverityScore) {
+            reportSeverityScore.textContent =
+                "N/A";
+        }
+
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Basic information
+    // --------------------------------------------------------
+
+    const diagnosis =
+        getDiagnosis(record);
+
+    const filename =
+        getFilename(record);
+
+    const confidence =
+        formatConfidence(record);
+
+    const dateValue =
+        getDateValue(record);
+
+
+    // --------------------------------------------------------
+    // Report status
+    // --------------------------------------------------------
+
+    if (reportStatus) {
+
+        reportStatus.textContent =
+            "Diagnosis Report Ready";
+    }
+
+
+    if (reportDate) {
+
+        reportDate.textContent =
+            `Generated: ${formatDate(
+                dateValue
+            )}`;
+    }
+
+
+    // --------------------------------------------------------
+    // Diagnosis
+    // --------------------------------------------------------
+
+    if (reportDiagnosis) {
+
+        reportDiagnosis.textContent =
+            diagnosis;
+    }
+
+
+    // --------------------------------------------------------
+    // Confidence
+    // --------------------------------------------------------
+
+    if (reportConfidence) {
+
+        reportConfidence.textContent =
+            confidence;
+    }
+
+
+    // --------------------------------------------------------
+    // Severity
+    // --------------------------------------------------------
+
+    if (reportSeverity) {
+
+        reportSeverity.textContent =
+            record?.severity ||
+            "Not available";
+    }
+
+
+    // --------------------------------------------------------
+    // Severity score
+    // --------------------------------------------------------
+
+    if (reportSeverityScore) {
+
+        const score =
+            record?.severity_score;
+
+        reportSeverityScore.textContent =
+            score !== undefined &&
+            score !== null
+                ? score
+                : "N/A";
+    }
+
+
+    // --------------------------------------------------------
+    // Age
+    // --------------------------------------------------------
+
+    if (reportAge) {
+
+        reportAge.textContent =
+            formatAge(record);
+    }
+
+
+    // --------------------------------------------------------
+    // Duration
+    // --------------------------------------------------------
+
+    if (reportDuration) {
+
+        reportDuration.textContent =
+            formatDuration(record);
+    }
+
+
+    // --------------------------------------------------------
+    // Filename
+    // --------------------------------------------------------
+
+    if (reportFilename) {
+
+        reportFilename.textContent =
+            filename;
+    }
+
+
+    if (reportImageFilename) {
+
+        reportImageFilename.textContent =
+            filename;
+    }
+
+
+    // --------------------------------------------------------
+    // Diagnosis date
+    // --------------------------------------------------------
+
+    if (reportDiagnosisDate) {
+
+        reportDiagnosisDate.textContent =
+            formatDate(dateValue);
+    }
+
+
+    // --------------------------------------------------------
+    // Symptoms
+    // --------------------------------------------------------
+
+    populateSymptoms(
+        getSymptoms(record)
+    );
+
+
+    // --------------------------------------------------------
+    // Severity factors
+    // --------------------------------------------------------
+
+    populateList(
+        reportSeverityFactors,
+        getSeverityFactors(record),
+        "No severity factors available."
+    );
+
+
+    // --------------------------------------------------------
+    // Recommendations
+    // --------------------------------------------------------
+
+    populateList(
+        reportRecommendations,
+        getRecommendations(record),
+        "No recommendations available."
+    );
+
+
+    // --------------------------------------------------------
+    // Precautions
+    // --------------------------------------------------------
+
+    populateList(
+        reportPrecautions,
+        getPrecautions(record),
+        "No precautions available."
+    );
+
+
+    // --------------------------------------------------------
+    // When to seek care
+    // --------------------------------------------------------
+
+    populateList(
+        reportSeekCare,
+        getSeekCare(record),
+        "No additional care guidance available."
+    );
+
+
+    // --------------------------------------------------------
+    // Urgency
+    // --------------------------------------------------------
+
+    if (reportUrgency) {
+
+        reportUrgency.textContent =
+            record?.urgency ||
+            "Clinical confirmation recommended.";
+    }
+
+
+    // --------------------------------------------------------
+    // Add severity class
+    // --------------------------------------------------------
+
+    applySeverityClass(
+        record?.severity
+    );
+}
+
+
+// ============================================================
+// APPLY SEVERITY CLASS
+// ============================================================
+
+function applySeverityClass(severity) {
+
+    if (!severity) {
+        return;
+    }
+
+    const normalized =
+        String(severity)
+            .toLowerCase()
+            .trim();
+
+
+    if (reportSeverity) {
+
+        reportSeverity.classList.remove(
+            "severity-mild",
+            "severity-moderate",
+            "severity-severe",
+            "severity-unknown"
+        );
+
+
+        if (normalized === "mild") {
+
+            reportSeverity.classList.add(
+                "severity-mild"
+            );
+
+        } else if (
+            normalized === "moderate"
+        ) {
+
+            reportSeverity.classList.add(
+                "severity-moderate"
+            );
+
+        } else if (
+            normalized === "severe"
+        ) {
+
+            reportSeverity.classList.add(
+                "severity-severe"
+            );
+
+        } else {
+
+            reportSeverity.classList.add(
+                "severity-unknown"
+            );
+        }
+    }
+}
+
+
+// ============================================================
+// PRINT REPORT
+// ============================================================
+
+function printReport() {
+
+    window.print();
+}
+
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+
+if (printReportButton) {
+
+    printReportButton.addEventListener(
+        "click",
+        printReport
+    );
+}
+
+
+if (printReportButtonBottom) {
+
+    printReportButtonBottom.addEventListener(
+        "click",
+        printReport
+    );
+}
+
+
+// ============================================================
+// INITIALIZE
+// ============================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        loadReport();
+
+    }
+);
+
+
+// ============================================================
+// GLOBAL FUNCTIONS
+// ============================================================
+
+window.loadOtitisReport =
+    loadReport;
+
+window.printOtitisReport =
     printReport;
-
-
-window.downloadPDF =
-    downloadPDF;
-
-
-window.getReportData =
-    getReportData;

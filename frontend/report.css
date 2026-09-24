@@ -1,43 +1,5 @@
 /* ============================================================
-   OtitisAI-CDSS
-   Diagnosis Report Styles
-   ============================================================ */
-
-:root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-    --primary-light: #eff6ff;
-
-    --success: #15803d;
-    --success-light: #f0fdf4;
-
-    --warning: #d97706;
-    --warning-light: #fffbeb;
-
-    --danger: #dc2626;
-    --danger-light: #fef2f2;
-
-    --text: #172033;
-    --text-secondary: #64748b;
-    --text-light: #94a3b8;
-
-    --border: #e2e8f0;
-    --background: #f8fafc;
-    --white: #ffffff;
-
-    --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
-    --shadow-md: 0 8px 25px rgba(15, 23, 42, 0.08);
-
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 18px;
-
-    --max-width: 1180px;
-}
-
-
-/* ============================================================
-   RESET
+   OtitisAI-CDSS - Professional Medical Report
    ============================================================ */
 
 * {
@@ -46,16 +8,49 @@
     box-sizing: border-box;
 }
 
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --secondary: #0f766e;
+    
+    --background: #f5f3ff;
+--surface: #ffffff;
+--surface-soft: #faf9ff;
 
-html {
-    scroll-behavior: smooth;
+--primary: #6366f1;
+--primary-dark: #4f46e5;
+
+    --text: #172033;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+
+    --success: #15803d;
+    --success-bg: #ecfdf3;
+
+    --warning: #b45309;
+    --warning-bg: #fffbeb;
+
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+
+    --shadow: 0 8px 30px rgba(15, 23, 42, 0.07);
+
+    --radius: 16px;
 }
 
-
 body {
-    font-family: "Inter", sans-serif;
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
     background: var(--background);
     color: var(--text);
+
     line-height: 1.6;
 }
 
@@ -65,20 +60,23 @@ body {
    ============================================================ */
 
 .navbar {
-    width: 100%;
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 1000;
+
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom: 1px solid var(--border);
+
+    backdrop-filter: blur(12px);
 }
 
-
-.nav-container {
-    max-width: var(--max-width);
+.navbar-container {
+    max-width: 1250px;
     margin: auto;
+
     min-height: 72px;
-    padding: 0 24px;
+
+    padding: 0 28px;
 
     display: flex;
     align-items: center;
@@ -86,47 +84,46 @@ body {
     gap: 30px;
 }
 
-
 .logo {
     color: var(--text);
     text-decoration: none;
-    font-size: 20px;
+
+    font-size: 21px;
     font-weight: 800;
+
+    letter-spacing: -0.4px;
+
     white-space: nowrap;
 }
 
-
-.logo span {
-    color: var(--primary);
-}
-
-
 .nav-links {
-    list-style: none;
-
     display: flex;
     align-items: center;
-    gap: 28px;
+    gap: 8px;
 }
 
-
 .nav-links a {
-    color: var(--text-secondary);
     text-decoration: none;
+    color: var(--text-light);
+
+    padding: 9px 15px;
+
+    border-radius: 9px;
+
     font-size: 14px;
     font-weight: 600;
 
-    padding: 8px 0;
-
-    transition:
-        color 0.2s ease,
-        border-color 0.2s ease;
+    transition: 0.2s ease;
 }
 
+.nav-links a:hover {
+    color: var(--primary);
+    background: #eff6ff;
+}
 
-.nav-links a:hover,
 .nav-links a.active {
     color: var(--primary);
+    background: #eff6ff;
 }
 
 
@@ -135,10 +132,10 @@ body {
    ============================================================ */
 
 .report-container {
-    width: 100%;
-    max-width: var(--max-width);
-    margin: auto;
-    padding: 45px 24px 60px;
+    max-width: 1100px;
+    margin: 0 auto;
+
+    padding: 45px 24px 70px;
 }
 
 
@@ -148,48 +145,48 @@ body {
 
 .report-header {
     display: flex;
-    align-items: flex-end;
     justify-content: space-between;
+    align-items: flex-end;
+
     gap: 30px;
 
     margin-bottom: 30px;
 }
 
-
-.report-label {
-    display: inline-block;
-
-    margin-bottom: 10px;
-
+.eyebrow,
+.section-eyebrow {
     color: var(--primary);
-    background: var(--primary-light);
-
-    padding: 6px 11px;
-    border-radius: 999px;
 
     font-size: 11px;
     font-weight: 800;
-    letter-spacing: 0.7px;
-}
 
+    letter-spacing: 1.4px;
 
-.report-header h1 {
-    font-size: 32px;
-    line-height: 1.2;
-    font-weight: 800;
     margin-bottom: 8px;
 }
 
+.report-header h1 {
+    font-size: clamp(30px, 4vw, 44px);
 
-.report-header p {
-    color: var(--text-secondary);
-    font-size: 14px;
+    line-height: 1.12;
+
+    letter-spacing: -1.2px;
+
+    margin-bottom: 12px;
 }
 
+.report-description {
+    color: var(--text-light);
+
+    max-width: 650px;
+
+    font-size: 15px;
+}
 
 .report-actions {
     display: flex;
     gap: 10px;
+
     flex-shrink: 0;
 }
 
@@ -200,22 +197,23 @@ body {
 
 .primary-button,
 .secondary-button {
-    border: none;
-    border-radius: var(--radius-sm);
+    display: inline-flex;
 
-    padding: 11px 17px;
+    align-items: center;
+    justify-content: center;
 
-    font-family: inherit;
-    font-size: 13px;
+    min-height: 44px;
+
+    padding: 0 17px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
     font-weight: 700;
 
     cursor: pointer;
-    text-decoration: none;
 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
+    text-decoration: none;
 
     transition:
         transform 0.2s ease,
@@ -223,136 +221,187 @@ body {
         background 0.2s ease;
 }
 
-
 .primary-button {
+    border: none;
+
     color: white;
     background: var(--primary);
-    box-shadow: var(--shadow-sm);
-}
 
+    box-shadow:
+        0 5px 15px rgba(37, 99, 235, 0.2);
+}
 
 .primary-button:hover {
     background: var(--primary-dark);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
 
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 8px 20px rgba(37, 99, 235, 0.25);
+}
 
 .secondary-button {
-    color: var(--text);
-    background: var(--white);
     border: 1px solid var(--border);
+
+    color: var(--text);
+
+    background: white;
 }
 
-
 .secondary-button:hover {
-    border-color: var(--primary);
-    color: var(--primary);
+    background: var(--surface-soft);
+
+    border-color: #cbd5e1;
 }
 
 
 /* ============================================================
-   EMPTY REPORT
+   REPORT STATUS
    ============================================================ */
 
-.empty-report {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+.report-status-card {
+    display: flex;
+    align-items: center;
 
-    padding: 70px 30px;
-    text-align: center;
+    gap: 16px;
 
-    box-shadow: var(--shadow-sm);
+    padding: 20px 24px;
+
+    margin-bottom: 28px;
+
+    background: var(--success-bg);
+
+    border: 1px solid #bbf7d0;
+
+    border-radius: var(--radius);
 }
 
-
-.empty-icon {
-    width: 70px;
-    height: 70px;
-
-    margin: 0 auto 20px;
-
-    border-radius: 50%;
-    background: var(--primary-light);
+.status-icon {
+    width: 42px;
+    height: 42px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    font-size: 30px;
+    border-radius: 50%;
+
+    background: #dcfce7;
+    color: var(--success);
+
+    font-size: 20px;
+    font-weight: 800;
 }
 
+.status-label {
+    display: block;
 
-.empty-report h2 {
-    font-size: 22px;
-    margin-bottom: 8px;
+    color: var(--success);
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
 }
 
+.report-status-card h2 {
+    font-size: 17px;
 
-.empty-report p {
-    max-width: 520px;
-    margin: 0 auto 24px;
-
-    color: var(--text-secondary);
-    font-size: 14px;
+    margin: 2px 0;
 }
 
+.report-status-card p {
+    color: var(--text-light);
 
-/* ============================================================
-   UTILITY
-   ============================================================ */
-
-.hidden {
-    display: none !important;
-}
-
-
-/* ============================================================
-   REPORT CONTENT
-   ============================================================ */
-
-.report-content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    font-size: 13px;
 }
 
 
 /* ============================================================
-   COMMON REPORT CARD
+   SECTIONS
    ============================================================ */
 
-.report-card {
-    background: var(--white);
+.report-section {
+    background: var(--surface);
+
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
 
-    padding: 26px;
+    border-radius: var(--radius);
 
-    box-shadow: var(--shadow-sm);
+    padding: 28px;
+
+    margin-bottom: 22px;
+
+    box-shadow: var(--shadow);
 }
 
-
-.card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
+.section-heading {
     margin-bottom: 22px;
 }
 
+.section-heading h2 {
+    font-size: 21px;
 
-.card-header h2 {
-    font-size: 19px;
-    font-weight: 750;
-    margin-bottom: 3px;
+    letter-spacing: -0.4px;
 }
 
 
-.card-header p {
-    color: var(--text-secondary);
-    font-size: 13px;
+/* ============================================================
+   DIAGNOSIS SUMMARY
+   ============================================================ */
+
+.diagnosis-summary-grid {
+    display: grid;
+
+    grid-template-columns:
+        minmax(2fr, 2fr)
+        repeat(3, 1fr);
+
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+
+    gap: 14px;
+}
+
+.summary-card {
+    min-height: 115px;
+
+    padding: 20px;
+
+    background: var(--surface-soft);
+
+    border: 1px solid var(--border);
+
+    border-radius: 13px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+}
+
+.summary-card.diagnosis-card {
+    background: linear-gradient(
+        135deg,
+        #eff6ff,
+        #f8fbff
+    );
+
+    border-color: #bfdbfe;
+}
+
+.card-label {
+    color: var(--text-light);
+
+    font-size: 12px;
+    font-weight: 600;
+
+    margin-bottom: 8px;
+}
+
+.summary-card strong {
+    font-size: 20px;
+
+    line-height: 1.25;
 }
 
 
@@ -362,337 +411,228 @@ body {
 
 .information-grid {
     display: grid;
+
     grid-template-columns:
-        repeat(4, minmax(0, 1fr));
+        repeat(4, 1fr);
 
     gap: 14px;
 }
 
+.information-card {
+    padding: 18px;
 
-.information-item {
-    min-width: 0;
-
-    background: var(--background);
     border: 1px solid var(--border);
-    border-radius: var(--radius-md);
 
-    padding: 16px;
+    border-radius: 12px;
+
+    background: var(--surface-soft);
 }
 
-
-.information-label {
+.information-card span {
     display: block;
 
-    color: var(--text-secondary);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: var(--text-light);
+
+    font-size: 12px;
 
     margin-bottom: 6px;
 }
 
-
-.information-value {
+.information-card strong {
     display: block;
 
-    color: var(--text);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
 
     word-break: break-word;
 }
 
 
 /* ============================================================
-   DIAGNOSIS RESULT
+   IMAGE
    ============================================================ */
 
-.diagnosis-result-card {
-    background:
-        linear-gradient(
-            135deg,
-            #eff6ff 0%,
-            #ffffff 65%
-        );
-
-    border: 1px solid #bfdbfe;
-    border-radius: var(--radius-lg);
-
-    padding: 30px;
-
-    box-shadow: var(--shadow-sm);
-}
-
-
-.result-heading {
+.image-report-card {
     display: flex;
-    align-items: center;
-    gap: 16px;
+
+    justify-content: center;
 }
 
+.image-placeholder {
+    width: 100%;
+    min-height: 210px;
 
-.result-icon {
-    width: 58px;
-    height: 58px;
-
-    flex-shrink: 0;
+    border: 2px dashed #cbd5e1;
 
     border-radius: 14px;
 
-    background: var(--primary);
-    color: white;
+    background:
+        linear-gradient(
+            135deg,
+            #f8fafc,
+            #f1f5f9
+        );
 
     display: flex;
+    flex-direction: column;
+
     align-items: center;
     justify-content: center;
 
-    font-size: 25px;
+    text-align: center;
+
+    padding: 30px;
 }
 
+.image-placeholder-icon {
+    font-size: 42px;
 
-.result-label {
-    display: block;
+    margin-bottom: 10px;
+}
 
+.image-placeholder p {
+    color: var(--text-light);
+
+    font-size: 14px;
+
+    margin-bottom: 7px;
+}
+
+#reportImageFilename {
     color: var(--primary);
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.6px;
-
-    margin-bottom: 4px;
-}
-
-
-.result-heading h2 {
-    font-size: 27px;
-    font-weight: 800;
-    line-height: 1.25;
-}
-
-
-/* ============================================================
-   CONFIDENCE
-   ============================================================ */
-
-.confidence-container {
-    margin-top: 28px;
-}
-
-
-.confidence-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    margin-bottom: 9px;
 
     font-size: 13px;
     font-weight: 700;
-}
 
-
-.confidence-header strong {
-    color: var(--primary);
-    font-size: 15px;
-}
-
-
-.confidence-bar {
-    width: 100%;
-    height: 10px;
-
-    overflow: hidden;
-
-    background: #dbeafe;
-    border-radius: 999px;
-}
-
-
-.confidence-progress {
-    width: 0%;
-    height: 100%;
-
-    background: var(--primary);
-    border-radius: inherit;
-
-    transition: width 0.8s ease;
-}
-
-
-.confidence-container p {
-    margin-top: 9px;
-
-    color: var(--text-secondary);
-    font-size: 12px;
+    word-break: break-all;
 }
 
 
 /* ============================================================
-   CLINICAL INFORMATION
+   TAGS / SYMPTOMS
    ============================================================ */
 
-.clinical-content {
-    width: 100%;
-}
-
-
-.clinical-block h3 {
-    font-size: 14px;
-    font-weight: 700;
-
-    margin-bottom: 12px;
-}
-
-
-.symptoms-container {
+.tag-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
 
+    flex-wrap: wrap;
+
+    gap: 9px;
+}
 
 .symptom-tag {
     display: inline-flex;
+
     align-items: center;
 
-    padding: 7px 11px;
+    padding: 7px 12px;
 
     border-radius: 999px;
 
-    background: var(--primary-light);
-    color: var(--primary);
+    background: #eff6ff;
 
-    border: 1px solid #dbeafe;
+    border: 1px solid #bfdbfe;
 
-    font-size: 12px;
-    font-weight: 700;
+    color: #1d4ed8;
+
+    font-size: 13px;
+    font-weight: 600;
 }
 
+.empty-value {
+    color: var(--text-light);
 
-.symptom-tag.empty {
-    color: var(--text-secondary);
-    background: var(--background);
-    border-color: var(--border);
+    font-size: 14px;
 }
 
 
 /* ============================================================
-   GUIDANCE GRID
+   LISTS
    ============================================================ */
 
-.guidance-grid {
-    display: grid;
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+.report-list {
+    margin: 0;
 
-    gap: 16px;
+    padding-left: 21px;
 }
 
-
-.guidance-card {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-
-    padding: 20px;
-
-    background: var(--background);
-}
-
-
-.guidance-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    margin-bottom: 14px;
-}
-
-
-.guidance-icon {
-    width: 34px;
-    height: 34px;
-
-    border-radius: 9px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: var(--white);
-
-    font-size: 17px;
-}
-
-
-.guidance-title h3 {
-    font-size: 14px;
-    font-weight: 750;
-}
-
-
-.guidance-card ul {
-    list-style: none;
-}
-
-
-.guidance-card li {
-    position: relative;
-
-    padding-left: 17px;
+.report-list li {
     margin-bottom: 9px;
 
-    color: var(--text-secondary);
-    font-size: 12px;
-    line-height: 1.55;
+    color: #475569;
+
+    font-size: 14px;
 }
 
-
-.guidance-card li:last-child {
+.report-list li:last-child {
     margin-bottom: 0;
 }
 
 
-.guidance-card li::before {
-    content: "•";
+/* ============================================================
+   GUIDANCE CARDS
+   ============================================================ */
 
-    position: absolute;
-    left: 0;
-    top: 0;
+.guidance-card {
+    display: flex;
 
-    font-weight: 900;
+    gap: 18px;
+
+    padding: 20px;
+
+    border-radius: 13px;
+
+    border: 1px solid var(--border);
 }
 
+.guidance-icon {
+    width: 42px;
+    height: 42px;
 
-.recommendations {
-    background: var(--success-light);
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    font-size: 20px;
+}
+
+.guidance-card h3 {
+    font-size: 16px;
+
+    margin-bottom: 10px;
+}
+
+.recommendation-card {
+    background: #f0fdf4;
+
     border-color: #bbf7d0;
 }
 
-
-.recommendations li::before {
-    color: var(--success);
+.recommendation-card .guidance-icon {
+    background: #dcfce7;
 }
 
+.precaution-card {
+    background: #fffbeb;
 
-.precautions {
-    background: var(--warning-light);
     border-color: #fde68a;
 }
 
-
-.precautions li::before {
-    color: var(--warning);
+.precaution-card .guidance-icon {
+    background: #fef3c7;
 }
 
+.medical-card {
+    background: #eff6ff;
 
-.seek-care {
-    background: var(--danger-light);
-    border-color: #fecaca;
+    border-color: #bfdbfe;
 }
 
-
-.seek-care li::before {
-    color: var(--danger);
+.medical-card .guidance-icon {
+    background: #dbeafe;
 }
 
 
@@ -700,100 +640,58 @@ body {
    URGENCY
    ============================================================ */
 
-.urgency-section {
-    margin-top: 18px;
-
+.urgency-card {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
 
-    padding: 15px 17px;
+    flex-direction: column;
+
+    gap: 5px;
+
+    padding: 20px 22px;
+
+    border-radius: 13px;
+
+    background: #f8fafc;
 
     border: 1px solid var(--border);
-    border-radius: var(--radius-md);
 
-    background: var(--white);
+    border-left: 4px solid var(--primary);
 }
 
+.urgency-label {
+    color: var(--text-light);
 
-.urgency-heading {
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-weight: 700;
-}
-
-
-.urgency-value {
-    padding: 7px 13px;
-
-    border-radius: 999px;
-
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
 
-    background: var(--primary-light);
-    color: var(--primary);
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
 }
 
-
-.urgency-value.routine {
-    background: var(--success-light);
-    color: var(--success);
-}
-
-
-.urgency-value.moderate {
-    background: var(--warning-light);
-    color: var(--warning);
-}
-
-
-.urgency-value.urgent {
-    background: var(--danger-light);
-    color: var(--danger);
+.urgency-card strong {
+    font-size: 15px;
 }
 
 
 /* ============================================================
-   MODEL INFORMATION
+   SEVERITY COLORS
    ============================================================ */
 
-.model-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
-    gap: 14px;
+.severity-mild {
+    color: var(--success) !important;
 }
 
-
-.model-item {
-    padding: 16px;
-
-    background: var(--background);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+.severity-moderate {
+    color: var(--warning) !important;
 }
 
-
-.model-label {
-    display: block;
-
-    color: var(--text-secondary);
-    font-size: 11px;
-    font-weight: 700;
-
-    margin-bottom: 5px;
+.severity-severe {
+    color: var(--danger) !important;
 }
 
-
-.model-item strong {
-    display: block;
-
-    font-size: 13px;
-    font-weight: 750;
+.severity-unknown {
+    color: var(--text-light) !important;
 }
 
 
@@ -801,84 +699,126 @@ body {
    DISCLAIMER
    ============================================================ */
 
-.disclaimer {
-    padding: 20px;
+.disclaimer-card {
+    display: flex;
 
-    border: 1px solid #fde68a;
-    border-radius: var(--radius-lg);
+    gap: 16px;
 
-    background: var(--warning-light);
+    padding: 20px 22px;
+
+    margin-bottom: 25px;
+
+    background: #f8fafc;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
 }
 
+.disclaimer-icon {
+    font-size: 22px;
 
-.disclaimer strong {
-    display: block;
+    flex-shrink: 0;
+}
 
-    color: #92400e;
+.disclaimer-card h3 {
+    font-size: 15px;
+
+    margin-bottom: 5px;
+}
+
+.disclaimer-card p {
+    color: var(--text-light);
+
     font-size: 13px;
-
-    margin-bottom: 7px;
-}
-
-
-.disclaimer p {
-    color: #78350f;
-    font-size: 12px;
-    line-height: 1.65;
 }
 
 
 /* ============================================================
-   REPORT FOOTER
+   BOTTOM ACTIONS
    ============================================================ */
 
-.report-footer {
+.bottom-actions {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
 
-    padding: 4px 3px;
+    gap: 15px;
 
-    color: var(--text-secondary);
-    font-size: 11px;
+    margin-top: 25px;
 }
 
 
-.report-footer > div:first-child {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.footer {
+    background: #0f172a;
+
+    color: #cbd5e1;
+
+    text-align: center;
+
+    padding: 30px 20px;
+
+    font-size: 13px;
 }
 
+.footer-note {
+    color: #94a3b8;
 
-.report-footer strong {
-    color: var(--text);
+    margin-top: 5px;
+
     font-size: 12px;
 }
 
 
 /* ============================================================
-   PAGE FOOTER
+   PRINT
    ============================================================ */
 
-.footer {
-    width: 100%;
+@media print {
 
-    padding: 22px 24px;
+    body {
+        background: white;
+    }
 
-    border-top: 1px solid var(--border);
+    .navbar,
+    .report-actions,
+    .bottom-actions,
+    .footer {
+        display: none !important;
+    }
 
-    background: var(--white);
+    .report-container {
+        max-width: none;
 
-    text-align: center;
+        padding: 0;
+    }
 
-    color: var(--text-secondary);
-    font-size: 12px;
-}
+    .report-header {
+        margin-bottom: 20px;
+    }
 
+    .report-section,
+    .report-status-card,
+    .disclaimer-card {
+        box-shadow: none;
 
-.footer strong {
-    color: var(--text);
+        break-inside: avoid;
+
+        page-break-inside: avoid;
+    }
+
+    .report-section {
+        margin-bottom: 14px;
+    }
+
+    .report-status-card {
+        margin-bottom: 18px;
+    }
 }
 
 
@@ -886,39 +826,24 @@ body {
    TABLET
    ============================================================ */
 
-@media (max-width: 950px) {
+@media (max-width: 900px) {
+
+    .diagnosis-summary-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .information-grid {
+        grid-template-columns: 1fr 1fr;
+    }
 
     .report-header {
         align-items: flex-start;
+
         flex-direction: column;
     }
 
-
     .report-actions {
         width: 100%;
-    }
-
-
-    .report-actions button {
-        flex: 1;
-    }
-
-
-    .information-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-
-
-    .model-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-
-
-    .guidance-grid {
-        grid-template-columns:
-            1fr;
     }
 }
 
@@ -927,244 +852,73 @@ body {
    MOBILE
    ============================================================ */
 
-@media (max-width: 700px) {
+@media (max-width: 650px) {
 
-    .nav-container {
+    .navbar-container {
         min-height: auto;
+
         padding: 15px 18px;
 
-        align-items: flex-start;
         flex-direction: column;
+
+        align-items: flex-start;
 
         gap: 12px;
     }
 
-
     .nav-links {
         width: 100%;
 
-        gap: 18px;
-
         overflow-x: auto;
-        padding-bottom: 3px;
     }
-
 
     .nav-links a {
         white-space: nowrap;
-        font-size: 12px;
     }
-
 
     .report-container {
-        padding:
-            30px 16px
-            45px;
+        padding: 28px 15px 50px;
     }
-
 
     .report-header h1 {
-        font-size: 26px;
+        font-size: 30px;
     }
 
-
-    .report-header p {
-        font-size: 13px;
+    .report-actions {
+        flex-direction: column;
     }
 
+    .report-actions a,
+    .report-actions button {
+        width: 100%;
+    }
 
-    .report-card,
-    .diagnosis-result-card {
+    .report-section {
         padding: 20px;
     }
 
+    .diagnosis-summary-grid {
+        grid-template-columns: 1fr;
+    }
 
     .information-grid {
         grid-template-columns: 1fr;
     }
 
-
-    .model-grid {
-        grid-template-columns: 1fr;
+    .bottom-actions {
+        flex-direction: column-reverse;
     }
 
-
-    .result-heading {
-        align-items: flex-start;
+    .bottom-actions a,
+    .bottom-actions button {
+        width: 100%;
     }
-
-
-    .result-heading h2 {
-        font-size: 22px;
-    }
-
-
-    .result-icon {
-        width: 50px;
-        height: 50px;
-    }
-
-
-    .report-actions {
-        flex-direction: column;
-    }
-
-
-    .urgency-section {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-
-    .report-footer {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 10px;
-    }
-}
-
-
-/* ============================================================
-   SMALL MOBILE
-   ============================================================ */
-
-@media (max-width: 420px) {
-
-    .logo {
-        font-size: 18px;
-    }
-
-
-    .nav-links {
-        gap: 14px;
-    }
-
-
-    .report-header h1 {
-        font-size: 23px;
-    }
-
-
-    .report-label {
-        font-size: 9px;
-    }
-
-
-    .empty-report {
-        padding: 50px 20px;
-    }
-
-
-    .empty-report h2 {
-        font-size: 19px;
-    }
-
-
-    .diagnosis-result-card {
-        padding: 18px;
-    }
-
-
-    .result-heading h2 {
-        font-size: 19px;
-    }
-
 
     .guidance-card {
-        padding: 16px;
-    }
-}
-
-
-/* ============================================================
-   PRINT / PDF STYLES
-   ============================================================ */
-
-@media print {
-
-    @page {
-        size: A4;
-        margin: 15mm;
+        flex-direction: column;
     }
 
-
-    body {
-        background: white;
-        color: black;
-    }
-
-
-    .navbar,
-    .footer,
-    .report-actions {
-        display: none !important;
-    }
-
-
-    .report-container {
-        max-width: none;
-        padding: 0;
-    }
-
-
-    .report-header {
-        margin-bottom: 20px;
-    }
-
-
-    .report-header h1 {
-        font-size: 24px;
-    }
-
-
-    .report-card,
-    .diagnosis-result-card,
-    .disclaimer {
-        box-shadow: none;
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }
-
-
-    .report-content {
-        gap: 14px;
-    }
-
-
-    .guidance-grid {
-        grid-template-columns:
-            repeat(3, minmax(0, 1fr));
-    }
-
-
-    .information-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-
-
-    .model-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-
-
-    .diagnosis-result-card {
-        background: white;
-    }
-
-
-    .report-footer {
-        margin-top: 15px;
-    }
-
-
-    .disclaimer {
-        margin-top: 5px;
-    }
-
-
-    .hidden {
-        display: none !important;
+    .disclaimer-card {
+        flex-direction: column;
     }
 }
