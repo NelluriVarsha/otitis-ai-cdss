@@ -139,7 +139,7 @@ otitis_ai_cdss/
 
 ---
 
-## ⚙️ System Modules
+##  System Modules
 
 ### 1. Image Analysis
 
@@ -182,7 +182,7 @@ The reporting module presents the diagnosis, confidence, severity, symptoms, rec
 
 ---
 
-## 🚀 Installation and Setup
+##  Installation and Setup
 
 ### Prerequisites
 
