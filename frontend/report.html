@@ -9,7 +9,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Diagnosis Report | OtitisAI-CDSS</title>
+    <title>Clinical Report | OtitisAI-CDSS</title>
 
     <link
         rel="stylesheet"
@@ -22,6 +22,7 @@
     <!-- =====================================================
          NAVBAR
     ====================================================== -->
+
     <header class="navbar">
 
         <div class="navbar-container">
@@ -30,8 +31,14 @@
                 href="index.html"
                 class="logo"
             >
-                🩺 OtitisAI-CDSS
+                <span class="logo-icon">🩺</span>
+
+                <span>
+                    <strong>OtitisAI</strong>
+                    <small>CDSS</small>
+                </span>
             </a>
+
 
             <nav class="nav-links">
 
@@ -51,7 +58,7 @@
                     href="report.html"
                     class="active"
                 >
-                    Report
+                    Reports
                 </a>
 
             </nav>
@@ -61,48 +68,58 @@
     </header>
 
 
+
     <!-- =====================================================
-         MAIN REPORT
+         MAIN
     ====================================================== -->
+
     <main class="report-container">
 
-        <!-- Report Header -->
-        <section class="report-header">
 
-            <div>
+        <!-- =================================================
+             TOP HEADER
+        ================================================== -->
 
-                <p class="eyebrow">
-                    CLINICAL DECISION SUPPORT
-                </p>
+        <section class="page-header">
+
+            <div class="header-left">
+
+                <div class="header-badge">
+                    <span class="pulse-dot"></span>
+                    AI CLINICAL REPORT
+                </div>
 
                 <h1>
-                    Otitis Media Diagnosis Report
+                    Otitis Media
+                    <span>Diagnostic Report</span>
                 </h1>
 
-                <p class="report-description">
-                    AI-assisted analysis of the uploaded
-                    otoscopic image and provided clinical
-                    information.
+                <p>
+                    AI-assisted analysis of the otoscopic image
+                    and clinical information provided during
+                    diagnosis.
                 </p>
 
             </div>
 
 
-            <div class="report-actions">
+            <div class="header-actions">
 
                 <button
                     id="printReportButton"
-                    class="primary-button"
+                    class="btn btn-primary"
                     type="button"
                 >
-                    🖨 Print Report
+                    <span>🖨</span>
+                    Print Report
                 </button>
 
                 <a
                     href="app.html"
-                    class="secondary-button"
+                    class="btn btn-secondary"
                 >
-                    + New Diagnosis
+                    <span>＋</span>
+                    New Diagnosis
                 </a>
 
             </div>
@@ -110,227 +127,267 @@
         </section>
 
 
-        <!-- =================================================
-             REPORT STATUS
-        ================================================== -->
-        <section class="report-status-card">
 
-            <div class="status-icon">
-                ✓
+        <!-- =================================================
+             STATUS BAR
+        ================================================== -->
+
+        <section class="status-bar">
+
+            <div class="status-main">
+
+                <div class="status-check">
+                    ✓
+                </div>
+
+                <div>
+
+                    <span class="status-label">
+                        ANALYSIS STATUS
+                    </span>
+
+                    <h2 id="reportStatus">
+                        Diagnosis Report Ready
+                    </h2>
+
+                    <p id="reportDate">
+                        —
+                    </p>
+
+                </div>
+
             </div>
 
-            <div>
 
-                <span class="status-label">
-                    REPORT STATUS
+            <div class="status-right">
+
+                <span class="secure-icon">
+                    🔒
                 </span>
 
-                <h2 id="reportStatus">
-                    Diagnosis Report Ready
-                </h2>
-
-                <p id="reportDate">
-                    —
-                </p>
+                <span>
+                    AI-assisted analysis
+                </span>
 
             </div>
 
         </section>
 
 
+
         <!-- =================================================
-             DIAGNOSIS SUMMARY
+             DIAGNOSIS HERO
         ================================================== -->
-        <section class="report-section">
 
-            <div class="section-heading">
+        <section class="diagnosis-hero">
 
-                <p class="section-eyebrow">
+            <div class="diagnosis-main">
+
+                <div class="section-mini-title">
                     AI ANALYSIS
-                </p>
+                </div>
 
-                <h2>
-                    Diagnosis Summary
+                <span class="diagnosis-label">
+                    DETECTED CONDITION
+                </span>
+
+                <h2 id="reportDiagnosis">
+                    —
                 </h2>
+
+                <p class="diagnosis-description">
+                    AI-generated classification based on the
+                    analyzed otoscopic image.
+                </p>
 
             </div>
 
 
-            <div class="diagnosis-summary-grid">
-
-                <!-- Diagnosis -->
-                <div class="summary-card diagnosis-card">
-
-                    <span class="card-label">
-                        Diagnosis
-                    </span>
-
-                    <strong id="reportDiagnosis">
-                        —
-                    </strong>
-
-                </div>
-
+            <div class="diagnosis-metrics">
 
                 <!-- Confidence -->
-                <div class="summary-card">
 
-                    <span class="card-label">
-                        AI Confidence
-                    </span>
+                <div class="metric-card">
 
-                    <strong id="reportConfidence">
-                        —
-                    </strong>
+                    <div class="metric-icon blue">
+                        ◉
+                    </div>
+
+                    <div>
+
+                        <span>
+                            AI CONFIDENCE
+                        </span>
+
+                        <strong id="reportConfidence">
+                            —
+                        </strong>
+
+                    </div>
 
                 </div>
 
 
                 <!-- Severity -->
-                <div class="summary-card">
 
-                    <span class="card-label">
-                        Severity
-                    </span>
+                <div class="metric-card">
 
-                    <strong id="reportSeverity">
-                        —
-                    </strong>
+                    <div class="metric-icon orange">
+                        !
+                    </div>
+
+                    <div>
+
+                        <span>
+                            SEVERITY
+                        </span>
+
+                        <strong id="reportSeverity">
+                            —
+                        </strong>
+
+                    </div>
 
                 </div>
 
 
-                <!-- Severity Score -->
-                <div class="summary-card">
+                <!-- Score -->
 
-                    <span class="card-label">
-                        Severity Score
-                    </span>
+                <div class="metric-card">
 
-                    <strong id="reportSeverityScore">
-                        —
-                    </strong>
+                    <div class="metric-icon purple">
+                        #
+                    </div>
+
+                    <div>
+
+                        <span>
+                            SEVERITY SCORE
+                        </span>
+
+                        <strong id="reportSeverityScore">
+                            —
+                        </strong>
+
+                    </div>
 
                 </div>
 
             </div>
 
         </section>
+
 
 
         <!-- =================================================
              PATIENT INFORMATION
         ================================================== -->
-        <section class="report-section">
 
-            <div class="section-heading">
+        <section class="dashboard-card">
 
-                <p class="section-eyebrow">
-                    PATIENT INFORMATION
-                </p>
+            <div class="card-header">
 
-                <h2>
-                    Clinical Details
-                </h2>
+                <div>
 
-            </div>
-
-
-            <div class="information-grid">
-
-                <div class="information-card">
-
-                    <span>
-                        Patient Age
+                    <span class="card-eyebrow">
+                        PATIENT & CLINICAL DATA
                     </span>
 
-                    <strong id="reportAge">
-                        —
-                    </strong>
+                    <h2>
+                        Patient Information
+                    </h2>
 
                 </div>
 
-
-                <div class="information-card">
-
-                    <span>
-                        Symptom Duration
-                    </span>
-
-                    <strong id="reportDuration">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="information-card">
-
-                    <span>
-                        Image Filename
-                    </span>
-
-                    <strong id="reportFilename">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="information-card">
-
-                    <span>
-                        Diagnosis Date
-                    </span>
-
-                    <strong id="reportDiagnosisDate">
-                        —
-                    </strong>
-
+                <div class="card-header-icon">
+                    👤
                 </div>
 
             </div>
 
-        </section>
 
+            <div class="patient-grid">
 
-        <!-- =================================================
-             OTOSCOPIC IMAGE
-        ================================================== -->
-        <section class="report-section">
+                <div class="patient-item">
 
-            <div class="section-heading">
-
-                <p class="section-eyebrow">
-                    IMAGE INFORMATION
-                </p>
-
-                <h2>
-                    Otoscopic Image
-                </h2>
-
-            </div>
-
-
-            <div class="image-report-card">
-
-                <div
-                    id="reportImagePlaceholder"
-                    class="image-placeholder"
-                >
-
-                    <span class="image-placeholder-icon">
-                        🖼️
+                    <span class="patient-icon">
+                        🎂
                     </span>
 
-                    <p>
-                        Otoscopic image analyzed by
-                        the AI model.
-                    </p>
+                    <div>
 
-                    <span id="reportImageFilename">
-                        —
+                        <small>
+                            Patient Age
+                        </small>
+
+                        <strong id="reportAge">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="patient-item">
+
+                    <span class="patient-icon">
+                        ⏱
                     </span>
+
+                    <div>
+
+                        <small>
+                            Symptom Duration
+                        </small>
+
+                        <strong id="reportDuration">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="patient-item">
+
+                    <span class="patient-icon">
+                        🖼
+                    </span>
+
+                    <div>
+
+                        <small>
+                            Image File
+                        </small>
+
+                        <strong id="reportFilename">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="patient-item">
+
+                    <span class="patient-icon">
+                        📅
+                    </span>
+
+                    <div>
+
+                        <small>
+                            Diagnosis Date
+                        </small>
+
+                        <strong id="reportDiagnosisDate">
+                            —
+                        </strong>
+
+                    </div>
 
                 </div>
 
@@ -339,110 +396,161 @@
         </section>
 
 
+
         <!-- =================================================
-             SYMPTOMS
+             VISUAL EVIDENCE
         ================================================== -->
-        <section class="report-section">
 
-            <div class="section-heading">
+        <section class="dashboard-card">
 
-                <p class="section-eyebrow">
-                    CLINICAL INPUT
-                </p>
+            <div class="card-header">
 
-                <h2>
-                    Reported Symptoms
-                </h2>
+                <div>
 
-            </div>
+                    <span class="card-eyebrow">
+                        VISUAL EVIDENCE
+                    </span>
 
+                    <h2>
+                        Otoscopic Image Analysis
+                    </h2>
 
-            <div
-                id="reportSymptoms"
-                class="tag-container"
-            >
+                </div>
 
-                <span class="empty-value">
-                    No symptoms provided.
+                <span class="ai-chip">
+                    AI ANALYZED
                 </span>
 
             </div>
 
-        </section>
+
+            <div class="visual-grid">
+
+                <!-- Original image information -->
+
+                <div class="visual-panel">
+
+                    <div class="visual-panel-header">
+
+                        <div>
+
+                            <span>
+                                SOURCE IMAGE
+                            </span>
+
+                            <strong>
+                                Otoscopic Image
+                            </strong>
+
+                        </div>
+
+                        <span class="visual-number">
+                            01
+                        </span>
+
+                    </div>
 
 
-        <!-- =================================================
-             SEVERITY FACTORS
-        ================================================== -->
-        <section class="report-section">
+                    <div
+                        id="reportImagePlaceholder"
+                        class="image-placeholder"
+                    >
 
-            <div class="section-heading">
+                        <div class="placeholder-icon">
+                            🩺
+                        </div>
 
-                <p class="section-eyebrow">
-                    SEVERITY ASSESSMENT
-                </p>
+                        <strong>
+                            Otoscopic Image
+                        </strong>
 
-                <h2>
-                    Severity Factors
-                </h2>
+                        <p>
+                            Image analyzed by the AI model
+                        </p>
+
+                        <span id="reportImageFilename">
+                            —
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Grad-CAM -->
+
+                <div class="visual-panel gradcam-panel">
+
+                    <div class="visual-panel-header">
+
+                        <div>
+
+                            <span>
+                                EXPLAINABLE AI
+                            </span>
+
+                            <strong>
+                                Grad-CAM Visualization
+                            </strong>
+
+                        </div>
+
+                        <span class="visual-number">
+                            02
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="gradcamContainer"
+                        class="gradcam-container"
+                    >
+
+                        <div class="gradcam-placeholder">
+
+                            <div class="placeholder-icon">
+                                🧠
+                            </div>
+
+                            <strong>
+                                Grad-CAM
+                            </strong>
+
+                            <p>
+                                Explainable AI visualization
+                                will appear here.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
 
-            <ul
-                id="reportSeverityFactors"
-                class="report-list"
-            >
+            <div class="ai-explanation">
 
-                <li>
-                    No severity factors available.
-                </li>
-
-            </ul>
-
-        </section>
-
-
-        <!-- =================================================
-             RECOMMENDATIONS
-        ================================================== -->
-        <section class="report-section">
-
-            <div class="section-heading">
-
-                <p class="section-eyebrow">
-                    AI GUIDANCE
-                </p>
-
-                <h2>
-                    Recommendations
-                </h2>
-
-            </div>
-
-
-            <div class="guidance-card recommendation-card">
-
-                <div class="guidance-icon">
-                    💡
+                <div class="ai-explanation-icon">
+                    ✦
                 </div>
 
                 <div>
 
-                    <h3>
-                        Recommended Actions
-                    </h3>
+                    <strong>
+                        AI Visual Explanation
+                    </strong>
 
-                    <ul
-                        id="reportRecommendations"
-                        class="report-list"
-                    >
-
-                        <li>
-                            No recommendations available.
-                        </li>
-
-                    </ul>
+                    <p>
+                        Highlighted regions represent areas
+                        receiving stronger activation in the
+                        DenseNet121 CNN feature representation.
+                        This visualization is an explanation aid
+                        and should not be interpreted as a
+                        diagnosis by itself.
+                    </p>
 
                 </div>
 
@@ -451,94 +559,265 @@
         </section>
 
 
+
         <!-- =================================================
-             PRECAUTIONS
+             SYMPTOMS + SEVERITY
         ================================================== -->
-        <section class="report-section">
 
-            <div class="section-heading">
-
-                <p class="section-eyebrow">
-                    PRECAUTIONS
-                </p>
-
-                <h2>
-                    Precautions
-                </h2>
-
-            </div>
+        <div class="two-column-layout">
 
 
-            <div class="guidance-card precaution-card">
+            <!-- Symptoms -->
 
-                <div class="guidance-icon">
-                    ⚠️
-                </div>
+            <section class="dashboard-card">
 
-                <div>
+                <div class="card-header">
 
-                    <h3>
-                        Important Precautions
-                    </h3>
+                    <div>
 
-                    <ul
-                        id="reportPrecautions"
-                        class="report-list"
-                    >
+                        <span class="card-eyebrow">
+                            CLINICAL INPUT
+                        </span>
 
-                        <li>
-                            No precautions available.
-                        </li>
+                        <h2>
+                            Reported Symptoms
+                        </h2>
 
-                    </ul>
+                    </div>
+
+                    <span class="card-header-icon">
+                        ♥
+                    </span>
 
                 </div>
 
-            </div>
 
-        </section>
+                <div
+                    id="reportSymptoms"
+                    class="symptom-container"
+                >
+
+                    <span class="empty-value">
+                        No symptoms provided.
+                    </span>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- Severity -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="card-eyebrow">
+                            SEVERITY ASSESSMENT
+                        </span>
+
+                        <h2>
+                            Severity Factors
+                        </h2>
+
+                    </div>
+
+                    <span class="card-header-icon">
+                        ◈
+                    </span>
+
+                </div>
+
+
+                <ul
+                    id="reportSeverityFactors"
+                    class="clinical-list"
+                >
+
+                    <li>
+                        No severity factors available.
+                    </li>
+
+                </ul>
+
+            </section>
+
+        </div>
+
 
 
         <!-- =================================================
-             WHEN TO SEEK CARE
+             AI GUIDANCE
         ================================================== -->
-        <section class="report-section">
 
-            <div class="section-heading">
+        <div class="two-column-layout">
 
-                <p class="section-eyebrow">
+
+            <!-- Recommendations -->
+
+            <section class="dashboard-card guidance recommendation-card">
+
+                <div class="guidance-top">
+
+                    <div class="guidance-icon green">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <span class="card-eyebrow">
+                            AI GUIDANCE
+                        </span>
+
+                        <h2>
+                            Recommendations
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <ul
+                    id="reportRecommendations"
+                    class="clinical-list"
+                >
+
+                    <li>
+                        No recommendations available.
+                    </li>
+
+                </ul>
+
+            </section>
+
+
+
+            <!-- Precautions -->
+
+            <section class="dashboard-card guidance precaution-card">
+
+                <div class="guidance-top">
+
+                    <div class="guidance-icon yellow">
+                        !
+                    </div>
+
+                    <div>
+
+                        <span class="card-eyebrow">
+                            SAFETY INFORMATION
+                        </span>
+
+                        <h2>
+                            Precautions
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <ul
+                    id="reportPrecautions"
+                    class="clinical-list"
+                >
+
+                    <li>
+                        No precautions available.
+                    </li>
+
+                </ul>
+
+            </section>
+
+        </div>
+
+
+
+        <!-- =================================================
+             MEDICAL ATTENTION
+        ================================================== -->
+
+        <section class="care-card">
+
+            <div class="care-icon">
+                🏥
+            </div>
+
+
+            <div class="care-content">
+
+                <span class="card-eyebrow">
                     MEDICAL ATTENTION
-                </p>
+                </span>
 
                 <h2>
                     When to Seek Medical Care
                 </h2>
 
+                <ul
+                    id="reportSeekCare"
+                    class="clinical-list"
+                >
+
+                    <li>
+                        No additional care guidance available.
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             URGENCY
+        ================================================== -->
+
+        <section class="urgency-section">
+
+            <div class="urgency-header">
+
+                <div>
+
+                    <span class="card-eyebrow">
+                        CLINICAL GUIDANCE
+                    </span>
+
+                    <h2>
+                        Care Priority
+                    </h2>
+
+                </div>
+
+                <span class="priority-badge">
+                    REVIEW
+                </span>
+
             </div>
 
 
-            <div class="guidance-card medical-card">
+            <div class="urgency-content">
 
-                <div class="guidance-icon">
-                    🏥
+                <div class="urgency-symbol">
+                    !
                 </div>
 
                 <div>
 
-                    <h3>
-                        Seek Professional Medical Care
-                    </h3>
+                    <span>
+                        CLINICAL RECOMMENDATION
+                    </span>
 
-                    <ul
-                        id="reportSeekCare"
-                        class="report-list"
-                    >
-
-                        <li>
-                            No additional care guidance available.
-                        </li>
-
-                    </ul>
+                    <strong id="reportUrgency">
+                        Clinical confirmation recommended.
+                    </strong>
 
                 </div>
 
@@ -546,47 +825,16 @@
 
         </section>
 
-
-        <!-- =================================================
-             CLINICAL GUIDANCE
-        ================================================== -->
-        <section class="report-section">
-
-            <div class="section-heading">
-
-                <p class="section-eyebrow">
-                    CLINICAL GUIDANCE
-                </p>
-
-                <h2>
-                    Urgency
-                </h2>
-
-            </div>
-
-
-            <div class="urgency-card">
-
-                <span class="urgency-label">
-                    Clinical Recommendation
-                </span>
-
-                <strong id="reportUrgency">
-                    Clinical confirmation recommended.
-                </strong>
-
-            </div>
-
-        </section>
 
 
         <!-- =================================================
              DISCLAIMER
         ================================================== -->
+
         <section class="disclaimer-card">
 
             <div class="disclaimer-icon">
-                ℹ️
+                ⓘ
             </div>
 
             <div>
@@ -598,10 +846,10 @@
                 <p>
                     This report is generated using an
                     AI-assisted clinical decision support
-                    system. It is intended to support
-                    healthcare professionals and should not
-                    replace professional medical examination,
-                    diagnosis or treatment.
+                    system. It is intended to support healthcare
+                    professionals and should not replace
+                    professional medical examination, diagnosis,
+                    or treatment.
                 </p>
 
             </div>
@@ -609,24 +857,26 @@
         </section>
 
 
+
         <!-- =================================================
-             BOTTOM ACTIONS
+             ACTIONS
         ================================================== -->
+
         <section class="bottom-actions">
 
             <a
                 href="dashboard.html"
-                class="secondary-button"
+                class="btn btn-secondary"
             >
                 ← Back to Dashboard
             </a>
 
             <button
                 id="printReportButtonBottom"
-                class="primary-button"
+                class="btn btn-primary"
                 type="button"
             >
-                🖨 Print Report
+                🖨 Print Clinical Report
             </button>
 
         </section>
@@ -634,25 +884,32 @@
     </main>
 
 
+
     <!-- =====================================================
          FOOTER
     ====================================================== -->
+
     <footer class="footer">
 
-        <p>
-            © 2026 OtitisAI-CDSS.
-            AI-assisted clinical decision support.
-        </p>
+        <div class="footer-inner">
 
-        <p class="footer-note">
-            This system does not replace professional
-            medical diagnosis or treatment.
-        </p>
+            <div class="footer-brand">
+                🩺 OtitisAI-CDSS
+            </div>
+
+            <p>
+                AI-assisted Otitis Media Clinical Decision Support
+            </p>
+
+            <span>
+                © 2026 OtitisAI-CDSS
+            </span>
+
+        </div>
 
     </footer>
 
 
-    <!-- Report JavaScript -->
     <script src="report.js"></script>
 
 </body>

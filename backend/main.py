@@ -1,11 +1,14 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from PIL import Image
 import io
+import os
 
 from predictor import predict_image
 from recommendation_engine import generate_recommendations
 from severity_engine import calculate_severity
+from gradcam_visualization import create_gradcam_overlay
 
 
 # =========================================================
@@ -22,6 +25,7 @@ app = FastAPI(
 # =========================================================
 # CORS CONFIGURATION
 # =========================================================
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -35,6 +39,35 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# =========================================================
+# GRAD-CAM OUTPUT DIRECTORY
+# =========================================================
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+GRADCAM_DIR = os.path.join(
+    BASE_DIR,
+    "gradcam_outputs"
+)
+
+os.makedirs(
+    GRADCAM_DIR,
+    exist_ok=True
+)
+
+
+# =========================================================
+# SERVE GRAD-CAM IMAGES
+# =========================================================
+
+app.mount(
+    "/gradcam",
+    StaticFiles(directory=GRADCAM_DIR),
+    name="gradcam"
+)
+
 
 # =========================================================
 # ROOT ENDPOINT
@@ -80,6 +113,7 @@ async def predict(
     age: str = Form("")
 
 ):
+
     # -----------------------------------------------------
     # CHECK IMAGE FILE
     # -----------------------------------------------------
@@ -134,6 +168,8 @@ async def predict(
             )
 
             image.load()
+
+            image = image.convert("RGB")
 
         except Exception as e:
 
@@ -192,6 +228,51 @@ async def predict(
             "confidence",
             None
         )
+
+
+        # =================================================
+        # GENERATE GRAD-CAM EXPLANATION
+        # =================================================
+
+        gradcam_available = False
+        gradcam_image = None
+
+        try:
+
+            gradcam_overlay = create_gradcam_overlay(
+                image
+            )
+
+            gradcam_filename = "gradcam_result.jpg"
+
+            gradcam_path = os.path.join(
+                GRADCAM_DIR,
+                gradcam_filename
+            )
+
+            Image.fromarray(
+                gradcam_overlay
+            ).save(
+                gradcam_path,
+                format="JPEG"
+            )
+
+            gradcam_available = True
+
+            gradcam_image = (
+                f"/gradcam/{gradcam_filename}"
+            )
+
+        except Exception as e:
+
+            print(
+                "Grad-CAM error:",
+                str(e)
+            )
+
+            gradcam_available = False
+
+            gradcam_image = None
 
 
         # =================================================
@@ -284,6 +365,7 @@ async def predict(
 
             "filename": file.filename,
 
+
             # -------------------------------
             # AI DIAGNOSIS
             # -------------------------------
@@ -296,6 +378,17 @@ async def predict(
 
             "confidence_percentage":
                 confidence_percentage,
+
+
+            # -------------------------------
+            # EXPLAINABLE AI
+            # -------------------------------
+
+            "gradcam_available":
+                gradcam_available,
+
+            "gradcam_image":
+                gradcam_image,
 
 
             # -------------------------------
@@ -315,9 +408,11 @@ async def predict(
 
             "severity": severity,
 
-            "severity_score": severity_score,
+            "severity_score":
+                severity_score,
 
-            "severity_factors": severity_factors,
+            "severity_factors":
+                severity_factors,
 
 
             # -------------------------------

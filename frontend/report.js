@@ -1,8 +1,15 @@
 // ============================================================
-// OtitisAI-CDSS - Report JavaScript
+// OtitisAI-CDSS
+// Premium Medical AI Report JavaScript
 // ============================================================
 
-const REPORT_STORAGE_KEY = "selectedDiagnosisReport";
+
+const REPORT_STORAGE_KEY =
+    "selectedDiagnosisReport";
+
+
+const API_URL =
+    "http://127.0.0.1:8000";
 
 
 // ============================================================
@@ -10,58 +17,118 @@ const REPORT_STORAGE_KEY = "selectedDiagnosisReport";
 // ============================================================
 
 const reportStatus =
-    document.getElementById("reportStatus");
+    document.getElementById(
+        "reportStatus"
+    );
+
 
 const reportDate =
-    document.getElementById("reportDate");
+    document.getElementById(
+        "reportDate"
+    );
+
 
 const reportDiagnosis =
-    document.getElementById("reportDiagnosis");
+    document.getElementById(
+        "reportDiagnosis"
+    );
+
 
 const reportConfidence =
-    document.getElementById("reportConfidence");
+    document.getElementById(
+        "reportConfidence"
+    );
+
 
 const reportSeverity =
-    document.getElementById("reportSeverity");
+    document.getElementById(
+        "reportSeverity"
+    );
+
 
 const reportSeverityScore =
-    document.getElementById("reportSeverityScore");
+    document.getElementById(
+        "reportSeverityScore"
+    );
+
 
 const reportAge =
-    document.getElementById("reportAge");
+    document.getElementById(
+        "reportAge"
+    );
+
 
 const reportDuration =
-    document.getElementById("reportDuration");
+    document.getElementById(
+        "reportDuration"
+    );
+
 
 const reportFilename =
-    document.getElementById("reportFilename");
+    document.getElementById(
+        "reportFilename"
+    );
+
 
 const reportDiagnosisDate =
-    document.getElementById("reportDiagnosisDate");
+    document.getElementById(
+        "reportDiagnosisDate"
+    );
+
 
 const reportImageFilename =
-    document.getElementById("reportImageFilename");
+    document.getElementById(
+        "reportImageFilename"
+    );
+
 
 const reportSymptoms =
-    document.getElementById("reportSymptoms");
+    document.getElementById(
+        "reportSymptoms"
+    );
+
 
 const reportSeverityFactors =
-    document.getElementById("reportSeverityFactors");
+    document.getElementById(
+        "reportSeverityFactors"
+    );
+
 
 const reportRecommendations =
-    document.getElementById("reportRecommendations");
+    document.getElementById(
+        "reportRecommendations"
+    );
+
 
 const reportPrecautions =
-    document.getElementById("reportPrecautions");
+    document.getElementById(
+        "reportPrecautions"
+    );
+
 
 const reportSeekCare =
-    document.getElementById("reportSeekCare");
+    document.getElementById(
+        "reportSeekCare"
+    );
+
 
 const reportUrgency =
-    document.getElementById("reportUrgency");
+    document.getElementById(
+        "reportUrgency"
+    );
+
+
+const gradcamContainer =
+    document.getElementById(
+        "gradcamContainer"
+    );
+
 
 const printReportButton =
-    document.getElementById("printReportButton");
+    document.getElementById(
+        "printReportButton"
+    );
+
 
 const printReportButtonBottom =
     document.getElementById(
@@ -82,11 +149,17 @@ function getSelectedReport() {
                 REPORT_STORAGE_KEY
             );
 
+
         if (!storedReport) {
+
             return null;
+
         }
 
-        return JSON.parse(storedReport);
+
+        return JSON.parse(
+            storedReport
+        );
 
     } catch (error) {
 
@@ -139,9 +212,13 @@ function getSymptoms(record) {
     const symptoms =
         record?.symptoms;
 
+
     if (Array.isArray(symptoms)) {
+
         return symptoms;
+
     }
+
 
     if (
         typeof symptoms === "string" &&
@@ -150,170 +227,50 @@ function getSymptoms(record) {
 
         return symptoms
             .split(",")
-            .map(item => item.trim())
+            .map(
+                item =>
+                    item.trim()
+            )
             .filter(Boolean);
+
     }
+
 
     return [];
 }
 
 
 // ============================================================
-// GET RECOMMENDATIONS
+// GET LIST DATA
 // ============================================================
 
-function getRecommendations(record) {
+function getListData(
+    record,
+    field
+) {
 
-    const recommendations =
-        record?.recommendations;
+    const value =
+        record?.[field];
 
-    if (Array.isArray(recommendations)) {
-        return recommendations;
+
+    if (Array.isArray(value)) {
+
+        return value;
+
     }
+
 
     if (
-        typeof recommendations === "string" &&
-        recommendations.trim()
+        typeof value === "string" &&
+        value.trim()
     ) {
 
-        return [recommendations];
+        return [value];
+
     }
+
 
     return [];
-}
-
-
-// ============================================================
-// GET PRECAUTIONS
-// ============================================================
-
-function getPrecautions(record) {
-
-    const precautions =
-        record?.precautions;
-
-    if (Array.isArray(precautions)) {
-        return precautions;
-    }
-
-    if (
-        typeof precautions === "string" &&
-        precautions.trim()
-    ) {
-
-        return [precautions];
-    }
-
-    return [];
-}
-
-
-// ============================================================
-// GET WHEN TO SEEK CARE
-// ============================================================
-
-function getSeekCare(record) {
-
-    const seekCare =
-        record?.when_to_seek_care;
-
-    if (Array.isArray(seekCare)) {
-        return seekCare;
-    }
-
-    if (
-        typeof seekCare === "string" &&
-        seekCare.trim()
-    ) {
-
-        return [seekCare];
-    }
-
-    return [];
-}
-
-
-// ============================================================
-// GET SEVERITY FACTORS
-// ============================================================
-
-function getSeverityFactors(record) {
-
-    const factors =
-        record?.severity_factors;
-
-    if (Array.isArray(factors)) {
-        return factors;
-    }
-
-    if (
-        typeof factors === "string" &&
-        factors.trim()
-    ) {
-
-        return factors
-            .split(",")
-            .map(item => item.trim())
-            .filter(Boolean);
-    }
-
-    return [];
-}
-
-
-// ============================================================
-// GET CONFIDENCE
-// ============================================================
-
-function getConfidenceNumber(record) {
-
-    let confidence =
-        record?.confidence_percentage ??
-        record?.confidence;
-
-    if (
-        confidence === null ||
-        confidence === undefined ||
-        confidence === ""
-    ) {
-        return null;
-    }
-
-    confidence = Number(confidence);
-
-    if (Number.isNaN(confidence)) {
-        return null;
-    }
-
-    // Backend may return 0-1
-    if (
-        confidence >= 0 &&
-        confidence <= 1
-    ) {
-        confidence *= 100;
-    }
-
-    return Math.max(
-        0,
-        Math.min(100, confidence)
-    );
-}
-
-
-// ============================================================
-// FORMAT CONFIDENCE
-// ============================================================
-
-function formatConfidence(record) {
-
-    const confidence =
-        getConfidenceNumber(record);
-
-    if (confidence === null) {
-        return "N/A";
-    }
-
-    return `${confidence.toFixed(1)}%`;
 }
 
 
@@ -340,21 +297,34 @@ function getDateValue(record) {
 function formatDate(value) {
 
     if (!value) {
+
         return "Not available";
+
     }
+
 
     const date =
         new Date(value);
+
 
     if (
         Number.isNaN(
             date.getTime()
         )
     ) {
+
         return String(value);
+
     }
 
-    return date.toLocaleString();
+
+    return date.toLocaleString(
+        "en-IN",
+        {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }
+    );
 }
 
 
@@ -367,13 +337,17 @@ function formatAge(record) {
     const age =
         record?.age;
 
+
     if (
         age === null ||
         age === undefined ||
         String(age).trim() === ""
     ) {
+
         return "Not provided";
+
     }
+
 
     return `${age} years`;
 }
@@ -389,15 +363,81 @@ function formatDuration(record) {
         record?.duration ||
         record?.symptomDuration;
 
+
     if (
         duration === null ||
         duration === undefined ||
         String(duration).trim() === ""
     ) {
+
         return "Not provided";
+
     }
 
+
     return String(duration);
+}
+
+
+// ============================================================
+// FORMAT CONFIDENCE
+// ============================================================
+
+function formatConfidence(record) {
+
+    let confidence =
+        record?.confidence_percentage;
+
+
+    if (
+        confidence !== null &&
+        confidence !== undefined &&
+        confidence !== ""
+    ) {
+
+        const number =
+            Number(confidence);
+
+
+        if (!Number.isNaN(number)) {
+
+            return `${number.toFixed(1)}%`;
+
+        }
+    }
+
+
+    confidence =
+        record?.confidence;
+
+
+    if (
+        confidence !== null &&
+        confidence !== undefined &&
+        confidence !== ""
+    ) {
+
+        const number =
+            Number(confidence);
+
+
+        if (!Number.isNaN(number)) {
+
+            if (number <= 1) {
+
+                return `${(
+                    number * 100
+                ).toFixed(1)}%`;
+
+            }
+
+
+            return `${number.toFixed(1)}%`;
+        }
+    }
+
+
+    return "N/A";
 }
 
 
@@ -412,10 +452,14 @@ function populateList(
 ) {
 
     if (!element) {
+
         return;
+
     }
 
-    element.innerHTML = "";
+
+    element.innerHTML =
+        "";
 
 
     if (
@@ -424,27 +468,43 @@ function populateList(
     ) {
 
         const li =
-            document.createElement("li");
+            document.createElement(
+                "li"
+            );
+
 
         li.textContent =
             emptyMessage;
 
-        element.appendChild(li);
+
+        element.appendChild(
+            li
+        );
+
 
         return;
     }
 
 
-    items.forEach(item => {
+    items.forEach(
+        item => {
 
-        const li =
-            document.createElement("li");
+            const li =
+                document.createElement(
+                    "li"
+                );
 
-        li.textContent =
-            item;
 
-        element.appendChild(li);
-    });
+            li.textContent =
+                item;
+
+
+            element.appendChild(
+                li
+            );
+
+        }
+    );
 }
 
 
@@ -452,13 +512,19 @@ function populateList(
 // POPULATE SYMPTOMS
 // ============================================================
 
-function populateSymptoms(symptoms) {
+function populateSymptoms(
+    symptoms
+) {
 
     if (!reportSymptoms) {
+
         return;
+
     }
 
-    reportSymptoms.innerHTML = "";
+
+    reportSymptoms.innerHTML =
+        "";
 
 
     if (
@@ -467,33 +533,196 @@ function populateSymptoms(symptoms) {
     ) {
 
         const empty =
-            document.createElement("span");
+            document.createElement(
+                "span"
+            );
+
 
         empty.className =
             "empty-value";
 
+
         empty.textContent =
             "No symptoms provided.";
 
-        reportSymptoms.appendChild(empty);
+
+        reportSymptoms.appendChild(
+            empty
+        );
+
 
         return;
     }
 
 
-    symptoms.forEach(symptom => {
+    symptoms.forEach(
+        symptom => {
 
-        const tag =
-            document.createElement("span");
+            const tag =
+                document.createElement(
+                    "span"
+                );
 
-        tag.className =
-            "symptom-tag";
 
-        tag.textContent =
-            symptom;
+            tag.className =
+                "symptom-tag";
 
-        reportSymptoms.appendChild(tag);
-    });
+
+            tag.textContent =
+                symptom;
+
+
+            reportSymptoms.appendChild(
+                tag
+            );
+
+        }
+    );
+}
+
+
+// ============================================================
+// GRAD-CAM
+// ============================================================
+
+function displayGradCAM(
+    record
+) {
+
+    if (!gradcamContainer) {
+
+        return;
+
+    }
+
+
+    gradcamContainer.innerHTML =
+        "";
+
+
+    const gradcamPath =
+        record?.gradcam_image;
+
+
+    const gradcamAvailable =
+        record?.gradcam_available === true;
+
+
+    if (
+        !gradcamAvailable ||
+        !gradcamPath
+    ) {
+
+        gradcamContainer.innerHTML = `
+
+            <div class="gradcam-placeholder">
+
+                <div class="placeholder-icon">
+                    🧠
+                </div>
+
+                <strong>
+                    Grad-CAM Unavailable
+                </strong>
+
+                <p>
+                    Explainable AI visualization
+                    was not generated for this report.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    const imageUrl =
+        `${API_URL}${gradcamPath}`;
+
+
+    gradcamContainer.innerHTML = `
+
+        <img
+            src="${imageUrl}?t=${Date.now()}"
+            alt="Grad-CAM explanation heatmap"
+            class="gradcam-image"
+        >
+
+    `;
+}
+
+
+// ============================================================
+// APPLY SEVERITY CLASS
+// ============================================================
+
+function applySeverityClass(
+    severity
+) {
+
+    if (!reportSeverity) {
+
+        return;
+
+    }
+
+
+    reportSeverity.classList.remove(
+        "severity-mild",
+        "severity-moderate",
+        "severity-severe",
+        "severity-unknown"
+    );
+
+
+    if (!severity) {
+
+        reportSeverity.classList.add(
+            "severity-unknown"
+        );
+
+        return;
+    }
+
+
+    const normalized =
+        String(severity)
+            .toLowerCase()
+            .trim();
+
+
+    if (
+        normalized === "mild"
+    ) {
+
+        reportSeverity.classList.add(
+            "severity-mild"
+        );
+
+    } else if (
+        normalized === "moderate"
+    ) {
+
+        reportSeverity.classList.add(
+            "severity-moderate"
+        );
+
+    } else if (
+        normalized === "severe"
+    ) {
+
+        reportSeverity.classList.add(
+            "severity-severe"
+        );
+
+    } else {
+
+        reportSeverity.classList.add(
+            "severity-unknown"
+        );
+    }
 }
 
 
@@ -508,7 +737,7 @@ function loadReport() {
 
 
     // --------------------------------------------------------
-    // No report selected
+    // NO REPORT
     // --------------------------------------------------------
 
     if (!record) {
@@ -519,39 +748,56 @@ function loadReport() {
 
 
         if (reportStatus) {
+
             reportStatus.textContent =
                 "No Diagnosis Report Selected";
+
         }
 
 
         if (reportDate) {
+
             reportDate.textContent =
                 "Please complete a diagnosis first.";
+
         }
 
 
         if (reportDiagnosis) {
+
             reportDiagnosis.textContent =
                 "No report available";
+
         }
 
 
         if (reportConfidence) {
+
             reportConfidence.textContent =
                 "N/A";
+
         }
 
 
         if (reportSeverity) {
+
             reportSeverity.textContent =
                 "N/A";
+
         }
 
 
         if (reportSeverityScore) {
+
             reportSeverityScore.textContent =
                 "N/A";
+
         }
+
+
+        displayGradCAM(
+            {}
+        );
 
 
         return;
@@ -559,30 +805,43 @@ function loadReport() {
 
 
     // --------------------------------------------------------
-    // Basic information
+    // BASIC VALUES
     // --------------------------------------------------------
 
     const diagnosis =
         getDiagnosis(record);
 
+
     const filename =
         getFilename(record);
 
+
     const confidence =
         formatConfidence(record);
+
 
     const dateValue =
         getDateValue(record);
 
 
+    const severity =
+        record?.severity ||
+        "Not available";
+
+
+    const severityScore =
+        record?.severity_score;
+
+
     // --------------------------------------------------------
-    // Report status
+    // STATUS
     // --------------------------------------------------------
 
     if (reportStatus) {
 
         reportStatus.textContent =
             "Diagnosis Report Ready";
+
     }
 
 
@@ -592,90 +851,94 @@ function loadReport() {
             `Generated: ${formatDate(
                 dateValue
             )}`;
+
     }
 
 
     // --------------------------------------------------------
-    // Diagnosis
+    // DIAGNOSIS
     // --------------------------------------------------------
 
     if (reportDiagnosis) {
 
         reportDiagnosis.textContent =
             diagnosis;
+
     }
 
 
     // --------------------------------------------------------
-    // Confidence
+    // CONFIDENCE
     // --------------------------------------------------------
 
     if (reportConfidence) {
 
         reportConfidence.textContent =
             confidence;
+
     }
 
 
     // --------------------------------------------------------
-    // Severity
+    // SEVERITY
     // --------------------------------------------------------
 
     if (reportSeverity) {
 
         reportSeverity.textContent =
-            record?.severity ||
-            "Not available";
+            severity;
+
     }
 
 
     // --------------------------------------------------------
-    // Severity score
+    // SEVERITY SCORE
     // --------------------------------------------------------
 
     if (reportSeverityScore) {
 
-        const score =
-            record?.severity_score;
-
         reportSeverityScore.textContent =
-            score !== undefined &&
-            score !== null
-                ? score
+            severityScore !== undefined &&
+            severityScore !== null
+                ? severityScore
                 : "N/A";
+
     }
 
 
     // --------------------------------------------------------
-    // Age
+    // PATIENT
     // --------------------------------------------------------
 
     if (reportAge) {
 
         reportAge.textContent =
             formatAge(record);
+
     }
 
-
-    // --------------------------------------------------------
-    // Duration
-    // --------------------------------------------------------
 
     if (reportDuration) {
 
         reportDuration.textContent =
             formatDuration(record);
+
     }
 
-
-    // --------------------------------------------------------
-    // Filename
-    // --------------------------------------------------------
 
     if (reportFilename) {
 
         reportFilename.textContent =
             filename;
+
+    }
+
+
+    if (reportDiagnosisDate) {
+
+        reportDiagnosisDate.textContent =
+            formatDate(dateValue);
+
     }
 
 
@@ -683,22 +946,12 @@ function loadReport() {
 
         reportImageFilename.textContent =
             filename;
+
     }
 
 
     // --------------------------------------------------------
-    // Diagnosis date
-    // --------------------------------------------------------
-
-    if (reportDiagnosisDate) {
-
-        reportDiagnosisDate.textContent =
-            formatDate(dateValue);
-    }
-
-
-    // --------------------------------------------------------
-    // Symptoms
+    // SYMPTOMS
     // --------------------------------------------------------
 
     populateSymptoms(
@@ -707,51 +960,63 @@ function loadReport() {
 
 
     // --------------------------------------------------------
-    // Severity factors
+    // SEVERITY FACTORS
     // --------------------------------------------------------
 
     populateList(
         reportSeverityFactors,
-        getSeverityFactors(record),
+        getListData(
+            record,
+            "severity_factors"
+        ),
         "No severity factors available."
     );
 
 
     // --------------------------------------------------------
-    // Recommendations
+    // RECOMMENDATIONS
     // --------------------------------------------------------
 
     populateList(
         reportRecommendations,
-        getRecommendations(record),
+        getListData(
+            record,
+            "recommendations"
+        ),
         "No recommendations available."
     );
 
 
     // --------------------------------------------------------
-    // Precautions
+    // PRECAUTIONS
     // --------------------------------------------------------
 
     populateList(
         reportPrecautions,
-        getPrecautions(record),
+        getListData(
+            record,
+            "precautions"
+        ),
         "No precautions available."
     );
 
 
     // --------------------------------------------------------
-    // When to seek care
+    // SEEK CARE
     // --------------------------------------------------------
 
     populateList(
         reportSeekCare,
-        getSeekCare(record),
+        getListData(
+            record,
+            "when_to_seek_care"
+        ),
         "No additional care guidance available."
     );
 
 
     // --------------------------------------------------------
-    // Urgency
+    // URGENCY
     // --------------------------------------------------------
 
     if (reportUrgency) {
@@ -759,84 +1024,37 @@ function loadReport() {
         reportUrgency.textContent =
             record?.urgency ||
             "Clinical confirmation recommended.";
+
     }
 
 
     // --------------------------------------------------------
-    // Add severity class
+    // SEVERITY STYLE
     // --------------------------------------------------------
 
     applySeverityClass(
-        record?.severity
+        severity
+    );
+
+
+    // --------------------------------------------------------
+    // GRAD-CAM
+    // --------------------------------------------------------
+
+    displayGradCAM(
+        record
     );
 }
 
 
 // ============================================================
-// APPLY SEVERITY CLASS
-// ============================================================
-
-function applySeverityClass(severity) {
-
-    if (!severity) {
-        return;
-    }
-
-    const normalized =
-        String(severity)
-            .toLowerCase()
-            .trim();
-
-
-    if (reportSeverity) {
-
-        reportSeverity.classList.remove(
-            "severity-mild",
-            "severity-moderate",
-            "severity-severe",
-            "severity-unknown"
-        );
-
-
-        if (normalized === "mild") {
-
-            reportSeverity.classList.add(
-                "severity-mild"
-            );
-
-        } else if (
-            normalized === "moderate"
-        ) {
-
-            reportSeverity.classList.add(
-                "severity-moderate"
-            );
-
-        } else if (
-            normalized === "severe"
-        ) {
-
-            reportSeverity.classList.add(
-                "severity-severe"
-            );
-
-        } else {
-
-            reportSeverity.classList.add(
-                "severity-unknown"
-            );
-        }
-    }
-}
-
-
-// ============================================================
-// PRINT REPORT
+// PRINT
 // ============================================================
 
 function printReport() {
 
     window.print();
+
 }
 
 
@@ -850,6 +1068,7 @@ if (printReportButton) {
         "click",
         printReport
     );
+
 }
 
 
@@ -859,6 +1078,7 @@ if (printReportButtonBottom) {
         "click",
         printReport
     );
+
 }
 
 
@@ -882,6 +1102,7 @@ document.addEventListener(
 
 window.loadOtitisReport =
     loadReport;
+
 
 window.printOtitisReport =
     printReport;
