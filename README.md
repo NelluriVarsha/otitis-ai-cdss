@@ -309,13 +309,13 @@ It displays:
 
 ---
 
-##  Explainable AI
+## 🔍 Explainable AI
 
-The system uses **Grad-CAM (Gradient-weighted Class Activation Mapping)** to provide visual explanations for the deep learning feature representation.
+OtitisAI-CDSS integrates Grad-CAM (Gradient-weighted Class Activation Mapping) to generate visual heatmaps highlighting relevant regions in otoscopic images.
 
-The generated heatmap helps identify regions of the otoscopic image that contributed to the visual representation used by the AI pipeline.
+The visualization is associated with the DenseNet121 feature extraction network and helps users inspect image regions considered by the deep learning component.
 
-This provides greater transparency compared with presenting only a predicted diagnosis.
+Grad-CAM provides visual interpretability and does not independently validate the final KNN classification.
 
 ---
 
@@ -333,6 +333,18 @@ The report module provides a structured summary containing:
 * Precautions
 * When-to-seek-care guidance
 * Grad-CAM visual evidence
+
+---
+
+##  Model Evaluation
+
+The model is evaluated using the following performance metrics:
+
+- Accuracy
+- Precision
+- Recall
+- F1-score
+- Confusion Matrix
 
 ---
 
