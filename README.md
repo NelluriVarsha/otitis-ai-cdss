@@ -22,6 +22,7 @@ The prediction is presented through a responsive web application along with conf
 
 The following diagram illustrates the workflow of OtitisAI-CDSS, from otoscopic image upload to AI-based prediction, clinical recommendations, visualization, and report generation.
 
+```mermaid
 flowchart TD
     A[User Uploads Otoscopic Image] --> B[Image Preprocessing]
     B --> C[DenseNet121 Feature Extraction]
@@ -36,6 +37,7 @@ flowchart TD
     I --> J[Frontend Interface]
     J --> K[Diagnosis Dashboard]
     J --> L[Diagnosis Report]
+```
     
 ---
 
