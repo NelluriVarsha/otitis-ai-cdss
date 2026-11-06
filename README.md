@@ -96,41 +96,18 @@ flowchart TD
 
 ---
 
-##  Technologies Used
+## 🛠️ Technologies Used
 
-### Machine Learning & AI
-
-* Python
-* TensorFlow
-* DenseNet121
-* K-Nearest Neighbors (KNN)
-* Computer Vision
-* Explainable AI
-* Grad-CAM
-
-### Backend
-
-* FastAPI
-* REST API
-* Python
-
-### Image Processing
-
-* OpenCV
-* NumPy
-* Image preprocessing
-
-### Frontend
-
-* HTML5
-* CSS3
-* JavaScript
-
-### Development Tools
-
-* Git
-* GitHub
-* Visual Studio Code
+| Category | Technologies |
+|---|---|
+| Programming Language | Python |
+| Deep Learning | TensorFlow, DenseNet121 |
+| Machine Learning | K-Nearest Neighbors (KNN) |
+| Computer Vision | OpenCV, Grad-CAM |
+| Backend | FastAPI, REST API |
+| Frontend | HTML5, CSS3, JavaScript |
+| Data Processing | NumPy |
+| Development Tools | Git, GitHub, VS Code |
 
 ---
 
