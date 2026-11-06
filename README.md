@@ -57,30 +57,42 @@ flowchart TD
 * 💻 Responsive web interface
 
 ---
+## 🧠 AI/ML Workflow
 
-##  AI/ML Workflow
+OtitisAI-CDSS follows a hybrid Deep Learning and Machine Learning approach to analyze otoscopic images and generate clinical decision support results.
 
-```text
-             Otoscopic Image
-                    ↓
-           Image Preprocessing
-                    ↓
-          DenseNet121 Model
-                    ↓
-          Feature Extraction
-                    ↓
-          KNN Classification
-                    ↓
-       Diagnosis + Confidence
-                    ↓
-          Severity Assessment
-                    ↓
-     Clinical Recommendation Engine
-                    ↓
-        Grad-CAM Visualization
-                    ↓
-       Clinical Report / Dashboard
+```mermaid
+flowchart TD
+    A[Otoscopic Image Upload] --> B[Image Preprocessing]
+    B --> C[DenseNet121 Feature Extraction]
+    C --> D[KNN Classification]
+    D --> E[Otitis Media Prediction]
+    E --> F[Confidence Score]
+    E --> G[Severity Assessment]
+    G --> H[Clinical Recommendation Engine]
+
+    C --> I[Grad-CAM Visualization]
+
+    F --> J[FastAPI Backend]
+    H --> J
+    I --> J
+
+    J --> K[Frontend Dashboard]
+    J --> L[Clinical Report]
 ```
+
+### Workflow Explanation
+
+1. **Image Upload:** User uploads an otoscopic image through the web interface.
+2. **Image Preprocessing:** The image is prepared for model analysis.
+3. **Feature Extraction:** DenseNet121 extracts meaningful visual features.
+4. **Classification:** K-Nearest Neighbors (KNN) classifies the extracted features.
+5. **Prediction:** The system generates a predicted class and confidence score.
+6. **Severity Assessment:** The system evaluates the predicted condition's severity.
+7. **Clinical Recommendations:** Recommendations are generated using the available prediction and symptom information.
+8. **Grad-CAM Visualization:** Highlights relevant image regions using the DenseNet121 model.
+9. **Result Presentation:** FastAPI connects the backend results to the frontend dashboard and clinical report.
+
 
 ---
 
@@ -122,10 +134,10 @@ flowchart TD
 
 ---
 
-##  Project Structure
+## 📂 Project Structure
 
 ```text
-otitis_ai_cdss/
+OtitisAI-CDSS/
 │
 ├── backend/
 │   ├── main.py
@@ -134,8 +146,8 @@ otitis_ai_cdss/
 │   ├── severity_engine.py
 │   ├── gradcam.py
 │   ├── gradcam_visualization.py
-│   ├── model/
-│   └── train_knn.py
+│   ├── train_knn.py
+│   └── model/
 │
 ├── frontend/
 │   ├── index.html
@@ -145,21 +157,22 @@ otitis_ai_cdss/
 │   ├── app.js
 │   ├── dashboard.js
 │   ├── report.js
-│   ├── index.css
-│   ├── dashboard.css
-│   └── report.css
+│   └── CSS/
 │
 ├── data/
-│
 ├── trained_models/
-│
 ├── training/
 │
-├── .gitignore
-│
-└── README.md
+└── .gitignore
 ```
 
+### Main Components
+
+- **backend/** – Handles prediction, feature extraction, severity assessment, and recommendations.
+- **frontend/** – Contains the user interface, dashboard, and report pages.
+- **data/** – Stores project data.
+- **trained_models/** – Contains trained model artifacts.
+- **training/** – Contains model training-related resources.
 ---
 
 ##  System Modules
@@ -205,58 +218,84 @@ The reporting module presents the diagnosis, confidence, severity, symptoms, rec
 
 ---
 
-##  Installation and Setup
+## ⚙️ Installation & Setup
+
+Follow these steps to run OtitisAI-CDSS locally.
 
 ### Prerequisites
 
-Make sure the following are installed:
+- Python 3.11 or above
+- Git
+- Web browser
+- pip package manager
 
-* Python 3.11+
-* Git
-* Web browser
-* Required Python packages
-
-### Clone the Repository
+### Step 1: Clone the Repository
 
 ```bash
 git clone https://github.com/NelluriVarsha/otitis-ai-cdss.git
+```
+
+### Step 2: Navigate to the Project
+
+```bash
 cd otitis-ai-cdss
 ```
 
-### Start the Backend
+### Step 3: Set Up the Python Environment
 
-Navigate to the backend directory:
+```bash
+python -m venv venv
+```
+
+Activate the environment:
+
+**Windows:**
+```bash
+venv\Scripts\activate
+```
+
+**Linux / macOS:**
+```bash
+source venv/bin/activate
+```
+
+### Step 4: Install Dependencies
+
+Install the dependencies listed in your requirements file:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Step 5: Start the Backend
 
 ```bash
 cd backend
-```
-
-Start the FastAPI server:
-
-```bash
 python -m uvicorn main:app --reload --port 8000
 ```
 
-The backend will run at:
+Backend API:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-### Start the Frontend
+### Step 6: Start the Frontend
 
-Open another terminal:
+Open another terminal and navigate to the frontend folder:
 
 ```bash
 cd frontend
 python -m http.server 5500
 ```
 
-Open the application in your browser:
+Open the application:
 
 ```text
 http://127.0.0.1:5500/index.html
 ```
+
+The OtitisAI-CDSS application should now be accessible locally.
 
 ---
 
