@@ -18,6 +18,12 @@ The prediction is presented through a responsive web application along with conf
 
 ---
 
+## 🏗️ System Architecture
+
+The following diagram illustrates the workflow of OtitisAI-CDSS, from otoscopic image upload to AI-based prediction, clinical recommendations, visualization, and report generation.
+
+---
+
 ##  Key Features
 
 * 🖼️ Otoscopic image upload and analysis
@@ -328,32 +334,6 @@ The system can be explored for:
 * Healthcare technology demonstrations
 
 ---
-
-
-
-## 🖥️ Application Screenshots
-
-### 🏠 Home Page
-The landing page of OtitisAI-CDSS.
-
-![OtitisAI Home Page](screenshots/home.png)
-
-### 🩺 Diagnosis Page
-Upload otoscopic images and submit them for AI-based analysis.
-
-![Diagnosis Page](screenshots/diagnosis.png)
-
-### 📊 Clinical Dashboard
-View diagnosis statistics, confidence information, and diagnosis history.
-
-![Clinical Dashboard](screenshots/dashboard.png)
-
-### 📄 Diagnosis Report
-View structured diagnosis results, severity information, recommendations, and visual evidence.
-
-![Diagnosis Report](screenshots/report.png)
-
-
 
 ##  Disclaimer
 
